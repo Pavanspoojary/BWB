@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
-  <ShortName>BuiltWhileBroke</ShortName>
-  <Description>Search 34+ In-Browser Open Source Developer Workbenches</Description>
-  <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/png">https://builtwhilebroke.com/favicon.png</Image>
-  <Url type="text/html" template="https://builtwhilebroke.com/tools?q={searchTerms}"/>
-</OpenSearchDescription>

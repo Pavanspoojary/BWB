@@ -1,9 +1,0 @@
-# BuiltWhileBroke Security Policy (RFC 9116)
-Contact: https://github.com/Pavanspoojary/builtwhilebroke/issues
-Encryption: https://builtwhilebroke.com/pgp-key.txt
-Expires: 2026-12-31T23:59:59.000Z
-Preferred-Languages: en
-Policy: https://builtwhilebroke.com/legal?doc=security-policy
-Canonical: https://builtwhilebroke.com/.well-known/security.txt
-Acknowledgments: https://github.com/Pavanspoojary/builtwhilebroke
-Hiring: https://builtwhilebroke.com/requested

@@ -1,69 +1,179 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BuiltWhileBroke — 100% In-Browser Open Source Workbenches</title>
-    <meta name="description" content="A curated suite of 34+ world-class, in-browser open source workbenches and developer utilities with zero cloud tracking, zero cookies, and 100% client-side WebAssembly execution." />
-    <meta name="keywords" content="developer utilities, in-browser tools, zero telemetry, WebAssembly, open source workbenches, SQLite WASM, PostgreSQL WASM, Inpaint Web, Documenso, CyberChef, offline tools, client side tools" />
-    <meta name="author" content="BuiltWhileBroke" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="theme-color" content="#fafafa" />
-    <link rel="canonical" href="https://builtwhilebroke.com/" />
-    <link rel="manifest" href="/site.webmanifest" />
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TOOL//ARENA — a directory that fights back</title>
+<meta name="description" content="TOOL//ARENA — a live dev-tool deathmatch. 5 votes a day. SAVE what deserves to live, KILL what wastes your time. Bottom 3 executed at midnight."/>
+<meta name="theme-color" content="#0d0b08"/>
+<meta property="og:title" content="TOOL//ARENA — a directory that fights back"/>
+<meta property="og:description" content="Every midnight the bottom 3 tools get executed. 5 votes. No mercy."/>
+<meta property="og:type" content="website"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff4400'><path d='M12 2a9 9 0 0 0-9 9c0 3.6 2.1 6.7 5.2 8.1V22h7.6v-2.9c3.1-1.4 5.2-4.5 5.2-8.1a9 9 0 0 0-9-9zm-3.5 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'/></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+</head>
+<body>
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://builtwhilebroke.com/" />
-    <meta property="og:title" content="BuiltWhileBroke — 100% In-Browser Open Source Workbenches" />
-    <meta property="og:description" content="A curated suite of 34+ world-class, in-browser open source workbenches for developers, architects, and designers with zero cloud tracking." />
-    <meta property="og:image" content="https://builtwhilebroke.com/logo.png" />
-    <meta property="og:site_name" content="BuiltWhileBroke" />
-    <meta property="og:locale" content="en_US" />
+<div class="fx" id="grain"></div>
+<div class="fx" id="scan"></div>
 
-    <!-- Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BuiltWhileBroke — 100% In-Browser Open Source Workbenches" />
-    <meta name="twitter:description" content="A curated suite of 34+ world-class, in-browser open source workbenches with zero telemetry." />
-    <meta name="twitter:image" content="https://builtwhilebroke.com/logo.png" />
+<div id="boot" role="button" tabindex="0" aria-label="Enter the arena">
+  <div class="b-inner">
+    <div class="b-kicker">TOOL//ARENA // LIVE DEATHMATCH</div>
+    <div class="b-title">THE CULL<br/>IS HUNGRY</div>
+    <div class="b-sub"><span id="bootMsg">establishing uplink…</span> <span class="cursor"></span></div>
+    <div class="b-cta">CLICK TO ENTER — MERCY IS NOT A FEATURE HERE</div>
+  </div>
+</div>
 
-    <!-- AI & LLMs Documentation Links -->
-    <link rel="help" href="/llms.txt" type="text/plain" title="LLM Agent Context Specification" />
-    <link rel="alternate" href="/llms-full.txt" type="text/plain" title="Full LLM Specification" />
-    <link rel="alternate" href="/llm.txt" type="text/plain" title="LLM Context Specification" />
+<div id="cullFlash"><div class="big">THE CULL</div><div class="sub">the bottom of the food chain has been removed</div></div>
+<div id="rankFlash"><div class="big" id="rankTxt">RANK UP</div><div class="sub" id="rankSub">NEW CLEARANCE GRANTED</div></div>
 
-    <!-- OpenSearch & Human Attributions -->
-    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="BuiltWhileBroke" />
-    <link rel="author" href="/humans.txt" />
+<div id="ticker" aria-label="Live arena activity"><div class="tick-track" id="tickTrack"><span id="t1"></span><span id="t2"></span></div></div>
 
-    <!-- Google Fonts Preload & Connect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Covered+By+Your+Grace&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Nanum+Pen+Script&family=Nothing+You+Could+Do&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Reenie+Beanie&display=swap" rel="stylesheet">
+<header id="top">
+  <div class="wordmark">TOOL<b>//</b>ARENA</div>
+  <div class="hstat"><span class="icon-wrap" data-ico="hourglass"></span><span id="hDay">DAY 01</span></div>
+  <div class="hstat hide-m"><span class="icon-wrap" data-ico="eye"></span><span id="hWatch">66 WATCHING</span></div>
+  <div class="spacer"></div>
+  <button id="openSubmitBtn" class="act-head-btn" title="Sacrifice your product to the arena" aria-label="Sacrifice your product to the arena"><span class="icon-wrap" data-ico="plus"></span>+ SACRIFICE</button>
+  <button id="sndBtn" class="iconbtn" title="toggle sound" aria-label="Toggle sound"><span class="icon-wrap" data-ico="volume-2"></span></button>
+  <div class="user" id="userChip" title="click to reroll your identity" role="button" tabindex="0" aria-label="Reroll your identity">
+    <div class="name" id="uName">ANON-000</div>
+    <div class="meta" id="uMeta">LURKER · STREAK 1</div>
+  </div>
+  <div class="ammo-wrap" id="ammoWrap">
+    <div class="ammo-row">
+      <span class="hud-lbl">AMMO</span>
+      <div class="hud-pips" id="ammoDots"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="hearts-row">
+      <span class="hud-lbl">HEARTS</span>
+      <div class="hud-hearts" id="heartDots">
+        <i><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></i>
+        <i><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></i>
+        <i><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></i>
+        <i><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></i>
+        <i><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></i>
+      </div>
+    </div>
+  </div>
+</header>
 
-    <!-- Schema.org JSON-LD Base Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "BuiltWhileBroke",
-      "url": "https://builtwhilebroke.com",
-      "description": "A curated ecosystem of 34+ essential developer utilities, diagram engines, and sandboxes with 100% in-browser computation and zero cloud tracking.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://builtwhilebroke.com/tools?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
-  </head>
-  <body class="bg-[#fafafa] text-zinc-900 antialiased selection:bg-zinc-900 selection:text-white overflow-x-hidden min-h-screen font-sans">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<section class="hero">
+  <div class="h-left">
+    <div class="day-tag" id="heroDay"><b>DAY 01</b> — THE ARENA IS OPEN</div>
+    <h1>EVERY MIDNIGHT<br/>THE BOTTOM 3 TOOLS<br/>GET <em>EXECUTED.</em></h1>
+    <p class="sub">A live multiplayer dev-tool directory backed by Supabase. Your five daily votes are real weapons — <b>SAVE</b> what deserves to live, <b>KILL</b> what wastes your time. Every vote updates the arena in real time.</p>
+    <div class="stats">
+      <span><b id="stPop">—</b> ALIVE</span><i>/</i>
+      <span><b id="stCrit" class="hot">—</b> ON DEATH ROW</span><i>/</i>
+      <span><b id="stExec">—</b> EXECUTIONS TODAY</span>
+    </div>
+  </div>
+  <div class="h-right">
+    <div class="ring">
+      <svg width="158" height="158" viewBox="0 0 158 158">
+        <circle cx="79" cy="79" r="66" fill="none" stroke="#282013" stroke-width="6"/>
+        <circle id="ringArc" cx="79" cy="79" r="66" fill="none" stroke="#ff4400" stroke-width="6" stroke-dasharray="414.69" stroke-dashoffset="414.69"/>
+      </svg>
+      <div class="digits"><span id="cd">--:--:--</span><small id="cdLbl">UNTIL THE CULL</small></div>
+    </div>
+    <button id="forceCull"><div class="fill"></div><span class="lbl"><span class="icon-wrap" data-ico="skull"></span>HOLD TO FORCE THE CULL</span></button>
+    <div class="h-note">forces execution in supabase. hold 2 seconds. no refunds.</div>
+  </div>
+</section>
+
+<section class="mystery">
+  <div class="q">?</div>
+  <div class="m-body">
+    <div class="m-name sealed" id="mName">?????</div>
+    <div class="m-note" id="mNote">SEALED CHALLENGER — REVEAL SUMMONS IT INTO THE ARENA</div>
+  </div>
+  <button class="act" id="mBtn"><span class="icon-wrap" data-ico="eye"></span>REVEAL — 1 PER DAY</button>
+</section>
+
+<section class="sacrifice-banner">
+  <div class="s-left">
+    <div class="s-tag">CREATOR CLEARANCE // DEATHMATCH ENTRY</div>
+    <div class="s-title">WANT YOUR PRODUCT TO ENTER THE ARENA?</div>
+    <div class="s-sub">Every submitted tool starts at 70 HP. The developer crowd votes live to save or kill it.</div>
+  </div>
+  <button class="act sacrifice-btn" id="bannerSubmitBtn"><span class="icon-wrap" data-ico="plus"></span>+ SACRIFICE YOUR PRODUCT</button>
+</section>
+
+<section class="arena">
+  <div class="sec-head">
+    <h2 class="sec-title">LIVE STANDINGS<b id="aliveCnt"></b></h2>
+    <div class="sec-sub">SAVE +15 HP · KILL −15 HP · 0 HP = GRAVEYARD · REALTIME DATABASE CONNECTED</div>
+  </div>
+  <div id="list"></div>
+</section>
+
+<section class="grave">
+  <div class="sec-head">
+    <h2 class="sec-title" id="graveMarker">THE GRAVEYARD<b id="deadCnt"></b></h2>
+    <div class="sec-sub">EVERY TOOL HERE WAS SOMEBODY'S FAVORITE</div>
+  </div>
+  <div id="graves"></div>
+</section>
+
+<footer>
+  <div>TOOL//ARENA — REALTIME SUPABASE DEATHMATCH. <button id="shareBtn" class="act-head-btn" style="margin-left:.6rem" aria-label="Copy arena link">SHARE ARENA</button></div>
+  <div class="whisper">psst — the void accepts offerings. type <b id="secretWord" role="button" tabindex="0">bloodbath</b> when you're out of ammo.</div>
+</footer>
+
+<div id="submitModal" class="modal-overlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="submitHeading">
+  <div class="modal-card">
+    <div class="m-head">
+      <div>
+        <div class="m-kicker">SACRIFICE PROTOCOL // ARENA REGISTRATION</div>
+        <h3 class="m-heading" id="submitHeading">SACRIFICE A PRODUCT</h3>
+      </div>
+      <button class="m-close" id="closeSubmitBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="m-content">
+      <p class="m-desc">Your product enters the live deathmatch at <b>70 HP</b> with a <b>NEW CHALLENGER</b> badge. Live developers vote SAVE or KILL. If it drops to 0 HP, it perishes to the Graveyard.</p>
+
+      <div class="form-group">
+        <label>PRODUCT NAME <span class="req">*</span></label>
+        <input type="text" id="pName" placeholder="e.g. DRIZZLE, TURBOREPO, COOLDEV" maxlength="28" autocomplete="off" />
+        <div class="form-hint">Uppercase, 2-28 characters. Must be unique in the arena.</div>
+      </div>
+
+      <div class="form-group">
+        <label>CATEGORY <span class="req">*</span></label>
+        <div class="cat-chips" id="catChips">
+          <button type="button" class="c-chip on" data-cat="DEVTOOL">DEVTOOL</button>
+          <button type="button" class="c-chip" data-cat="AI">AI</button>
+          <button type="button" class="c-chip" data-cat="DATABASE">DATABASE</button>
+          <button type="button" class="c-chip" data-cat="CLI">CLI</button>
+          <button type="button" class="c-chip" data-cat="INFRA">INFRA</button>
+          <button type="button" class="c-chip" data-cat="FRAMEWORK">FRAMEWORK</button>
+          <button type="button" class="c-chip" data-cat="EDITOR">EDITOR</button>
+          <button type="button" class="c-chip" data-cat="DESIGN">DESIGN</button>
+        </div>
+        <input type="text" id="pCat" value="DEVTOOL" maxlength="20" placeholder="OR CUSTOM CATEGORY" />
+      </div>
+
+      <div class="form-group">
+        <label>PITCH / ONE-LINER <span class="req">*</span></label>
+        <input type="text" id="pBlurb" placeholder="e.g. Blazing fast TypeScript monorepo build orchestrator" maxlength="100" />
+        <div class="form-hint">A punchy description. Max 100 characters.</div>
+      </div>
+
+      <div class="form-actions">
+        <button class="act submit-submit" id="submitProductBtn"><span class="icon-wrap" data-ico="skull"></span>SACRIFICE TO ARENA [70 HP]</button>
+        <button class="act cancel-submit" id="cancelSubmitBtn">RETREAT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
 </html>
