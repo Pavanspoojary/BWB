@@ -51,9 +51,29 @@ export class CityBuilder {
   private mouse = new THREE.Vector2();
   private groundPlane: THREE.Mesh;
   private trafficCars: TrafficVehicle[] = [];
-  private f1Cars: { group: THREE.Group; speed: number; progress: number; wheels: THREE.Mesh[]; name: string }[] = [];
+  private f1Cars: {
+    group: THREE.Group;
+    speed: number;
+    progress: number;
+    wheels: THREE.Mesh[];
+    frontWheels: THREE.Mesh[];
+    rearLight: THREE.Mesh;
+    spark: THREE.Mesh;
+    name: string;
+  }[] = [];
   private f1TrackCurve: THREE.CatmullRomCurve3 | null = null;
   private yachts: THREE.Group[] = [];
+  private yachtRadars: THREE.Mesh[] = [];
+  private tenderBoat: { group: THREE.Group; progress: number; speed: number; wake: THREE.Mesh } | null = null;
+  private pedestrians: {
+    group: THREE.Group;
+    axis: "x" | "z";
+    dir: number;
+    min: number;
+    max: number;
+    speed: number;
+    legs: THREE.Mesh[];
+  }[] = [];
   private clouds: THREE.Group[] = [];
   private paperAirplane: THREE.Group | null = null;
   private subwayTrain: THREE.Group | null = null;
@@ -280,11 +300,14 @@ export class CityBuilder {
     this.createChryslerBuilding(36, -24);
     this.createFlatironBuilding(0, -6);
     this.createTimesSquareCanyon(16, -6);
+    this.createCornerBodegaAndPizza(8, 6);
     this.createBrownstoneRow(-36, -20);
     this.createHighLineElevatedTrain(46);
     this.createCentralPark(-14, 38);
     this.createSubwayEntrances();
     this.createNYCYellowCabs();
+    this.createNYPDPoliceCruiser(12, -18);
+    this.createNYCPedestrians();
     this.createStreetFurniture();
     this.createAtmosphere();
   }
@@ -386,6 +409,52 @@ export class CityBuilder {
       cellarL.position.set(blk.x + blk.w / 2 - 2.5, 0.18, blk.z + blk.d / 2 - 1.2);
       cellarL.rotation.x = -0.15;
       gridGroup.add(cellarL);
+
+      // Steel sidewalk ventilation grates with grill seams
+      const grate = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.04, 1.2), this.defaultMats.black);
+      grate.position.set(blk.x - blk.w / 2 + 3.2, 0.165, blk.z + blk.d / 2 - 1.2);
+      gridGroup.add(grate);
+      for (let g = -1.0; g <= 1.0; g += 0.35) {
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 1.15), this.defaultMats.blue);
+        bar.position.set(blk.x - blk.w / 2 + 3.2 + g, 0.17, blk.z + blk.d / 2 - 1.2);
+        gridGroup.add(bar);
+      }
+    });
+
+    // NYC DOT Green Double Street Sign Posts at major corners
+    const signIntersections = [
+      { x: -11.5, z: -20, ave: "5TH AVE", st: "W 42ND ST" },
+      { x: 11.5, z: -20, ave: "BROADWAY", st: "W 42ND ST" },
+      { x: -11.5, z: 18, ave: "5TH AVE", st: "W 34TH ST" },
+      { x: 11.5, z: 18, ave: "BROADWAY", st: "W 34TH ST" },
+      { x: -11.5, z: 50, ave: "5TH AVE", st: "HOUSTON ST" },
+      { x: 11.5, z: 50, ave: "BROADWAY", st: "HOUSTON ST" },
+    ];
+
+    signIntersections.forEach((si) => {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 4.2), this.defaultMats.black);
+      pole.position.set(si.x, 2.1, si.z);
+
+      // Blade 1: Avenue (facing X axis)
+      const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 1.5), this.defaultMats.green);
+      blade1.position.set(si.x, 3.9, si.z);
+
+      // Blade 2: Street (facing Z axis)
+      const blade2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.35, 0.08), this.defaultMats.green);
+      blade2.position.set(si.x, 4.25, si.z);
+
+      gridGroup.add(pole, blade1, blade2);
+    });
+
+    // Classic Blue USPS Mail Collection Boxes at corners
+    const mailboxes = [[-10.5, -17], [10.5, 15], [-10.5, 47]];
+    mailboxes.forEach(([mbX, mbZ]) => {
+      const mbox = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.3, 0.85), this.defaultMats.blueFill);
+      mbox.position.set(mbX, 0.75, mbZ);
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.85, 8), this.defaultMats.blue);
+      cap.rotation.z = Math.PI / 2;
+      cap.position.set(mbX, 1.4, mbZ);
+      gridGroup.add(mbox, cap);
     });
 
     this.engine.scene.add(gridGroup);
@@ -402,16 +471,36 @@ export class CityBuilder {
     base.position.y = baseH / 2;
     group.add(base);
 
-    // Grand Entrance Arch
+    // Grand Entrance Arch & Bronze Marquee Canopy
     const arch = new THREE.Mesh(new THREE.BoxGeometry(5.5, 7, 0.8), this.defaultMats.black);
     arch.position.set(0, 3.5, 9.1);
-    group.add(arch);
+    const marquee = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.35, 2.4), this.defaultMats.orange);
+    marquee.position.set(0, 4.2, 10.2);
+    group.add(arch, marquee);
+
+    // Facade Window Matrix on Base (Floors 2 to 5)
+    for (let wy = 3.5; wy <= 11.5; wy += 2.6) {
+      for (let wx = -6.5; wx <= 6.5; wx += 2.6) {
+        if (Math.abs(wx) < 2 && wy < 6) continue; // Skip above entrance arch
+        const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.2), (Math.sin(wx * 3 + wy) > 0.1) ? this.defaultMats.orange : this.defaultMats.black);
+        win.position.set(wx, wy, 9.08);
+        group.add(win);
+      }
+    }
 
     // Setback Tier 1 (Floor 7-18)
     const t1H = 12;
     const tier1 = new THREE.Mesh(new THREE.BoxGeometry(13.5, t1H, 13.5), this.defaultMats.blue);
     tier1.position.y = baseH + t1H / 2;
     group.add(tier1);
+
+    // Setback 1 Terrace Details (Rooftop HVAC chillers & satellite dish)
+    const hvac = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 2.4), this.defaultMats.black);
+    hvac.position.set(5.5, baseH + 0.9, 5.5);
+    const dish = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8, 0, Math.PI), this.defaultMats.blue);
+    dish.position.set(-5.5, baseH + 1.2, 5.5);
+    dish.rotation.x = -0.6;
+    group.add(hvac, dish);
 
     // Setback Tier 2 (Floor 19-30)
     const t2H = 12;
@@ -472,17 +561,33 @@ export class CityBuilder {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
 
-    // Base podium
+    // Base podium with Art Deco grand entrance
     const baseH = 15;
     const base = new THREE.Mesh(new THREE.BoxGeometry(16, baseH, 16), this.defaultMats.blue);
     base.position.y = baseH / 2;
     group.add(base);
 
-    // Tower Shaft
+    // Triangular Grand Lobby Entrance on 42nd St
+    const entryPortal = new THREE.Mesh(new THREE.BoxGeometry(5.2, 6.5, 0.8), this.defaultMats.black);
+    entryPortal.position.set(0, 3.25, 8.1);
+    const entryTransom = new THREE.Mesh(new THREE.ConeGeometry(2.6, 2.2, 3), this.defaultMats.orange);
+    entryTransom.position.set(0, 7.2, 8.1);
+    entryTransom.rotation.z = Math.PI;
+    group.add(entryPortal, entryTransom);
+
+    // Tower Shaft with Vertical Window Stripes
     const shaftH = 16;
     const shaft = new THREE.Mesh(new THREE.BoxGeometry(11, shaftH, 11), this.defaultMats.blue);
     shaft.position.y = baseH + shaftH / 2;
     group.add(shaft);
+
+    for (let wy = baseH + 2; wy < baseH + shaftH - 2; wy += 3.2) {
+      for (let wx = -4.2; wx <= 4.2; wx += 2.8) {
+        const win = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.8, 0.2), this.defaultMats.black);
+        win.position.set(wx, wy, 5.58);
+        group.add(win);
+      }
+    }
 
     // Corner Gargoyle Projections (Chrysler radiator cap eagles)
     const cornY = baseH + shaftH;
@@ -503,7 +608,7 @@ export class CityBuilder {
       group.add(vault);
 
       // Triangular sunburst dormer window incisions
-      const windowBand = new THREE.Mesh(new THREE.BoxGeometry(r * 1.6, 0.8, r * 1.6), this.defaultMats.black);
+      const windowBand = new THREE.Mesh(new THREE.BoxGeometry(r * 1.6, 0.8, r * 1.6), this.defaultMats.orange);
       windowBand.position.y = currY + 1.2;
       group.add(windowBand);
 
@@ -582,7 +687,25 @@ export class CityBuilder {
     // Tower 1: One Times Square (Curved multi-screen facade)
     const t1 = new THREE.Mesh(new THREE.BoxGeometry(12, 28, 12), this.defaultMats.blue);
     t1.position.set(0, 14, 0);
-    group.add(t1);
+    // Running Ticker Tape Ribbon (Electronic News/Stock Ticker)
+    const ticker = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.85, 12.4), this.defaultMats.orange);
+    ticker.position.set(0, 7.5, 0);
+    group.add(ticker);
+
+    // Broadway Theater Marquee (The Majestic Theater)
+    const marqueeGroup = new THREE.Group();
+    marqueeGroup.position.set(0, 3.8, 6.4);
+    const mRoof = new THREE.Mesh(new THREE.BoxGeometry(9.0, 0.6, 2.4), this.defaultMats.orange);
+    const mSign = new THREE.Mesh(new THREE.BoxGeometry(8.4, 1.2, 0.2), this.defaultMats.black);
+    mSign.position.set(0, 0.8, 1.15);
+    // Marquee perimeter bulbs
+    for (let bx = -4.0; bx <= 4.0; bx += 0.8) {
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), this.defaultMats.orange);
+      bulb.position.set(bx, 0.8, 1.3);
+      marqueeGroup.add(bulb);
+    }
+    marqueeGroup.add(mRoof, mSign);
+    group.add(marqueeGroup);
 
     // Primary Times Square Mega-LED Billboard
     const b1 = this.createAdBillboardMesh(this.initialAdConfigs[0], 11.2, 6.2, group);
@@ -609,6 +732,69 @@ export class CityBuilder {
       redStep.position.set(0, step * 0.4 + 0.2, 10 + step * 0.8);
       group.add(redStep);
     }
+
+    this.engine.scene.add(group);
+    this.buildings.push(group);
+    return group;
+  }
+
+  // Corner Bodega Deli & 99¢ Pizza Shop with Sidewalk Crates & Cafe Seating
+  public createCornerBodegaAndPizza(x: number, z: number): THREE.Group {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+
+    // 2-Story Brick Corner Building
+    const body = new THREE.Mesh(new THREE.BoxGeometry(8.5, 8.5, 10), this.defaultMats.blue);
+    body.position.set(0, 4.25, 0);
+    group.add(body);
+
+    // Bodega Striped Awning ("24H NYC DELI & BAGELS")
+    const awning = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.2, 2.2), this.defaultMats.green);
+    awning.position.set(0, 3.4, 5.2);
+    awning.rotation.x = 0.28;
+    group.add(awning);
+
+    // Corner Neon Sign ("NY PIZZA 🍕 99¢ SLICE")
+    const pizzaSign = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 0.15), this.defaultMats.red);
+    pizzaSign.position.set(4.35, 4.5, 3.5);
+    pizzaSign.rotation.y = Math.PI / 2;
+    const pizzaSlice = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.0, 3), this.defaultMats.orange);
+    pizzaSlice.position.set(4.45, 4.5, 3.5);
+    pizzaSlice.rotation.z = -Math.PI / 2;
+    group.add(pizzaSign, pizzaSlice);
+
+    // Sidewalk Produce & Flower Crates
+    const crateMat = this.defaultMats.orange;
+    const crate1 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 0.8), crateMat);
+    crate1.position.set(-2.2, 0.3, 5.8);
+    const crate2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.6, 0.8), crateMat);
+    crate2.position.set(0.2, 0.3, 5.8);
+    group.add(crate1, crate2);
+
+    // Fruit dots (apples and oranges)
+    for (let f = -0.6; f <= 0.6; f += 0.3) {
+      const apple = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), this.defaultMats.red);
+      apple.position.set(-2.2 + f, 0.7, 5.8);
+      const orange = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), this.defaultMats.orange);
+      orange.position.set(0.2 + f, 0.7, 5.8);
+      group.add(apple, orange);
+    }
+
+    // Sidewalk Bistro Table & Stools
+    const table = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.08, 8), this.defaultMats.black);
+    table.position.set(3.2, 0.75, 6.2);
+    const tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.75), this.defaultMats.black);
+    tableLeg.position.set(3.2, 0.38, 6.2);
+    const stool1 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.45, 8), this.defaultMats.red);
+    stool1.position.set(2.4, 0.22, 6.2);
+    const stool2 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.45, 8), this.defaultMats.red);
+    stool2.position.set(4.0, 0.22, 6.2);
+    group.add(table, tableLeg, stool1, stool2);
+
+    // Rooftop AC Compressor
+    const ac = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 1.4), this.defaultMats.black);
+    ac.position.set(-1.8, 9.1, -1.5);
+    group.add(ac);
 
     this.engine.scene.add(group);
     this.buildings.push(group);
@@ -845,6 +1031,43 @@ export class CityBuilder {
     path.rotation.y = 0.25;
     parkGroup.add(path);
 
+    // Central Park Scenic Blue Pond with Lily Pads & Miniature Sailboat
+    const pondGeo = new THREE.CylinderGeometry(5.2, 5.2, 0.1, 16);
+    const pond = new THREE.Mesh(pondGeo, this.defaultMats.blueFill);
+    pond.position.set(2.5, 0.05, -2.5);
+    parkGroup.add(pond);
+
+    // Lily Pads & Floating Wooden Sailboat on the pond
+    for (let lp = 0; lp < 4; lp++) {
+      const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.04, 6), this.defaultMats.green);
+      pad.position.set(1.2 + Math.cos(lp * 1.5) * 2.8, 0.12, -2.5 + Math.sin(lp * 1.5) * 2.8);
+      parkGroup.add(pad);
+    }
+    const boatHull = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 0.6), this.defaultMats.orange);
+    boatHull.position.set(2.5, 0.18, -2.5);
+    const boatSail = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.2, 3), this.defaultMats.black);
+    boatSail.position.set(2.5, 0.85, -2.5);
+    boatSail.rotation.y = 0.4;
+    parkGroup.add(boatHull, boatSail);
+
+    // Central Park Rustic Arched Stone Footbridge (Gapstow Bridge Style)
+    const bridgeGroup = new THREE.Group();
+    bridgeGroup.position.set(-1.5, 0, -2.5);
+    const bridgeArch = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.35, 2.4), this.defaultMats.black);
+    bridgeArch.position.set(0, 0.95, 0);
+    const bridgeRampL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.3, 2.4), this.defaultMats.black);
+    bridgeRampL.position.set(-2.6, 0.5, 0);
+    bridgeRampL.rotation.z = -0.35;
+    const bridgeRampR = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.3, 2.4), this.defaultMats.black);
+    bridgeRampR.position.set(2.6, 0.5, 0);
+    bridgeRampR.rotation.z = 0.35;
+    const parapetL = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.65, 0.2), this.defaultMats.blue);
+    parapetL.position.set(0, 1.2, 1.15);
+    const parapetR = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.65, 0.2), this.defaultMats.blue);
+    parapetR.position.set(0, 1.2, -1.15);
+    bridgeGroup.add(bridgeArch, bridgeRampL, bridgeRampR, parapetL, parapetR);
+    parkGroup.add(bridgeGroup);
+
     // Park Benches (Wood slats with black iron armrests)
     const benchCoords = [[-4, -5, 0], [4, 5, Math.PI], [-5, 6, -Math.PI / 2]];
     benchCoords.forEach(([bx, bz, brot]) => {
@@ -876,6 +1099,103 @@ export class CityBuilder {
     this.engine.scene.add(parkGroup);
     this.buildings.push(parkGroup);
     return parkGroup;
+  }
+
+  // Parked Classic NYPD Police Cruiser with Push Bumper & Red/Blue Beacon
+  private createNYPDPoliceCruiser(x: number, z: number) {
+    const cruiser = new THREE.Group();
+    cruiser.position.set(x, 0, z);
+
+    // White body with navy blue side stripe
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.75, 4.2), this.defaultMats.blue);
+    body.position.y = 0.55;
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.92, 0.25, 4.2), this.defaultMats.blueFill);
+    stripe.position.y = 0.55;
+
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.65, 2.2), this.defaultMats.blue);
+    cabin.position.set(0, 1.1, -0.2);
+
+    // Front Push Bumper / Bull Bar
+    const pushBumper = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.3), this.defaultMats.black);
+    pushBumper.position.set(0, 0.45, 2.25);
+
+    // Rooftop Red and Blue Emergency Light Bar
+    const lightBar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.15, 0.3), this.defaultMats.black);
+    lightBar.position.set(0, 1.48, -0.2);
+    const redLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.32), this.defaultMats.red);
+    redLight.position.set(-0.35, 1.52, -0.2);
+    const blueLight = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.32), this.defaultMats.blueFill);
+    blueLight.position.set(0.35, 1.52, -0.2);
+
+    cruiser.add(body, stripe, cabin, pushBumper, lightBar, redLight, blueLight);
+
+    // 4 Wheels
+    [[-0.98, 1.2], [0.98, 1.2], [-0.98, -1.2], [0.98, -1.2]].forEach(([wx, wz]) => {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.25, 10), this.defaultMats.black);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(wx, 0.35, wz);
+      cruiser.add(wheel);
+    });
+
+    this.engine.scene.add(cruiser);
+    this.buildings.push(cruiser);
+  }
+
+  // Animated Hand-Drawn Doodle Pedestrians Walking the Sidewalks
+  private createNYCPedestrians() {
+    const pedestrianSpawns = [
+      { x: -12.5, z: -15, axis: "z" as const, min: -30, max: 2, speed: 2.2, dir: 1, coat: this.defaultMats.orange },
+      { x: -12.5, z: 22, axis: "z" as const, min: 14, max: 40, speed: 1.8, dir: -1, coat: this.defaultMats.blue },
+      { x: 12.5, z: -10, axis: "z" as const, min: -25, max: 5, speed: 2.5, dir: -1, coat: this.defaultMats.red },
+      { x: 12.5, z: 18, axis: "z" as const, min: 8, max: 35, speed: 2.0, dir: 1, coat: this.defaultMats.green },
+      { x: -28, z: 12.5, axis: "x" as const, min: -45, max: -18, speed: 1.9, dir: 1, coat: this.defaultMats.orange },
+      { x: 28, z: 12.5, axis: "x" as const, min: 16, max: 42, speed: 2.1, dir: -1, coat: this.defaultMats.blue },
+      { x: -28, z: -22.5, axis: "x" as const, min: -45, max: -18, speed: 1.7, dir: 1, coat: this.defaultMats.red },
+      { x: 28, z: -22.5, axis: "x" as const, min: 16, max: 42, speed: 2.3, dir: 1, coat: this.defaultMats.orange },
+    ];
+
+    pedestrianSpawns.forEach((ps) => {
+      const pGroup = new THREE.Group();
+      pGroup.position.set(ps.x, 0.16, ps.z);
+      if (ps.axis === "x") {
+        pGroup.rotation.y = ps.dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+      } else {
+        pGroup.rotation.y = ps.dir > 0 ? 0 : Math.PI;
+      }
+
+      // Torso / Jacket
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.65, 0.28), ps.coat);
+      torso.position.y = 0.95;
+
+      // Head with Beanie / Cap
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), this.defaultMats.orange);
+      head.position.y = 1.42;
+      const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.14, 8), this.defaultMats.black);
+      hat.position.y = 1.54;
+
+      // Two Swinging Legs
+      const legL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 0.12), this.defaultMats.black);
+      legL.position.set(-0.12, 0.35, 0);
+      const legR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 0.12), this.defaultMats.black);
+      legR.position.set(0.12, 0.35, 0);
+
+      // Accessory: Coffee cup or Briefcase
+      const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.16, 6), this.defaultMats.red);
+      cup.position.set(0.26, 0.95, 0.15);
+
+      pGroup.add(torso, head, hat, legL, legR, cup);
+      this.engine.scene.add(pGroup);
+
+      this.pedestrians.push({
+        group: pGroup,
+        axis: ps.axis,
+        dir: ps.dir,
+        min: ps.min,
+        max: ps.max,
+        speed: ps.speed,
+        legs: [legL, legR],
+      });
+    });
   }
 
   // 9. Subway Entrances (Iconic green globe lampposts & descending stairs)
@@ -1390,6 +1710,13 @@ export class CityBuilder {
     this.f1Cars = [];
     this.yachts.forEach((y) => this.engine.scene.remove(y));
     this.yachts = [];
+    this.yachtRadars = [];
+    if (this.tenderBoat) {
+      this.engine.scene.remove(this.tenderBoat.group);
+      this.tenderBoat = null;
+    }
+    this.pedestrians.forEach((p) => this.engine.scene.remove(p.group));
+    this.pedestrians = [];
     this.clouds.forEach((c) => this.engine.scene.remove(c));
     this.clouds = [];
     if (this.paperAirplane) this.engine.scene.remove(this.paperAirplane);
@@ -1409,6 +1736,7 @@ export class CityBuilder {
     this.createPortHerculeHarbor();
     this.createSuperyachts();
     this.createMonteCarloCasinoAndVillas();
+    this.createSafetyCarAndPitEquipment();
     this.createF1Grandstands();
     this.createF1Cars();
     this.createMonacoAtmosphere();
@@ -1574,6 +1902,74 @@ export class CityBuilder {
       trackGroup.add(perch);
     });
 
+    // Braking Zone Rubber Skid Marks on Asphalt into major turns
+    const skidZones = [
+      { x: 34, z: 24, rot: 0.15, len: 12 },   // Into Sainte-Dévote
+      { x: -10, z: -41, rot: -0.6, len: 10 }, // Into Mirabeau
+      { x: -18, z: -37, rot: -1.2, len: 8 },  // Into Fairmont Hairpin
+      { x: -52, z: 8, rot: 2.1, len: 14 },    // Into Nouvelle Chicane (after Tunnel)
+      { x: -44, z: 27, rot: 0.05, len: 10 },  // Into La Rascasse
+    ];
+    skidZones.forEach((skid) => {
+      const markL = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, skid.len), this.defaultMats.black);
+      markL.position.set(skid.x - 0.7, 0.038, skid.z);
+      markL.rotation.y = skid.rot;
+      const markR = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, skid.len), this.defaultMats.black);
+      markR.position.set(skid.x + 0.7, 0.038, skid.z);
+      markR.rotation.y = skid.rot;
+      trackGroup.add(markL, markR);
+    });
+
+    // Brake Distance Marker Boards (150m, 100m, 50m) along barriers
+    const brakeBoards = [
+      { x: 30, z: 22, dist: "100" },
+      { x: 35, z: 22, dist: "50" },
+      { x: -51, z: 4, dist: "150" },
+      { x: -51, z: 8, dist: "100" },
+      { x: -50, z: 12, dist: "50" },
+    ];
+    brakeBoards.forEach((b) => {
+      const board = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.8, 1.4), this.defaultMats.blue);
+      board.position.set(b.x, 0.9, b.z);
+      const textStripe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 1.0), this.defaultMats.black);
+      textStripe.position.set(b.x, 0.9, b.z);
+      trackGroup.add(board, textStripe);
+    });
+
+    // TechPro Impact Runoff Barriers at Sainte-Dévote & Nouvelle Chicane runoffs
+    const runoffTechPro = [
+      { x: 44, z: 26, rot: 0 },
+      { x: -54, z: 16, rot: -0.4 },
+    ];
+    runoffTechPro.forEach((tp) => {
+      for (let block = -2; block <= 2; block++) {
+        const mat = (block % 2 === 0) ? this.defaultMats.orange : this.defaultMats.blue;
+        const cube = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), mat);
+        cube.position.set(tp.x + block * 1.3, 0.6, tp.z);
+        cube.rotation.y = tp.rot;
+        trackGroup.add(cube);
+      }
+    });
+
+    // Covered Corner Track Marshals with Waving Safety Flags
+    const marshalPosts = [
+      { x: 42, z: 18, flag: this.defaultMats.orange },
+      { x: -22, z: -32, flag: this.defaultMats.green },
+      { x: -48, z: 18, flag: this.defaultMats.red },
+    ];
+    marshalPosts.forEach((mp) => {
+      const post = new THREE.Group();
+      post.position.set(mp.x, 0, mp.y ? mp.y : mp.z);
+      const shelter = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 1.6), this.defaultMats.orange);
+      shelter.position.y = 1.1;
+      const marshal = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 1.4), this.defaultMats.red);
+      marshal.position.set(0.6, 0.7, 0.9);
+      const flag = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.5, 0.8), mp.flag);
+      flag.position.set(0.6, 1.6, 1.3);
+      post.add(shelter, marshal, flag);
+      trackGroup.add(post);
+    });
+
     // Overhead Starting Gantry Bridge spanning across the track at X: 5, Z: 26
     const gantry = new THREE.Group();
     gantry.position.set(5, 0, 26);
@@ -1606,6 +2002,63 @@ export class CityBuilder {
     this.buildings.push(trackGroup);
   }
 
+  // Official FIA Safety Car & Pit Lane Garage Gear
+  private createSafetyCarAndPitEquipment() {
+    const pitGroup = new THREE.Group();
+
+    // 1. Official FIA Safety Car (Mercedes-AMG GT / Aston Martin Vantage Style)
+    const scGroup = new THREE.Group();
+    scGroup.position.set(22, 0, 30.5); // Parked in the pit lane exit pocket
+
+    const scBody = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.85, 1.9), this.defaultMats.cyan);
+    scBody.position.y = 0.55;
+    const scCabin = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.6, 1.5), this.defaultMats.black);
+    scCabin.position.set(-0.2, 1.15, 0);
+
+    // Rooftop Safety Car Amber Flashing Light Bar
+    const scLightBar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.35), this.defaultMats.orange);
+    scLightBar.position.set(-0.2, 1.55, 0);
+
+    // High Downforce Rear Wing
+    const scWing = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 1.7), this.defaultMats.black);
+    scWing.position.set(-1.9, 1.25, 0);
+
+    scGroup.add(scBody, scCabin, scLightBar, scWing);
+
+    // 4 Wheels
+    [[-1.2, -0.9], [-1.2, 0.9], [1.2, -0.9], [1.2, 0.9]].forEach(([wx, wz]) => {
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.28, 10), this.defaultMats.black);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(wx, 0.36, wz);
+      scGroup.add(wheel);
+    });
+
+    pitGroup.add(scGroup);
+
+    // 2. Electronic Pit Speed Limit Gantry: "PIT LIMIT 60"
+    const pitSign = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.9, 3.2), this.defaultMats.black);
+    pitSign.position.set(-24, 2.5, 30.0);
+    const pitSignPost = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.5), this.defaultMats.blue);
+    pitSignPost.position.set(-24, 1.25, 30.0);
+    pitGroup.add(pitSign, pitSignPost);
+
+    // 3. Stacks of Pirelli Tires in Pit Lane (Soft Red, Medium Yellow, Hard White)
+    const tireStackSpots = [-14, -4, 6, 16];
+    tireStackSpots.forEach((tx, idx) => {
+      const tMat = idx % 2 === 0 ? this.defaultMats.red : this.defaultMats.orange;
+      for (let ty = 0; ty < 3; ty++) {
+        const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.32, 10), this.defaultMats.black);
+        tire.position.set(tx, 0.16 + ty * 0.32, 31.8);
+        const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.33, 10), tMat);
+        stripe.position.set(tx, 0.16 + ty * 0.32, 31.8);
+        pitGroup.add(tire, stripe);
+      }
+    });
+
+    this.engine.scene.add(pitGroup);
+    this.buildings.push(pitGroup);
+  }
+
   // 2. The Famous Covered Monaco Tunnel
   private createMonacoTunnel() {
     const tunnelGroup = new THREE.Group();
@@ -1632,6 +2085,15 @@ export class CityBuilder {
       const ceilLight = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 1.4), this.defaultMats.orange);
       ceilLight.position.set(x, tunnelRadius - 0.2, z);
       tunnelGroup.add(ceilLight);
+
+      // Industrial Jet Ventilation Fans suspended from ceiling
+      if (i === 3 || i === 7) {
+        const fanHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.8, 10), this.defaultMats.black);
+        fanHousing.position.set(x, tunnelRadius - 0.8, z);
+        fanHousing.rotation.y = rotY;
+        fanHousing.rotation.z = Math.PI / 2;
+        tunnelGroup.add(fanHousing);
+      }
     }
 
     // Solid Tunnel Ceiling Shell
@@ -1647,20 +2109,33 @@ export class CityBuilder {
       tunnelGroup.add(pillar);
     }
 
-    // Monaco Billboard 3: Tunnel Entrance Overpass Billboard
+    // Monaco Billboard 3: Tunnel Entrance Overpass Billboard with Portal Header
     const portalGantry = new THREE.Group();
     portalGantry.position.set(-35, 0, -13);
     portalGantry.rotation.y = Math.atan2(-16, 18);
     const bbTunnel = this.createAdBillboardMesh(this.monacoAdConfigs[2], 6.5, 2.0, portalGantry);
     bbTunnel.position.set(0, 4.2, 0);
-    portalGantry.add(bbTunnel);
+    const portalSign = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.6, 0.3), this.defaultMats.red);
+    portalSign.position.set(0, 5.5, 0);
+    portalGantry.add(bbTunnel, portalSign);
     tunnelGroup.add(portalGantry);
+
+    // Speed Trap Camera Gantry at Tunnel Exit
+    const exitGantry = new THREE.Group();
+    exitGantry.position.set(-51, 0, 11);
+    exitGantry.rotation.y = Math.atan2(-16, 18);
+    const exitFrame = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.3, 0.4), this.defaultMats.black);
+    exitFrame.position.y = 4.2;
+    const cameraBox = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.6), this.defaultMats.cyan);
+    cameraBox.position.set(0, 3.8, 0);
+    exitGantry.add(exitFrame, cameraBox);
+    tunnelGroup.add(exitGantry);
 
     this.engine.scene.add(tunnelGroup);
     this.buildings.push(tunnelGroup);
   }
 
-  // 3. Port Hercule Harbor with Waterfront Piers & Rainier Swimming Pool
+  // 3. Port Hercule Harbor with Waterfront Piers, Lighthouse & Animated Speedboat
   private createPortHerculeHarbor() {
     const harborGroup = new THREE.Group();
 
@@ -1686,6 +2161,15 @@ export class CityBuilder {
     quai2.position.set(13.5, 0.12, 6);
     harborGroup.add(quai1, quai2);
 
+    // Harbor Breakwater Stone Pier with Navigation Lighthouse
+    const jetty = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 3.5), this.defaultMats.black);
+    jetty.position.set(15, 0.4, -5.5);
+    const lighthouse = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.9, 4.5, 8), this.defaultMats.blue);
+    lighthouse.position.set(16, 2.65, -5.5);
+    const lightTop = new THREE.Mesh(new THREE.SphereGeometry(0.45, 8, 8), this.defaultMats.green);
+    lightTop.position.set(16, 5.1, -5.5);
+    harborGroup.add(jetty, lighthouse, lightTop);
+
     // Mooring Bollards
     for (let bx = -36; bx <= 10; bx += 5.5) {
       const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.45, 8), this.defaultMats.black);
@@ -1698,6 +2182,20 @@ export class CityBuilder {
       const palm = this.createPalmTree(px, 21.5);
       harborGroup.add(palm);
     }
+
+    // High-Speed Yacht Tender / Speedboat in Port Hercule Harbor
+    const tender = new THREE.Group();
+    tender.position.set(-10, 0.1, 8);
+    const tHull = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.65, 1.8), this.defaultMats.orange);
+    tHull.position.y = 0.25;
+    const tWindshield = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.45, 1.4), this.defaultMats.cyan);
+    tWindshield.position.set(0.6, 0.65, 0);
+    const wake = new THREE.Mesh(new THREE.ConeGeometry(1.6, 5.5, 3), this.defaultMats.blueFill);
+    wake.position.set(-3.2, 0.02, 0);
+    wake.rotation.z = Math.PI / 2;
+    tender.add(tHull, tWindshield, wake);
+    harborGroup.add(tender);
+    this.tenderBoat = { group: tender, progress: 0, speed: 0.12, wake };
 
     // Rainier III Nautical Stadium (Swimming Pool Chicane Section)
     const poolGroup = new THREE.Group();
@@ -1748,6 +2246,8 @@ export class CityBuilder {
 
   // 4. Moored Luxury Superyachts in Port Hercule
   private createSuperyachts() {
+    this.yachtRadars = [];
+
     // 1. Mega-Yacht "M/Y DOODLE" (Flagship luxury superyacht moored stern-to)
     const yacht1 = new THREE.Group();
     yacht1.position.set(-8, 0, 4);
@@ -1773,14 +2273,24 @@ export class CityBuilder {
     bridgeWindow.position.set(3.5, 6.0, 0);
     yacht1.add(deck1, deck2, bridgeWindow);
 
-    // Radar Arch & Satellite Domes
+    // Radar Arch & Satellite Domes with Spinning Scanner
     const radarArch = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 3.6), this.defaultMats.blue);
     radarArch.position.set(-3.5, 8.2, 0);
     const domeL = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), this.defaultMats.orange);
     domeL.position.set(-3.5, 9.8, -1.2);
     const domeR = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), this.defaultMats.orange);
     domeR.position.set(-3.5, 9.8, 1.2);
-    yacht1.add(radarArch, domeL, domeR);
+
+    const radarBar = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.15, 0.3), this.defaultMats.black);
+    radarBar.position.set(-3.5, 10.4, 0);
+    this.yachtRadars.push(radarBar);
+
+    // Monaco Flag on Stern Staff
+    const flagPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.4), this.defaultMats.black);
+    flagPole.position.set(-12.5, 3.8, 0);
+    const monacoFlag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 1.2), this.defaultMats.red);
+    monacoFlag.position.set(-12.5, 4.4, 0.6);
+    yacht1.add(radarArch, domeL, domeR, radarBar, flagPole, monacoFlag);
 
     // Helipad / VIP party terrace on Sun Deck
     const helipad = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.15, 12), this.defaultMats.blue);
@@ -1858,12 +2368,24 @@ export class CityBuilder {
     fountainJet.position.set(0, 1.6, 12);
     casino.add(fountainRing, fountainWater, fountainJet);
 
-    // Parked exotic supercars outside Casino
-    const car1 = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 1.8), this.defaultMats.red);
-    car1.position.set(-6, 0.6, 12);
-    const car2 = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 1.8), this.defaultMats.black);
-    car2.position.set(6, 0.6, 12);
-    casino.add(car1, car2);
+    // 4 Exotic Supercars Parked in Casino Square Plaza
+    // 1. Ferrari 296 GTB (Rosso Corsa Red)
+    const carFerrari = new THREE.Mesh(new THREE.BoxGeometry(3.9, 1.15, 1.9), this.defaultMats.red);
+    carFerrari.position.set(-6.5, 0.58, 12);
+    // 2. Lamborghini Revuelto with Angular Wing (Cyber Yellow)
+    const carLambo = new THREE.Mesh(new THREE.BoxGeometry(4.1, 1.05, 2.0), this.defaultMats.orange);
+    carLambo.position.set(6.5, 0.53, 12);
+    const lamboWing = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 1.8), this.defaultMats.black);
+    lamboWing.position.set(6.5, 1.15, 13.8);
+    // 3. Porsche 911 GT3 RS with Swan-Neck Wing
+    const carPorsche = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 1.85), this.defaultMats.black);
+    carPorsche.position.set(-6.5, 0.6, 16);
+    // 4. Rolls-Royce Phantom (Midnight Blue with prominent grille)
+    const carRolls = new THREE.Mesh(new THREE.BoxGeometry(4.6, 1.45, 2.1), this.defaultMats.blue);
+    carRolls.position.set(6.5, 0.72, 16);
+    const rollsGrille = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.9, 1.2), this.defaultMats.cyan);
+    rollsGrille.position.set(6.5, 0.75, 14.9);
+    casino.add(carFerrari, carLambo, lamboWing, carPorsche, carRolls, rollsGrille);
 
     // Monaco Billboard 6: Monte Carlo Casino Square Plaza Billboard
     const bbCasino = this.createAdBillboardMesh(this.monacoAdConfigs[5], 7.2, 2.2, casino);
@@ -1871,6 +2393,35 @@ export class CityBuilder {
     casino.add(bbCasino);
 
     casinoGroup.add(casino);
+
+    // Hôtel de Paris Monte-Carlo (Adjacent to Casino Square)
+    const hdp = new THREE.Group();
+    hdp.position.set(24, 0, -38);
+    const hdpBody = new THREE.Mesh(new THREE.BoxGeometry(16, 14, 12), this.defaultMats.blue);
+    hdpBody.position.set(0, 7, 0);
+    const hdpCanopy = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.25, 2.8), this.defaultMats.red);
+    hdpCanopy.position.set(0, 3.8, 6.5);
+    hdp.add(hdpBody, hdpCanopy);
+    casinoGroup.add(hdp);
+
+    // Café de Paris Terrace with Outdoor Bistro Parasols
+    const cdp = new THREE.Group();
+    cdp.position.set(-6, 0, -48);
+    const cdpBody = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 8), this.defaultMats.blue);
+    cdpBody.position.set(0, 4, 0);
+    const cdpAwning = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.2, 2.4), this.defaultMats.orange);
+    cdpAwning.position.set(0, 3.2, 4.2);
+    cdpAwning.rotation.x = 0.25;
+    // Bistro parasols
+    for (let px = -4; px <= 4; px += 4) {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.2), this.defaultMats.black);
+      pole.position.set(px, 1.1, 6.2);
+      const parasol = new THREE.Mesh(new THREE.ConeGeometry(1.2, 0.6, 6), this.defaultMats.red);
+      parasol.position.set(px, 2.3, 6.2);
+      cdp.add(pole, parasol);
+    }
+    cdp.add(cdpBody, cdpAwning);
+    casinoGroup.add(cdp);
 
     // 2. Fairmont Hotel overlooking the Fairmont Hairpin (X: -18, Z: -36)
     const fairmont = new THREE.Group();
@@ -2021,6 +2572,16 @@ export class CityBuilder {
       const rwEndR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.65, 0.65), team.accentColor);
       rwEndR.position.set(0.8, 0.75, -1.7);
 
+      // Rear Rain / ERS Blinking Safety Light
+      const rearLight = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.15), this.defaultMats.red);
+      rearLight.position.set(0, 0.42, -1.92);
+
+      // Titanium Skid Plate Spark Trail Mesh
+      const spark = new THREE.Mesh(new THREE.ConeGeometry(0.24, 1.4, 4), this.defaultMats.orange);
+      spark.position.set(0, 0.12, -2.5);
+      spark.rotation.x = -Math.PI / 2;
+      spark.visible = false;
+
       carGroup.add(
         nose,
         cockpit,
@@ -2035,7 +2596,9 @@ export class CityBuilder {
         fwEndR,
         rearWing,
         rwEndL,
-        rwEndR
+        rwEndR,
+        rearLight,
+        spark
       );
 
       // 4 Pirelli Slick Tires on Wishbone Suspension Arms
@@ -2070,6 +2633,9 @@ export class CityBuilder {
         speed: team.speed,
         progress: team.progress,
         wheels,
+        frontWheels: [wheels[0], wheels[1]],
+        rearLight,
+        spark,
         name: team.name,
       });
     });
@@ -2125,6 +2691,7 @@ export class CityBuilder {
 
     // 2. Animate Monaco F1 race cars along the track
     if (this.f1TrackCurve && this.f1Cars.length > 0) {
+      const time = performance.now() / 1000;
       this.f1Cars.forEach((car) => {
         car.progress = (car.progress + car.speed * delta) % 1.0;
         const pos = this.f1TrackCurve!.getPointAt(car.progress);
@@ -2133,35 +2700,117 @@ export class CityBuilder {
         const lookTarget = pos.clone().add(tangent);
         car.group.lookAt(lookTarget);
 
+        // Dynamic Front Wheel Steering Angle based on corner curve
+        const nextTangent = this.f1TrackCurve!.getTangentAt((car.progress + 0.02) % 1.0);
+        const steerSign = tangent.x * nextTangent.z - tangent.z * nextTangent.x;
+        const steerAngle = THREE.MathUtils.clamp(steerSign * 8.0, -0.45, 0.45);
+        if (car.frontWheels.length >= 2) {
+          car.frontWheels[0].rotation.y = steerAngle;
+          car.frontWheels[1].rotation.y = steerAngle;
+        }
+
+        // Spin Wheels
         car.wheels.forEach((w) => {
           w.rotation.x += car.speed * delta * 55;
         });
+
+        // Blinking Red Rain/ERS Safety LED
+        if (car.rearLight) {
+          car.rearLight.visible = Math.sin(time * 26) > 0;
+        }
+
+        // Titanium Skid Plate Sparks on High-Speed Straightaways (Pit Straight & Tunnel Exit)
+        const isHighSpeed = (car.progress > 0.95 || car.progress < 0.22) || (car.progress > 0.58 && car.progress < 0.68);
+        if (car.spark) {
+          car.spark.visible = isHighSpeed && Math.random() > 0.35;
+          if (car.spark.visible) {
+            const ss = 0.8 + Math.random() * 0.6;
+            car.spark.scale.set(ss, ss * (1.0 + Math.random() * 0.8), ss);
+          }
+        }
       });
     }
 
-    // 3. Gentle bobbing of luxury superyachts in Monaco harbor
+    // 3. Gentle bobbing of luxury superyachts in Monaco harbor & spinning radars
     if (this.yachts.length > 0) {
       const time = performance.now() / 1000;
       this.yachts.forEach((yacht, i) => {
         yacht.position.y = (yacht.userData.baseY || 0) + Math.sin(time * 1.6 + i * 1.2) * 0.07;
         yacht.rotation.z = Math.sin(time * 1.2 + i * 0.9) * 0.012;
       });
+
+      this.yachtRadars.forEach((radar) => {
+        radar.rotation.y += 3.2 * delta;
+      });
     }
 
-    // 4. Animate High Line Subway Train
+    // 4. Animate High-Speed Yacht Tender / Speedboat in Port Hercule
+    if (this.tenderBoat) {
+      this.tenderBoat.progress = (this.tenderBoat.progress + this.tenderBoat.speed * delta) % 1.0;
+      const angle = this.tenderBoat.progress * Math.PI * 2;
+      const tx = -14 + Math.cos(angle) * 16;
+      const tz = 7 + Math.sin(angle * 2) * 5;
+      const nextAngle = (this.tenderBoat.progress + 0.01) * Math.PI * 2;
+      const ntx = -14 + Math.cos(nextAngle) * 16;
+      const ntz = 7 + Math.sin(nextAngle * 2) * 5;
+
+      this.tenderBoat.group.position.set(tx, 0.12 + Math.sin(angle * 4) * 0.03, tz);
+      this.tenderBoat.group.lookAt(ntx, 0.12, ntz);
+
+      // Pulse and scale water wake
+      const wakeScale = 1.0 + Math.sin(angle * 6) * 0.2;
+      this.tenderBoat.wake.scale.set(wakeScale, 1.0, wakeScale);
+    }
+
+    // 5. Animate Walking NYC Pedestrians
+    if (this.pedestrians.length > 0) {
+      const time = performance.now() / 1000;
+      this.pedestrians.forEach((p, idx) => {
+        const step = p.dir * p.speed * delta;
+        if (p.axis === "x") {
+          p.group.position.x += step;
+          if (p.dir > 0 && p.group.position.x > p.max) {
+            p.dir = -1;
+            p.group.rotation.y = -Math.PI / 2;
+          } else if (p.dir < 0 && p.group.position.x < p.min) {
+            p.dir = 1;
+            p.group.rotation.y = Math.PI / 2;
+          }
+        } else {
+          p.group.position.z += step;
+          if (p.dir > 0 && p.group.position.z > p.max) {
+            p.dir = -1;
+            p.group.rotation.y = Math.PI;
+          } else if (p.dir < 0 && p.group.position.z < p.min) {
+            p.dir = 1;
+            p.group.rotation.y = 0;
+          }
+        }
+
+        // Bob torso and swing legs
+        const walkPhase = time * 7 + idx * 1.5;
+        p.group.position.y = 0.16 + Math.abs(Math.sin(walkPhase)) * 0.06;
+        if (p.legs.length >= 2) {
+          p.legs[0].rotation.x = Math.sin(walkPhase) * 0.45;
+          p.legs[1].rotation.x = -Math.sin(walkPhase) * 0.45;
+        }
+      });
+    }
+
+    // 6. Animate High Line Subway Train
     if (this.subwayTrain) {
       this.trainProgress += 16 * delta;
       if (this.trainProgress > 65) this.trainProgress = -65;
       this.subwayTrain.position.x = this.trainProgress;
     }
 
-    // 5. Drift clouds across the sky
+    // 7. Drift clouds across the sky
     this.clouds.forEach((cloud) => {
       cloud.position.x += 1.6 * delta;
       if (cloud.position.x > 80) cloud.position.x = -80;
     });
 
-    // 6. Bank and orbit the folded doodle paper airplane
+    // 8. Bank and orbit the folded doodle paper airplane
     if (this.paperAirplane) {
       this.airplaneAngle += 0.22 * delta;
       const r = 44;
@@ -2172,7 +2821,7 @@ export class CityBuilder {
       this.paperAirplane.rotation.z = Math.cos(this.airplaneAngle * 2) * 0.18;
     }
 
-    // 7. Animate steaming manholes
+    // 9. Animate steaming manholes
     this.steamPuffs.forEach((puff, idx) => {
       const t = performance.now() / 1000 + puff.timeOffset;
       puff.mesh.position.y = puff.basePos.y + (t % 1.6) * 1.2;
