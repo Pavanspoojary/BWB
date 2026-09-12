@@ -237,7 +237,7 @@ describe('Tier 1: TrustMRR Clone - Static Distribution & Routes Integrity', () =
     expect(existsSync(join(dist, 'city', 'index.html'))).toBe(true);
   });
 
-  it('verifies /city page contains 3D doodle canvas and interactive tycoon HUD', () => {
+  it('verifies /city page contains 3D doodle canvas and interactive tycoon HUD with NYC and Monaco maps', () => {
     const cityPath = join(process.cwd(), 'dist', 'city', 'index.html');
     const html = readFileSync(cityPath, 'utf-8');
     expect(html).toContain('DOODLE CITY');
@@ -245,14 +245,26 @@ describe('Tier 1: TrustMRR Clone - Static Distribution & Routes Integrity', () =
     expect(html).toContain('btn-mode-orbit');
     expect(html).toContain('btn-mode-walk');
     expect(html).toContain('ad-sponsor-form');
+    expect(html).toContain('NEW YORK CITY');
+    expect(html).toContain('F1 TRACK MONACO');
+    expect(html).toContain('tab-district-nyc');
+    expect(html).toContain('tab-district-monaco');
+    expect(html).toContain('hud-map-nyc');
+    expect(html).toContain('hud-map-monaco');
   });
 
-  it('verifies index.html contains Doodle District brand and 3D canvas', () => {
+  it('verifies index.html contains Doodle District brand, 3D canvas and NYC & Monaco map selection', () => {
     const indexPath = join(process.cwd(), 'dist', 'index.html');
     const html = readFileSync(indexPath, 'utf-8');
     expect(html).toContain('DOODLE DISTRICT');
     expect(html).toContain('doodle-canvas');
     expect(html).toContain('builtwhilebroke');
+    expect(html).toContain('NEW YORK CITY');
+    expect(html).toContain('F1 TRACK MONACO');
+    expect(html).toContain('tab-district-nyc');
+    expect(html).toContain('tab-district-monaco');
+    expect(html).toContain('hud-map-nyc');
+    expect(html).toContain('hud-map-monaco');
   });
 
   it('verifies /goal page contains milestone inputs and calculator elements', () => {

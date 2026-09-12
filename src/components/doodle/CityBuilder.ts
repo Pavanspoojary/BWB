@@ -45,12 +45,15 @@ export class CityBuilder {
   public buildings: THREE.Group[] = [];
   public selectedAdSpace: AdSpace | null = null;
   public buildTool: BuildingType | "select" | "demolish" = "select";
-  public currentDistrict: "tech" | "indie" = "tech";
+  public currentDistrict: "tech" | "indie" | "nyc" | "monaco" = "nyc";
 
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
   private groundPlane: THREE.Mesh;
   private trafficCars: TrafficVehicle[] = [];
+  private f1Cars: { group: THREE.Group; speed: number; progress: number; wheels: THREE.Mesh[]; name: string }[] = [];
+  private f1TrackCurve: THREE.CatmullRomCurve3 | null = null;
+  private yachts: THREE.Group[] = [];
   private clouds: THREE.Group[] = [];
   private paperAirplane: THREE.Group | null = null;
   private subwayTrain: THREE.Group | null = null;
@@ -158,6 +161,90 @@ export class CityBuilder {
       sponsorName: "BUILT WHILE BROKE",
       sponsorTagline: "Radical zero-dollar architecture hacks",
       accentColor: "#d02030",
+      isAvailable: true,
+    },
+  ];
+
+  // Pre-configured Monaco Grand Prix F1 sponsor billboards
+  private monacoAdConfigs = [
+    {
+      title: "Start/Finish Pit Straight Gantry",
+      category: "Highway Billboard" as const,
+      viewsMonthly: 340000,
+      priceMonthly: 3200,
+      sponsorName: "TAG HEUER",
+      sponsorTagline: "Official Timekeeper of the Monaco Grand Prix",
+      accentColor: "#dc2626",
+      isAvailable: false,
+    },
+    {
+      title: "Fairmont Hairpin Grandstand Apex Wall",
+      category: "Wall Banner" as const,
+      viewsMonthly: 290000,
+      priceMonthly: 2600,
+      sponsorName: "PIRELLI",
+      sponsorTagline: "P Zero F1 Slick Racing Compounds",
+      accentColor: "#f59e0b",
+      isAvailable: false,
+    },
+    {
+      title: "The Monaco Tunnel Entrance Overpass",
+      category: "Highway Billboard" as const,
+      viewsMonthly: 310000,
+      priceMonthly: 2800,
+      sponsorName: "RED BULL",
+      sponsorTagline: "Gives You Wings · Oracle Racing",
+      accentColor: "#1d4ed8",
+      isAvailable: false,
+    },
+    {
+      title: "M/Y Doodle - Harbor Superyacht VIP Deck",
+      category: "Rooftop Billboard" as const,
+      viewsMonthly: 240000,
+      priceMonthly: 2100,
+      sponsorName: "FERRARI",
+      sponsorTagline: "Scuderia Ferrari HP · Passion & Speed",
+      accentColor: "#b91c1c",
+      isAvailable: false,
+    },
+    {
+      title: "Swimming Pool Chicane Pedestrian Bridge",
+      category: "Highway Billboard" as const,
+      viewsMonthly: 215000,
+      priceMonthly: 1950,
+      sponsorName: "MERCEDES-AMG",
+      sponsorTagline: "Petronas F1 Team · Performance Engineering",
+      accentColor: "#0d9488",
+      isAvailable: false,
+    },
+    {
+      title: "Monte Carlo Casino Square Plaza",
+      category: "Wall Banner" as const,
+      viewsMonthly: 275000,
+      priceMonthly: 2500,
+      sponsorName: "MCLAREN",
+      sponsorTagline: "Papaya Orange · Speed & Innovation",
+      accentColor: "#ea580c",
+      isAvailable: false,
+    },
+    {
+      title: "Portier Corner - Harbor Wall Barrier",
+      category: "Street Kiosk" as const,
+      viewsMonthly: 130000,
+      priceMonthly: 1100,
+      sponsorName: "RAYCAST",
+      sponsorTagline: "Supercharged Developer Shortcuts",
+      accentColor: "#ef4444",
+      isAvailable: true,
+    },
+    {
+      title: "Nouvelle Chicane Braking Zone",
+      category: "Street Kiosk" as const,
+      viewsMonthly: 145000,
+      priceMonthly: 1250,
+      sponsorName: "SUPABASE",
+      sponsorTagline: "Postgres Database for High Speed Apps",
+      accentColor: "#10b981",
       isAvailable: true,
     },
   ];
@@ -1280,25 +1367,15 @@ export class CityBuilder {
   }
 
   // District switcher
-  public switchDistrict(district: "tech" | "indie") {
-    this.currentDistrict = district;
+  // District switcher: Map 1 (New York City) vs Map 2 (F1 Track Monaco)
+  public switchDistrict(district: "tech" | "indie" | "nyc" | "monaco") {
+    const target = district === "indie" || district === "monaco" ? "monaco" : "nyc";
+    this.currentDistrict = target;
     this.clearDistrict();
-    if (district === "tech") {
+    if (target === "nyc") {
       this.buildNewYorkCity();
     } else {
-      // Indie Village: Focus on Brownstones, Green Parks, Water Towers, Cafes
-      this.createManhattanStreetGrid();
-      this.createBrownstoneRow(-38, -20);
-      this.createBrownstoneRow(-38, 10);
-      this.createBrownstoneRow(38, -20);
-      this.createBrownstoneRow(38, 10);
-      this.createFlatironBuilding(0, -6);
-      this.createCentralPark(0, 24);
-      this.createCentralPark(-18, -6);
-      this.createSubwayEntrances();
-      this.createNYCYellowCabs();
-      this.createStreetFurniture();
-      this.createAtmosphere();
+      this.buildMonacoCircuit();
     }
     doodleAudio.scribble();
   }
@@ -1309,16 +1386,725 @@ export class CityBuilder {
     this.adSpaces.clear();
     this.trafficCars.forEach((c) => this.engine.scene.remove(c.group));
     this.trafficCars = [];
+    this.f1Cars.forEach((c) => this.engine.scene.remove(c.group));
+    this.f1Cars = [];
+    this.yachts.forEach((y) => this.engine.scene.remove(y));
+    this.yachts = [];
     this.clouds.forEach((c) => this.engine.scene.remove(c));
     this.clouds = [];
     if (this.paperAirplane) this.engine.scene.remove(this.paperAirplane);
     this.paperAirplane = null;
+    if (this.subwayTrain) this.engine.scene.remove(this.subwayTrain);
+    this.subwayTrain = null;
     this.steamPuffs = [];
+    this.f1TrackCurve = null;
   }
 
-  // Animation Update Loop: Vehicles, Subway train, Clouds, Paper airplane, Steaming manholes
+  // ==========================================
+  // MAP 2: AUTHENTIC F1 CIRCUIT DE MONACO
+  // ==========================================
+  public buildMonacoCircuit() {
+    this.createMonacoTrack();
+    this.createMonacoTunnel();
+    this.createPortHerculeHarbor();
+    this.createSuperyachts();
+    this.createMonteCarloCasinoAndVillas();
+    this.createF1Grandstands();
+    this.createF1Cars();
+    this.createMonacoAtmosphere();
+  }
+
+  // 1. Monaco F1 Track Layout with Kerbs, Armco, Starting Grid & Gantry
+  private createMonacoTrack() {
+    const trackGroup = new THREE.Group();
+
+    // Circuit de Monaco closed racing line loop
+    const waypoints = [
+      // 1. Pit Straight (Boulevard Albert 1er alongside the harbor)
+      new THREE.Vector3(-32, 0.05, 26),
+      new THREE.Vector3(-10, 0.05, 26),
+      new THREE.Vector3(12, 0.05, 26),
+      new THREE.Vector3(28, 0.05, 26),
+
+      // 2. Turn 1: Sainte-Dévote
+      new THREE.Vector3(40, 0.05, 23),
+      new THREE.Vector3(45, 0.05, 14),
+
+      // 3. Beau Rivage (uphill climb to Casino)
+      new THREE.Vector3(44, 0.05, 0),
+      new THREE.Vector3(40, 0.05, -16),
+      new THREE.Vector3(34, 0.05, -30),
+
+      // 4. Massenet (Turn 3) & Casino Square (Turn 4)
+      new THREE.Vector3(22, 0.05, -40),
+      new THREE.Vector3(8, 0.05, -44),
+      new THREE.Vector3(-4, 0.05, -43),
+
+      // 5. Mirabeau Haute (Turn 5)
+      new THREE.Vector3(-14, 0.05, -40),
+
+      // 6. Fairmont Hairpin (Turn 6) - 180° slowest hairpin in F1
+      new THREE.Vector3(-20, 0.05, -35),
+      new THREE.Vector3(-15, 0.05, -28),
+
+      // 7. Mirabeau Bas & Portier (Turn 7 & 8)
+      new THREE.Vector3(-18, 0.05, -20),
+      new THREE.Vector3(-28, 0.05, -14),
+
+      // 8. The Monaco Tunnel (Turn 9)
+      new THREE.Vector3(-40, 0.05, -10),
+      new THREE.Vector3(-50, 0.05, -2),
+      new THREE.Vector3(-53, 0.05, 8),
+
+      // 9. Nouvelle Chicane (Turns 10 & 11) - Harbor exit
+      new THREE.Vector3(-50, 0.05, 14),
+      new THREE.Vector3(-46, 0.05, 17),
+
+      // 10. Tabac (Turn 12)
+      new THREE.Vector3(-44, 0.05, 20),
+
+      // 11. Swimming Pool Chicane (Turns 13-16)
+      new THREE.Vector3(-42, 0.05, 23),
+      new THREE.Vector3(-46, 0.05, 25),
+      new THREE.Vector3(-42, 0.05, 27),
+
+      // 12. La Rascasse (Turns 17 & 18)
+      new THREE.Vector3(-44, 0.05, 28),
+
+      // 13. Anthony Noghès (Turn 19)
+      new THREE.Vector3(-38, 0.05, 27),
+    ];
+
+    this.f1TrackCurve = new THREE.CatmullRomCurve3(waypoints, true);
+
+    const numPts = 160;
+    const pts = this.f1TrackCurve.getPoints(numPts);
+
+    for (let i = 0; i < numPts; i++) {
+      const p1 = pts[i];
+      const p2 = pts[(i + 1) % pts.length];
+      const tangent = p2.clone().sub(p1).normalize();
+      const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
+      const segLen = p1.distanceTo(p2);
+      const mid = p1.clone().add(p2).multiplyScalar(0.5);
+      const rotY = Math.atan2(tangent.x, tangent.z);
+
+      // Asphalt track ribbon
+      const road = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.03, segLen), this.defaultMats.black);
+      road.position.set(mid.x, 0.02, mid.z);
+      road.rotation.y = rotY;
+      trackGroup.add(road);
+
+      // Centerline white dashes
+      if (i % 2 === 0) {
+        const dash = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, segLen * 0.5), this.defaultMats.blue);
+        dash.position.set(mid.x, 0.035, mid.z);
+        dash.rotation.y = rotY;
+        trackGroup.add(dash);
+      }
+
+      // Steel Armco Barriers along track edges
+      const barrierL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, segLen), this.defaultMats.blue);
+      barrierL.position.copy(mid).add(normal.clone().multiplyScalar(3.2));
+      barrierL.position.y = 0.35;
+      barrierL.rotation.y = rotY;
+
+      const barrierR = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, segLen), this.defaultMats.blue);
+      barrierR.position.copy(mid).add(normal.clone().multiplyScalar(-3.2));
+      barrierR.position.y = 0.35;
+      barrierR.rotation.y = rotY;
+      trackGroup.add(barrierL, barrierR);
+
+      // Red & White Kerbs on sharp corners
+      const isCorner =
+        (i >= 18 && i <= 32) || // Sainte-Dévote
+        (i >= 50 && i <= 72) || // Casino & Mirabeau
+        (i >= 78 && i <= 95) || // Fairmont Hairpin
+        (i >= 115 && i <= 130) || // Nouvelle Chicane
+        (i >= 135 && i <= 155); // Swimming pool & Rascasse
+
+      if (isCorner) {
+        const kerbMat = (i % 2 === 0) ? this.defaultMats.red : this.defaultMats.orange;
+        const kerb = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, segLen), kerbMat);
+        kerb.position.copy(mid).add(normal.clone().multiplyScalar(3.0));
+        kerb.position.y = 0.04;
+        kerb.rotation.y = rotY;
+        trackGroup.add(kerb);
+      }
+    }
+
+    // --- Pit Straight Features ---
+    // Start / Finish Checkered Line at X: 5, Z: 26
+    const sfLine = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.05, 1.2), this.defaultMats.black);
+    sfLine.position.set(5, 0.03, 26);
+    trackGroup.add(sfLine);
+    for (let c = -2.8; c <= 2.8; c += 0.7) {
+      const checker = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.5), this.defaultMats.blueFill);
+      checker.position.set(5 + (Math.abs(c) % 1.4 < 0.7 ? 0.3 : -0.3), 0.04, 26 + c);
+      trackGroup.add(checker);
+    }
+
+    // 8 Starting Grid Slots (White brackets)
+    for (let g = 0; g < 8; g++) {
+      const gx = -2 - g * 3.6;
+      const gz = g % 2 === 0 ? 27.2 : 24.8;
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.04, 2.6), this.defaultMats.blue);
+      box.position.set(gx, 0.035, gz);
+      trackGroup.add(box);
+    }
+
+    // Pit Wall separating the Pit Lane
+    const pitWall = new THREE.Mesh(new THREE.BoxGeometry(48, 1.1, 0.35), this.defaultMats.blue);
+    pitWall.position.set(-2, 0.55, 29.5);
+    trackGroup.add(pitWall);
+
+    // 4 Team Telemetry Perches with Canopies & Screens
+    [-18, -8, 2, 12].forEach((px) => {
+      const perch = new THREE.Group();
+      perch.position.set(px, 1.1, 29.5);
+      const canopy = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.1, 1.6), this.defaultMats.blue);
+      canopy.position.set(0, 1.2, 0);
+      const pillar1 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2), this.defaultMats.black);
+      pillar1.position.set(-1.4, 0.6, 0.6);
+      const pillar2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2), this.defaultMats.black);
+      pillar2.position.set(1.4, 0.6, 0.6);
+      const screen = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.6, 0.1), this.defaultMats.cyan);
+      screen.position.set(0, 0.5, -0.2);
+      perch.add(canopy, pillar1, pillar2, screen);
+      trackGroup.add(perch);
+    });
+
+    // Overhead Starting Gantry Bridge spanning across the track at X: 5, Z: 26
+    const gantry = new THREE.Group();
+    gantry.position.set(5, 0, 26);
+    const pLeft = new THREE.Mesh(new THREE.BoxGeometry(0.6, 7.2, 0.6), this.defaultMats.blue);
+    pLeft.position.set(0, 3.6, -3.6);
+    const pRight = new THREE.Mesh(new THREE.BoxGeometry(0.6, 7.2, 0.6), this.defaultMats.blue);
+    pRight.position.set(0, 3.6, 3.6);
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 7.8), this.defaultMats.blue);
+    beam.position.set(0, 7.0, 0);
+    gantry.add(pLeft, pRight, beam);
+
+    // 5 Red F1 Starting Lights
+    for (let l = -1.6; l <= 1.6; l += 0.8) {
+      const lightBox = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.9, 0.3), this.defaultMats.black);
+      lightBox.position.set(0, 6.2, l);
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), this.defaultMats.red);
+      lamp.position.set(0.2, 0, 0);
+      lightBox.add(lamp);
+      gantry.add(lightBox);
+    }
+
+    // Monaco Billboard 1: Start/Finish Rolex / Tag Heuer Gantry Billboard
+    const bbGantry = this.createAdBillboardMesh(this.monacoAdConfigs[0], 6.8, 1.8, gantry);
+    bbGantry.position.set(0.45, 5.0, 0);
+    bbGantry.rotation.y = -Math.PI / 2;
+    gantry.add(bbGantry);
+
+    trackGroup.add(gantry);
+    this.engine.scene.add(trackGroup);
+    this.buildings.push(trackGroup);
+  }
+
+  // 2. The Famous Covered Monaco Tunnel
+  private createMonacoTunnel() {
+    const tunnelGroup = new THREE.Group();
+    const tunnelLength = 22;
+    const tunnelRadius = 4.2;
+
+    // Arched Ribbed Roof
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10;
+      const x = -36 - t * 16;
+      const z = -12 + t * 18;
+      const rotY = Math.atan2(-16, 18);
+
+      const rib = new THREE.Mesh(
+        new THREE.TorusGeometry(tunnelRadius, 0.22, 8, 16, Math.PI),
+        this.defaultMats.black
+      );
+      rib.position.set(x, 0.1, z);
+      rib.rotation.y = rotY;
+      rib.rotation.x = Math.PI / 2;
+      tunnelGroup.add(rib);
+
+      // Overhead yellow/warm interior tunnel glow light
+      const ceilLight = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 1.4), this.defaultMats.orange);
+      ceilLight.position.set(x, tunnelRadius - 0.2, z);
+      tunnelGroup.add(ceilLight);
+    }
+
+    // Solid Tunnel Ceiling Shell
+    const shell = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.35, tunnelLength + 2), this.defaultMats.blue);
+    shell.position.set(-44, tunnelRadius + 0.2, -3);
+    shell.rotation.y = Math.atan2(-16, 18);
+    tunnelGroup.add(shell);
+
+    // Tunnel Sea-side Structural View Pillars
+    for (let p = -10; p <= 6; p += 3.5) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.5, tunnelRadius, 0.8), this.defaultMats.blue);
+      pillar.position.set(-41.5 + (p + 10) * -0.75, tunnelRadius / 2, p);
+      tunnelGroup.add(pillar);
+    }
+
+    // Monaco Billboard 3: Tunnel Entrance Overpass Billboard
+    const portalGantry = new THREE.Group();
+    portalGantry.position.set(-35, 0, -13);
+    portalGantry.rotation.y = Math.atan2(-16, 18);
+    const bbTunnel = this.createAdBillboardMesh(this.monacoAdConfigs[2], 6.5, 2.0, portalGantry);
+    bbTunnel.position.set(0, 4.2, 0);
+    portalGantry.add(bbTunnel);
+    tunnelGroup.add(portalGantry);
+
+    this.engine.scene.add(tunnelGroup);
+    this.buildings.push(tunnelGroup);
+  }
+
+  // 3. Port Hercule Harbor with Waterfront Piers & Rainier Swimming Pool
+  private createPortHerculeHarbor() {
+    const harborGroup = new THREE.Group();
+
+    // Mediterranean Blue Water Surface Basin
+    const waterGeo = new THREE.PlaneGeometry(54, 25);
+    waterGeo.rotateX(-Math.PI / 2);
+    const waterMat = this.defaultMats.blueFill;
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.position.set(-14, 0.015, 6);
+    harborGroup.add(water);
+
+    // Wave ripple doodle lines
+    for (let w = 0; w < 16; w++) {
+      const ripple = new THREE.Mesh(new THREE.BoxGeometry(2.5 + (w % 3) * 1.5, 0.02, 0.1), this.defaultMats.cyan);
+      ripple.position.set(-36 + (w * 4.2) % 48, 0.025, -4 + (w * 3.5) % 20);
+      harborGroup.add(ripple);
+    }
+
+    // Concrete Quayside Piers with Mooring Cleats
+    const quai1 = new THREE.Mesh(new THREE.BoxGeometry(54, 0.25, 1.8), this.defaultMats.blue);
+    quai1.position.set(-14, 0.12, 19.5);
+    const quai2 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.25, 25), this.defaultMats.blue);
+    quai2.position.set(13.5, 0.12, 6);
+    harborGroup.add(quai1, quai2);
+
+    // Mooring Bollards
+    for (let bx = -36; bx <= 10; bx += 5.5) {
+      const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.45, 8), this.defaultMats.black);
+      bollard.position.set(bx, 0.35, 19.8);
+      harborGroup.add(bollard);
+    }
+
+    // Palm Trees along the Quayside Boulevard
+    for (let px = -34; px <= 8; px += 7) {
+      const palm = this.createPalmTree(px, 21.5);
+      harborGroup.add(palm);
+    }
+
+    // Rainier III Nautical Stadium (Swimming Pool Chicane Section)
+    const poolGroup = new THREE.Group();
+    poolGroup.position.set(-38, 0, 19);
+
+    const poolBasin = new THREE.Mesh(new THREE.BoxGeometry(14, 0.4, 7), this.defaultMats.cyan);
+    poolBasin.position.set(0, 0.2, 0);
+    const poolWater = new THREE.Mesh(new THREE.PlaneGeometry(13.2, 6.2), this.defaultMats.blueFill);
+    poolWater.rotateX(-Math.PI / 2);
+    poolWater.position.set(0, 0.41, 0);
+    poolGroup.add(poolBasin, poolWater);
+
+    // 10m Olympic Diving Tower
+    const diveTower = new THREE.Group();
+    diveTower.position.set(-5.5, 0, 0);
+    const dPlatform = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.15, 1.2), this.defaultMats.blue);
+    dPlatform.position.set(0, 5.0, 0);
+    const dLadder = new THREE.Mesh(new THREE.BoxGeometry(0.3, 5.0, 0.3), this.defaultMats.blue);
+    dLadder.position.set(0, 2.5, 0);
+    diveTower.add(dPlatform, dLadder);
+    poolGroup.add(diveTower);
+
+    // Monaco Billboard 5: Swimming Pool Chicane Pedestrian Overpass Bridge
+    const bridgeGroup = new THREE.Group();
+    bridgeGroup.position.set(-43.5, 0, 24);
+    const bridgeArch = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 7.5), this.defaultMats.blue);
+    bridgeArch.position.set(0, 4.2, 0);
+    const b1 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 4.2), this.defaultMats.black);
+    b1.position.set(0, 2.1, -3.5);
+    const b2 = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 4.2), this.defaultMats.black);
+    b2.position.set(0, 2.1, 3.5);
+    bridgeGroup.add(bridgeArch, b1, b2);
+
+    const bbBridge = this.createAdBillboardMesh(this.monacoAdConfigs[4], 6.0, 1.4, bridgeGroup);
+    bbBridge.position.set(0, 4.2, 0);
+    bridgeGroup.add(bbBridge);
+    harborGroup.add(bridgeGroup);
+
+    // Monaco Billboard 7 & 8: Portier & Nouvelle Chicane Kiosks
+    const kiosk1 = this.createStreetKiosk(-24, -14, 6);
+    const kiosk2 = this.createStreetKiosk(-48, 12, 7);
+    harborGroup.add(kiosk1, kiosk2);
+
+    harborGroup.add(poolGroup);
+    this.engine.scene.add(harborGroup);
+    this.buildings.push(harborGroup);
+  }
+
+  // 4. Moored Luxury Superyachts in Port Hercule
+  private createSuperyachts() {
+    // 1. Mega-Yacht "M/Y DOODLE" (Flagship luxury superyacht moored stern-to)
+    const yacht1 = new THREE.Group();
+    yacht1.position.set(-8, 0, 4);
+    yacht1.userData.baseY = 0;
+
+    // Main Hull (Sharp bow, flared deck, swim platform)
+    const hullMat = this.defaultMats.blue;
+    const hull = new THREE.Mesh(new THREE.BoxGeometry(26, 3.2, 6.8), hullMat);
+    hull.position.set(0, 1.2, 0);
+    const bow = new THREE.Mesh(new THREE.ConeGeometry(3.4, 6.0, 4), hullMat);
+    bow.rotation.z = -Math.PI / 2;
+    bow.position.set(16, 1.2, 0);
+    const bootStripe = new THREE.Mesh(new THREE.BoxGeometry(27, 0.25, 6.9), this.defaultMats.cyan);
+    bootStripe.position.set(0, 0.4, 0);
+    yacht1.add(hull, bow, bootStripe);
+
+    // 3-Tier Superstructure
+    const deck1 = new THREE.Mesh(new THREE.BoxGeometry(18, 2.4, 5.8), hullMat);
+    deck1.position.set(-1.5, 3.8, 0);
+    const deck2 = new THREE.Mesh(new THREE.BoxGeometry(12, 2.2, 4.8), hullMat);
+    deck2.position.set(-1.0, 6.0, 0);
+    const bridgeWindow = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.2, 4.9), this.defaultMats.black);
+    bridgeWindow.position.set(3.5, 6.0, 0);
+    yacht1.add(deck1, deck2, bridgeWindow);
+
+    // Radar Arch & Satellite Domes
+    const radarArch = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 3.6), this.defaultMats.blue);
+    radarArch.position.set(-3.5, 8.2, 0);
+    const domeL = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), this.defaultMats.orange);
+    domeL.position.set(-3.5, 9.8, -1.2);
+    const domeR = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), this.defaultMats.orange);
+    domeR.position.set(-3.5, 9.8, 1.2);
+    yacht1.add(radarArch, domeL, domeR);
+
+    // Helipad / VIP party terrace on Sun Deck
+    const helipad = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.15, 12), this.defaultMats.blue);
+    helipad.position.set(-8.5, 5.1, 0);
+    yacht1.add(helipad);
+
+    // Monaco Billboard 4: M/Y DOODLE - Harbor Superyacht VIP Deck Billboard
+    const bbYacht = this.createAdBillboardMesh(this.monacoAdConfigs[3], 7.5, 2.0, yacht1);
+    bbYacht.position.set(-3.5, 6.2, 2.6);
+    yacht1.add(bbYacht);
+
+    // 2. Tri-Deck Superyacht "S/Y MONTE CARLO"
+    const yacht2 = new THREE.Group();
+    yacht2.position.set(-20, 0, 7);
+    yacht2.userData.baseY = 0;
+    const hull2 = new THREE.Mesh(new THREE.BoxGeometry(20, 2.8, 5.4), hullMat);
+    hull2.position.set(0, 1.0, 0);
+    const cabin2 = new THREE.Mesh(new THREE.BoxGeometry(13, 2.0, 4.4), hullMat);
+    cabin2.position.set(-1, 3.4, 0);
+    const awning = new THREE.Mesh(new THREE.BoxGeometry(6.5, 0.1, 4.2), this.defaultMats.orange);
+    awning.position.set(-4, 4.8, 0);
+    yacht2.add(hull2, cabin2, awning);
+
+    // 3. Sports Cruiser "RIVIERA FLASH"
+    const yacht3 = new THREE.Group();
+    yacht3.position.set(4, 0, 6);
+    yacht3.userData.baseY = 0;
+    const hull3 = new THREE.Mesh(new THREE.BoxGeometry(14, 2.2, 4.2), hullMat);
+    hull3.position.set(0, 0.8, 0);
+    const cabin3 = new THREE.Mesh(new THREE.BoxGeometry(7, 1.6, 3.4), hullMat);
+    cabin3.position.set(-1, 2.6, 0);
+    yacht3.add(hull3, cabin3);
+
+    this.yachts.push(yacht1, yacht2, yacht3);
+    this.engine.scene.add(yacht1, yacht2, yacht3);
+    this.buildings.push(yacht1, yacht2, yacht3);
+  }
+
+  // 5. Casino de Monte Carlo, Fairmont Hotel & Mediterranean Hillside Villas
+  private createMonteCarloCasinoAndVillas() {
+    const casinoGroup = new THREE.Group();
+
+    // 1. Casino de Monte Carlo at Casino Square (X: 10, Z: -48)
+    const casino = new THREE.Group();
+    casino.position.set(10, 0, -48);
+
+    // Grand Beaux-Arts Palatial Base
+    const mainBody = new THREE.Mesh(new THREE.BoxGeometry(26, 12, 14), this.defaultMats.blue);
+    mainBody.position.set(0, 6, 0);
+
+    // 4 Grand Neoclassical Columns
+    for (let c = -4.5; c <= 4.5; c += 3) {
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.42, 10, 8), this.defaultMats.black);
+      col.position.set(c, 5.0, 7.3);
+      casino.add(col);
+    }
+
+    // Triangular Pediment over Portico
+    const pediment = new THREE.Mesh(new THREE.ConeGeometry(5.2, 3.0, 4), this.defaultMats.blue);
+    pediment.position.set(0, 11.5, 7.3);
+    pediment.rotation.y = Math.PI / 4;
+
+    // Green Copper Decorative Dome
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(3.6, 8, 8), this.defaultMats.green);
+    dome.position.set(0, 14, 0);
+
+    casino.add(mainBody, pediment, dome);
+
+    // Casino Plaza with Circular Fountain
+    const fountainRing = new THREE.Mesh(new THREE.CylinderGeometry(3.4, 3.4, 0.5, 16), this.defaultMats.blue);
+    fountainRing.position.set(0, 0.25, 12);
+    const fountainWater = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.1, 0.4, 16), this.defaultMats.cyan);
+    fountainWater.position.set(0, 0.35, 12);
+    const fountainJet = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.25, 2.8, 6), this.defaultMats.cyan);
+    fountainJet.position.set(0, 1.6, 12);
+    casino.add(fountainRing, fountainWater, fountainJet);
+
+    // Parked exotic supercars outside Casino
+    const car1 = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 1.8), this.defaultMats.red);
+    car1.position.set(-6, 0.6, 12);
+    const car2 = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 1.8), this.defaultMats.black);
+    car2.position.set(6, 0.6, 12);
+    casino.add(car1, car2);
+
+    // Monaco Billboard 6: Monte Carlo Casino Square Plaza Billboard
+    const bbCasino = this.createAdBillboardMesh(this.monacoAdConfigs[5], 7.2, 2.2, casino);
+    bbCasino.position.set(0, 7.5, 7.4);
+    casino.add(bbCasino);
+
+    casinoGroup.add(casino);
+
+    // 2. Fairmont Hotel overlooking the Fairmont Hairpin (X: -18, Z: -36)
+    const fairmont = new THREE.Group();
+    fairmont.position.set(-18, 0, -36);
+
+    const fBody = new THREE.Mesh(new THREE.BoxGeometry(16, 11, 10), this.defaultMats.blue);
+    fBody.position.set(0, 5.5, 0);
+
+    // Terraced Balconies overlooking the 180° hairpin
+    for (let floor = 2; floor <= 9; floor += 2.2) {
+      const balcony = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.2, 2.0), this.defaultMats.blue);
+      balcony.position.set(0, floor, 5.2);
+      fairmont.add(balcony);
+    }
+
+    // Monaco Billboard 2: Fairmont Hairpin Grandstand Apex Wall Banner
+    const bbFairmont = this.createAdBillboardMesh(this.monacoAdConfigs[1], 6.8, 2.2, fairmont);
+    bbFairmont.position.set(0, 3.2, 5.3);
+    fairmont.add(bbFairmont);
+
+    fairmont.add(fBody);
+    casinoGroup.add(fairmont);
+
+    // 3. Pastel Riviera Hillside Villas behind Beau Rivage
+    const villaPositions = [
+      { x: 38, z: -20, h: 14, color: this.defaultMats.orange },
+      { x: 42, z: -8, h: 12, color: this.defaultMats.blue },
+      { x: 32, z: -46, h: 15, color: this.defaultMats.green },
+    ];
+
+    villaPositions.forEach((vp) => {
+      const villa = new THREE.Group();
+      villa.position.set(vp.x, 0, vp.z);
+      const vBody = new THREE.Mesh(new THREE.BoxGeometry(9, vp.h, 7), this.defaultMats.blue);
+      vBody.position.set(0, vp.h / 2, 0);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(6.5, 2.5, 4), this.defaultMats.red);
+      roof.position.set(0, vp.h + 1.25, 0);
+      roof.rotation.y = Math.PI / 4;
+      villa.add(vBody, roof);
+      casinoGroup.add(villa);
+    });
+
+    this.engine.scene.add(casinoGroup);
+    this.buildings.push(casinoGroup);
+  }
+
+  // 6. Tiered Spectator Grandstands (Grandstand K & Grandstand T)
+  private createF1Grandstands() {
+    const gsGroup = new THREE.Group();
+
+    // Grandstand K (Harbor-front tiered seating along Tabac / Piscine)
+    const gsK = new THREE.Group();
+    gsK.position.set(-42, 0, 15);
+    gsK.rotation.y = Math.PI / 2;
+
+    // 3 Tiered Seating Steps
+    for (let tier = 0; tier < 4; tier++) {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(16, 0.6, 1.2), this.defaultMats.blue);
+      bench.position.set(0, 0.6 + tier * 0.9, -tier * 1.0);
+      gsK.add(bench);
+
+      // Cheering Spectators (Colorful doodle dots)
+      for (let s = -7; s <= 7; s += 1.4) {
+        const specMat = (Math.abs(s) % 2 < 1) ? this.defaultMats.red : this.defaultMats.orange;
+        const spec = new THREE.Mesh(new THREE.SphereGeometry(0.24, 6, 6), specMat);
+        spec.position.set(s, 1.1 + tier * 0.9, -tier * 1.0);
+        gsK.add(spec);
+      }
+    }
+    gsGroup.add(gsK);
+
+    // Grandstand T (Opposite the Pit Lane & Start/Finish)
+    const gsT = new THREE.Group();
+    gsT.position.set(-5, 0, 34);
+
+    for (let tier = 0; tier < 5; tier++) {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(24, 0.7, 1.2), this.defaultMats.blue);
+      bench.position.set(0, 0.7 + tier * 1.0, tier * 1.1);
+      gsT.add(bench);
+
+      for (let s = -11; s <= 11; s += 1.6) {
+        const specMat = (s % 3 === 0) ? this.defaultMats.red : (s % 3 === 1 ? this.defaultMats.cyan : this.defaultMats.green);
+        const spec = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 6), specMat);
+        spec.position.set(s, 1.3 + tier * 1.0, tier * 1.1);
+        gsT.add(spec);
+      }
+    }
+    gsGroup.add(gsT);
+
+    this.engine.scene.add(gsGroup);
+    this.buildings.push(gsGroup);
+  }
+
+  // 7. 5 Animated Formula 1 Race Cars Racing Around Monaco
+  private createF1Cars() {
+    this.f1Cars = [];
+
+    const f1Teams = [
+      { name: "Scuderia Ferrari", bodyColor: this.defaultMats.red, accentColor: this.defaultMats.black, speed: 0.138, progress: 0.05 },
+      { name: "Red Bull Racing", bodyColor: this.defaultMats.blue, accentColor: this.defaultMats.orange, speed: 0.142, progress: 0.25 },
+      { name: "Mercedes-AMG", bodyColor: this.defaultMats.cyan, accentColor: this.defaultMats.black, speed: 0.136, progress: 0.45 },
+      { name: "McLaren F1", bodyColor: this.defaultMats.orange, accentColor: this.defaultMats.black, speed: 0.140, progress: 0.65 },
+      { name: "Aston Martin", bodyColor: this.defaultMats.green, accentColor: this.defaultMats.orange, speed: 0.134, progress: 0.85 },
+    ];
+
+    f1Teams.forEach((team) => {
+      const carGroup = new THREE.Group();
+
+      // Sleek Formula 1 Chassis Monocoque
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.42, 2.2, 4), team.bodyColor);
+      nose.rotation.x = Math.PI / 2;
+      nose.position.set(0, 0.32, 1.1);
+
+      const cockpit = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.48, 1.8), team.bodyColor);
+      cockpit.position.set(0, 0.38, -0.2);
+
+      const sidepodL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 1.4), team.bodyColor);
+      sidepodL.position.set(-0.55, 0.35, -0.2);
+      const sidepodR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 1.4), team.bodyColor);
+      sidepodR.position.set(0.55, 0.35, -0.2);
+
+      // Driver Helmet & Halo titanium safety bar
+      const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), team.accentColor);
+      helmet.position.set(0, 0.68, -0.1);
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.04, 6, 8, Math.PI), this.defaultMats.black);
+      halo.position.set(0, 0.72, 0.05);
+      halo.rotation.x = -Math.PI / 4;
+
+      // Engine Airbox scoop and Dorsal Shark Fin
+      const airbox = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.38, 0.6), team.bodyColor);
+      airbox.position.set(0, 0.82, -0.55);
+      const sharkFin = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 1.2), team.accentColor);
+      sharkFin.position.set(0, 0.75, -1.0);
+
+      // Aerodynamic Front Wing with Endplates
+      const frontWing = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.08, 0.55), team.accentColor);
+      frontWing.position.set(0, 0.18, 2.1);
+      const fwEndL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.35, 0.6), team.accentColor);
+      fwEndL.position.set(-1.05, 0.28, 2.1);
+      const fwEndR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.35, 0.6), team.accentColor);
+      fwEndR.position.set(1.05, 0.28, 2.1);
+
+      // High-Downforce Rear Wing with Endplates
+      const rearWing = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 0.5), team.accentColor);
+      rearWing.position.set(0, 0.95, -1.7);
+      const rwEndL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.65, 0.65), team.accentColor);
+      rwEndL.position.set(-0.8, 0.75, -1.7);
+      const rwEndR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.65, 0.65), team.accentColor);
+      rwEndR.position.set(0.8, 0.75, -1.7);
+
+      carGroup.add(
+        nose,
+        cockpit,
+        sidepodL,
+        sidepodR,
+        helmet,
+        halo,
+        airbox,
+        sharkFin,
+        frontWing,
+        fwEndL,
+        fwEndR,
+        rearWing,
+        rwEndL,
+        rwEndR
+      );
+
+      // 4 Pirelli Slick Tires on Wishbone Suspension Arms
+      const wheels: THREE.Mesh[] = [];
+      const wheelPositions = [
+        { x: -0.92, y: 0.35, z: 1.2, r: 0.38, w: 0.34 }, // Front Left
+        { x: 0.92, y: 0.35, z: 1.2, r: 0.38, w: 0.34 },  // Front Right
+        { x: -0.96, y: 0.40, z: -1.2, r: 0.42, w: 0.42 }, // Rear Left (Wider)
+        { x: 0.96, y: 0.40, z: -1.2, r: 0.42, w: 0.42 },  // Rear Right (Wider)
+      ];
+
+      wheelPositions.forEach((wp) => {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(wp.r, wp.r, wp.w, 14),
+          this.defaultMats.black
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(wp.x, wp.y, wp.z);
+
+        // Colored Pirelli Tire Sidewall Pinstripe
+        const pzero = new THREE.Mesh(new THREE.CylinderGeometry(wp.r * 0.75, wp.r * 0.75, wp.w + 0.02, 10), team.accentColor);
+        pzero.position.set(0, 0, 0);
+        wheel.add(pzero);
+
+        carGroup.add(wheel);
+        wheels.push(wheel);
+      });
+
+      this.engine.scene.add(carGroup);
+      this.f1Cars.push({
+        group: carGroup,
+        speed: team.speed,
+        progress: team.progress,
+        wheels,
+        name: team.name,
+      });
+    });
+  }
+
+  private createPalmTree(x: number, z: number): THREE.Group {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+
+    // Slender curved trunk
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 5.2, 8), this.defaultMats.orange);
+    trunk.position.set(0, 2.6, 0);
+    trunk.rotation.z = 0.08;
+    group.add(trunk);
+
+    // 6 Radiating Palm Fronds
+    for (let f = 0; f < 6; f++) {
+      const angle = (f / 6) * Math.PI * 2;
+      const frond = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.08, 0.7), this.defaultMats.green);
+      frond.position.set(Math.cos(angle) * 1.2, 5.0, Math.sin(angle) * 1.2);
+      frond.rotation.y = angle;
+      frond.rotation.z = -0.35;
+      group.add(frond);
+    }
+
+    return group;
+  }
+
+  private createMonacoAtmosphere() {
+    this.createAtmosphere();
+  }
+
+  // Animation Update Loop: Vehicles, F1 cars, Subway train, Yachts, Clouds, Paper airplane, Steaming manholes
   public update(delta: number) {
-    // 1. Move Yellow Cabs along streets and rotate wheels
+    // 1. Move Yellow Cabs along streets (in NYC)
     this.trafficCars.forEach((car) => {
       const moveStep = car.direction * car.speed * delta;
       if (car.axis === "x") {
@@ -1337,20 +2123,45 @@ export class CityBuilder {
       });
     });
 
-    // 2. Animate High Line Subway Train
+    // 2. Animate Monaco F1 race cars along the track
+    if (this.f1TrackCurve && this.f1Cars.length > 0) {
+      this.f1Cars.forEach((car) => {
+        car.progress = (car.progress + car.speed * delta) % 1.0;
+        const pos = this.f1TrackCurve!.getPointAt(car.progress);
+        const tangent = this.f1TrackCurve!.getTangentAt(car.progress);
+        car.group.position.copy(pos);
+        const lookTarget = pos.clone().add(tangent);
+        car.group.lookAt(lookTarget);
+
+        car.wheels.forEach((w) => {
+          w.rotation.x += car.speed * delta * 55;
+        });
+      });
+    }
+
+    // 3. Gentle bobbing of luxury superyachts in Monaco harbor
+    if (this.yachts.length > 0) {
+      const time = performance.now() / 1000;
+      this.yachts.forEach((yacht, i) => {
+        yacht.position.y = (yacht.userData.baseY || 0) + Math.sin(time * 1.6 + i * 1.2) * 0.07;
+        yacht.rotation.z = Math.sin(time * 1.2 + i * 0.9) * 0.012;
+      });
+    }
+
+    // 4. Animate High Line Subway Train
     if (this.subwayTrain) {
       this.trainProgress += 16 * delta;
       if (this.trainProgress > 65) this.trainProgress = -65;
       this.subwayTrain.position.x = this.trainProgress;
     }
 
-    // 3. Drift clouds across the sky
+    // 5. Drift clouds across the sky
     this.clouds.forEach((cloud) => {
       cloud.position.x += 1.6 * delta;
       if (cloud.position.x > 80) cloud.position.x = -80;
     });
 
-    // 4. Bank and orbit the folded doodle paper airplane
+    // 6. Bank and orbit the folded doodle paper airplane
     if (this.paperAirplane) {
       this.airplaneAngle += 0.22 * delta;
       const r = 44;
@@ -1361,7 +2172,7 @@ export class CityBuilder {
       this.paperAirplane.rotation.z = Math.cos(this.airplaneAngle * 2) * 0.18;
     }
 
-    // 5. Animate steaming manholes
+    // 7. Animate steaming manholes
     this.steamPuffs.forEach((puff, idx) => {
       const t = performance.now() / 1000 + puff.timeOffset;
       puff.mesh.position.y = puff.basePos.y + (t % 1.6) * 1.2;

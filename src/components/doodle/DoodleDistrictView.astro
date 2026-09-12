@@ -27,7 +27,7 @@
         <span class="text-xl sm:text-2xl font-black text-[#1a30c0] tracking-wide">
           DOODLE CITY
         </span>
-        <span class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">DOODLE DISTRICT · 3D Ad Tycoon</span>
+        <span id="hud-district-label" class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">NEW YORK CITY · 3D Ad Tycoon</span>
       </div>
 
       <button
@@ -40,15 +40,28 @@
       </button>
     </div>
 
-    <!-- Top Center: View Mode Switcher & Helper -->
+    <!-- Top Center: View Mode Switcher & Map Switcher -->
     <div class="absolute left-1/2 -translate-x-1/2 top-4 pointer-events-auto flex flex-col items-center gap-2">
-      <div class="flex items-center gap-1.5 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
-        <button id="btn-mode-orbit" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer">
-          🛰️ God / Orbit View
-        </button>
-        <button id="btn-mode-walk" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer">
-          🚶 1st-Person Walk (WASD)
-        </button>
+      <div class="flex items-center gap-2">
+        <!-- Camera View Mode -->
+        <div class="flex items-center gap-1.5 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
+          <button id="btn-mode-orbit" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer">
+            🛰️ God / Orbit View
+          </button>
+          <button id="btn-mode-walk" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer">
+            🚶 1st-Person Walk (WASD)
+          </button>
+        </div>
+
+        <!-- In-HUD Quick Map Switcher -->
+        <div class="flex items-center gap-1 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
+          <button id="hud-map-nyc" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer" title="Switch to New York City">
+            🗽 NYC
+          </button>
+          <button id="hud-map-monaco" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to F1 Track Monaco">
+            🏎️ Monaco F1
+          </button>
+        </div>
       </div>
 
       <!-- Helper Toast for Walk Controls -->
@@ -160,22 +173,22 @@
         
         <button
           type="button"
-          id="tab-district-tech"
+          id="tab-district-nyc"
           class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all"
-          data-district="tech"
+          data-district="nyc"
         >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">DOODLE DISTRICT</span>
-          <span class="block text-[10px] text-blue-200 mt-0.5">streets, rooftops and fire escapes</span>
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEW YORK CITY</span>
+          <span class="block text-[10px] text-blue-200 mt-0.5">skyscrapers, times square &amp; high line</span>
         </button>
 
         <button
           type="button"
-          id="tab-district-indie"
+          id="tab-district-monaco"
           class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
-          data-district="indie"
+          data-district="monaco"
         >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">INDIE ALLEY</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">brick lofts, canopies and rooftop banners</span>
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">F1 TRACK MONACO</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">harbor yachts, tunnel &amp; casino hairpin</span>
         </button>
       </div>
 
@@ -406,8 +419,11 @@
     const btnStart = document.getElementById("btn-start-game");
     const btnBuyAction = document.getElementById("btn-buy-spaces-action");
     const btnOpenMenu = document.getElementById("btn-open-menu");
-    const tabDistrictTech = document.getElementById("tab-district-tech");
-    const tabDistrictIndie = document.getElementById("tab-district-indie");
+    const tabDistrictNyc = document.getElementById("tab-district-nyc") || document.getElementById("tab-district-tech");
+    const tabDistrictMonaco = document.getElementById("tab-district-monaco") || document.getElementById("tab-district-indie");
+    const hudMapNyc = document.getElementById("hud-map-nyc");
+    const hudMapMonaco = document.getElementById("hud-map-monaco");
+    const hudDistrictLabel = document.getElementById("hud-district-label");
     const promoInput = document.getElementById("promo-code-input") as HTMLInputElement | null;
 
     const revEl = document.getElementById("metric-revenue");
@@ -474,20 +490,51 @@
       }
     });
 
-    // District Switcher
-    tabDistrictTech?.addEventListener("click", () => {
-      tabDistrictTech.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
-      tabDistrictIndie!.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
-      city.switchDistrict("tech");
+    // District / Map Switcher Function
+    function setDistrict(district: "nyc" | "monaco") {
+      city.switchDistrict(district);
       updateDashboardMetrics();
-    });
+      doodleAudio.penClick();
 
-    tabDistrictIndie?.addEventListener("click", () => {
-      tabDistrictIndie.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
-      tabDistrictTech!.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
-      city.switchDistrict("indie");
-      updateDashboardMetrics();
-    });
+      if (district === "nyc") {
+        if (tabDistrictNyc) {
+          tabDistrictNyc.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+        }
+        if (tabDistrictMonaco) {
+          tabDistrictMonaco.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+        }
+        if (hudMapNyc) {
+          hudMapNyc.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
+        }
+        if (hudMapMonaco) {
+          hudMapMonaco.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
+        }
+        if (hudDistrictLabel) {
+          hudDistrictLabel.textContent = "NEW YORK CITY · 3D Ad Tycoon";
+        }
+      } else {
+        if (tabDistrictMonaco) {
+          tabDistrictMonaco.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+        }
+        if (tabDistrictNyc) {
+          tabDistrictNyc.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+        }
+        if (hudMapMonaco) {
+          hudMapMonaco.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
+        }
+        if (hudMapNyc) {
+          hudMapNyc.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
+        }
+        if (hudDistrictLabel) {
+          hudDistrictLabel.textContent = "F1 TRACK MONACO · 3D Ad Tycoon";
+        }
+      }
+    }
+
+    tabDistrictNyc?.addEventListener("click", () => setDistrict("nyc"));
+    tabDistrictMonaco?.addEventListener("click", () => setDistrict("monaco"));
+    hudMapNyc?.addEventListener("click", () => setDistrict("nyc"));
+    hudMapMonaco?.addEventListener("click", () => setDistrict("monaco"));
 
     // Tool Switching
     document.querySelectorAll(".tool-btn").forEach((btn) => {
