@@ -1,0 +1,199 @@
+---
+import TrustMrrLayout from '../layouts/TrustMrrLayout.astro';
+import { PLATFORM_STATS, formatCurrency, formatExactCurrency } from '../data/startups';
+---
+
+<TrustMrrLayout title="Platform Statistics & Marketplace Volume | TrustMRR" description="Aggregated market statistics from 15,000+ verified startups: $120M+ verified revenue, 200K monthly visitors, acquisition deal metrics." activePath="/stats">
+  
+  <div class="text-center py-6 md:py-10 max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold mb-3 border border-emerald-500/20">
+      <span>📊 TrustMRR Macro Index</span>
+      <span>·</span>
+      <span>Verified Provider Analytics</span>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-3">
+      TrustMRR Platform Statistics
+    </h1>
+    <p class="text-sm md:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+      Real-time macro revenue, transaction volume, and acquisition activity across the largest verified startup revenue index.
+    </p>
+  </div>
+
+  <!-- Primary Stat Counter Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Total Verified Revenue</div>
+      <div class="text-3xl font-mono font-black text-emerald-500">
+        {formatCurrency(PLATFORM_STATS.totalVerifiedRevenue)}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1 font-mono">
+        {formatExactCurrency(PLATFORM_STATS.totalVerifiedRevenue)} USD
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Active Monthly Buyers</div>
+      <div class="text-3xl font-mono font-black text-zinc-900 dark:text-white">
+        {PLATFORM_STATS.totalMonthlyVisitors.toLocaleString()}+
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Founders, operators, acquirers
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Indexed Startups</div>
+      <div class="text-3xl font-mono font-black text-zinc-900 dark:text-white">
+        {PLATFORM_STATS.totalStartupsListed.toLocaleString()}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Across 15+ software sectors
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Startups For Sale</div>
+      <div class="text-3xl font-mono font-black text-amber-500">
+        {PLATFORM_STATS.totalStartupsForSale.toLocaleString()}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Active acquisition opportunities
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Acquisitions Closed</div>
+      <div class="text-3xl font-mono font-black text-indigo-400">
+        {PLATFORM_STATS.totalAcquisitionsClosed}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Last 6 months verified transfers
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Avg Deal Multiple</div>
+      <div class="text-3xl font-mono font-black text-zinc-900 dark:text-white">
+        2.2x
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Annual profit multiple
+      </div>
+    </div>
+  </div>
+
+  <!-- Breakdown Grids -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+    <!-- Category Distribution -->
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-4">
+      <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Sector Breakdown by Volume</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Artificial Intelligence</span>
+            <span class="font-mono">38%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full" style="width: 38%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>SaaS &amp; Micro-SaaS</span>
+            <span class="font-mono">29%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width: 29%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Developer Tools</span>
+            <span class="font-mono">14%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full" style="width: 14%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>E-Commerce &amp; Creator Stores</span>
+            <span class="font-mono">11%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-rose-500 rounded-full" style="width: 11%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Mobile Apps &amp; Health</span>
+            <span class="font-mono">8%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-cyan-500 rounded-full" style="width: 8%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Provider Breakdown -->
+    <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-4">
+      <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Payment Provider Integrations</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Stripe Connect &amp; API</span>
+            <span class="font-mono">67%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width: 67%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Lemon Squeezy Webhooks</span>
+            <span class="font-mono">15%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>RevenueCat (iOS / Google Play)</span>
+            <span class="font-mono">9%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-rose-500 rounded-full" style="width: 9%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Polar.sh API Token</span>
+            <span class="font-mono">5%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full" style="width: 5%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between mb-1 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span>Paddle &amp; Dodo Payments</span>
+            <span class="font-mono">4%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+            <div class="h-full bg-cyan-500 rounded-full" style="width: 4%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</TrustMrrLayout>

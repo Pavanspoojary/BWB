@@ -1,0 +1,439 @@
+---
+import TrustMrrLayout from '../layouts/TrustMrrLayout.astro';
+import { formatCurrency, formatExactCurrency } from '../data/startups';
+
+const presets = [
+  { amount: 1000, label: 'Ramen Profitable', desc: 'Covers cloud servers & daily ramen ($12K ARR)' },
+  { amount: 5000, label: 'Default Alive', desc: 'Covers essential living costs as a solo maker ($60K ARR)' },
+  { amount: 10000, label: 'Freedom ($10K MRR)', desc: 'Quit 9-to-5 job and pursue full-time indie building ($120K ARR)' },
+  { amount: 25000, label: 'Scaling SaaS', desc: 'Hire contract engineers, designers & paid growth ($300K ARR)' },
+  { amount: 50000, label: 'High Growth', desc: 'Established enterprise-ready recurring product ($600K ARR)' },
+  { amount: 83333, label: 'Centurion ($1M ARR)', desc: 'The holy grail 7-figure annual recurring revenue club' },
+];
+
+const milestones = [
+  { amount: 0, title: 'Launched into the wild', perk: 'Post on X, Product Hunt & TrustMRR' },
+  { amount: 100, title: 'First 3 paying customers', perk: 'Proof that strangers will pay for your code' },
+  { amount: 500, title: 'Server infrastructure covered', perk: 'Zero out-of-pocket operational burn' },
+  { amount: 1000, title: '$1K MRR Ramen Profitable', perk: 'Celebrate with your first bottle of champagne' },
+  { amount: 5000, title: '$5K MRR Default Alive', perk: 'Your business can sustain living expenses' },
+  { amount: 10000, title: '$10K MRR Financial Freedom', perk: 'Submit your 2-week notice to corporate' },
+  { amount: 25000, title: '$25K MRR Scaling Powerhouse', perk: 'First team contractor or marketing hire' },
+  { amount: 50000, title: '$50K MRR Sustainable Moat', perk: 'High-margin, multi-channel growth engine' },
+  { amount: 83333, title: '$1M ARR Centurion Club', perk: 'Top 1% of independent bootstrapped SaaS' },
+];
+---
+
+<TrustMrrLayout title="Startup MRR Goal Tracker | TrustMRR" description="Calculate required MoM growth, net new customers, and milestones from Ramen Profitability to $1M ARR." activePath="/goal">
+  
+  <!-- Header Banner -->
+  <div class="text-center py-6 md:py-10 max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold mb-3 border border-indigo-500/20">
+      <span>🎯 TrustMRR Goal Engine</span>
+      <span>·</span>
+      <span>Milestone Calculator</span>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-3">
+      Startup MRR Goal Planner
+    </h1>
+    <p class="text-sm md:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+      Set your monthly recurring revenue milestone, calculate the required monthly growth trajectory, and unlock verified badges on TrustMRR.
+    </p>
+  </div>
+
+  <!-- Interactive Goal Dashboard -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    
+    <!-- Left Column: Inputs & Preset Pickers (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      <div class="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-5">
+        <h2 class="text-base font-bold text-zinc-900 dark:text-white flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+          <span>Configure Your Goal</span>
+          <span class="text-xs font-normal text-emerald-500">Live Updating</span>
+        </h2>
+
+        <!-- Startup Name Input -->
+        <div>
+          <label for="goal-startup-name" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Startup or Product Name
+          </label>
+          <input
+            id="goal-startup-name"
+            type="text"
+            value="SuperSaaS"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
+
+        <!-- Current MRR Input -->
+        <div>
+          <label for="goal-current-mrr" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Current Monthly Recurring Revenue (MRR)
+          </label>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-sm font-semibold">$</span>
+            <input
+              id="goal-current-mrr"
+              type="number"
+              min="0"
+              step="50"
+              value="1850"
+              class="w-full pl-8 pr-3.5 py-2.5 text-sm rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+        </div>
+
+        <!-- Target Milestone Selectors -->
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
+            Target MRR Milestone
+          </label>
+          <div class="grid grid-cols-2 gap-2" id="preset-buttons">
+            {presets.map((p) => (
+              <button
+                type="button"
+                data-amount={p.amount}
+                class={`preset-btn p-2.5 rounded-xl border text-left transition-all ${p.amount === 10000 ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 hover:border-zinc-400 dark:hover:border-zinc-600 text-zinc-700 dark:text-zinc-300'}`}
+              >
+                <div class="text-xs font-mono font-bold">{'$' + p.amount.toLocaleString()}</div>
+                <div class="text-[10px] text-zinc-500 truncate">{p.label}</div>
+              </button>
+            ))}
+          </div>
+
+          <!-- Custom Target Input -->
+          <div class="mt-3 relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-semibold">Custom $</span>
+            <input
+              id="goal-custom-target"
+              type="number"
+              placeholder="Or enter custom target..."
+              value="10000"
+              class="w-full pl-16 pr-3.5 py-2 text-xs rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+        </div>
+
+        <!-- Target Timeline (Months) -->
+        <div>
+          <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Timeline to Achieve Target
+          </label>
+          <div class="grid grid-cols-4 gap-2" id="timeline-buttons">
+            <button type="button" data-months="3" class="timeline-btn py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400">3 Mo</button>
+            <button type="button" data-months="6" class="timeline-btn py-2 text-xs font-semibold rounded-lg border border-emerald-500 bg-emerald-500/10 text-emerald-500">6 Mo</button>
+            <button type="button" data-months="12" class="timeline-btn py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400">12 Mo</button>
+            <button type="button" data-months="24" class="timeline-btn py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400">24 Mo</button>
+          </div>
+        </div>
+
+        <!-- Average ARPU -->
+        <div>
+          <label for="goal-arpu" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+            Estimated Average Plan Price (ARPU/month)
+          </label>
+          <select id="goal-arpu" class="w-full px-3 py-2 text-xs rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="19">$19 / month (Consumer &amp; Indie Tools)</option>
+            <option value="29" selected>$29 / month (Standard Micro-SaaS)</option>
+            <option value="49">$49 / month (Pro Creator / B2B Small)</option>
+            <option value="99">$99 / month (Mid-Market SaaS)</option>
+            <option value="199">$199 / month (Enterprise &amp; Agency)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Results, Progress & Pacing (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      
+      <!-- Primary Progress Gauge Card -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <div class="text-xs text-zinc-500 font-medium uppercase tracking-wider">Goal Progress</div>
+            <div class="text-2xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
+              <span id="display-progress-pct" class="text-emerald-500">18.5%</span>
+              <span class="text-sm font-normal text-zinc-500">to <span id="display-target-header">$10,000</span> MRR</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-zinc-500 font-medium">Gap Remaining</div>
+            <div id="display-gap-remaining" class="text-lg font-mono font-bold text-zinc-900 dark:text-white">$8,150</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-4 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative mb-4">
+          <div
+            id="display-progress-bar"
+            class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 ease-out"
+            style="width: 18.5%;"
+          ></div>
+        </div>
+
+        <!-- 4 Key Trajectory Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+          <div class="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40">
+            <div class="text-[10px] uppercase font-bold text-zinc-500">MoM Growth Needed</div>
+            <div id="display-mom-growth" class="text-base font-mono font-bold text-emerald-500 mt-0.5">32.5%</div>
+            <div class="text-[9px] text-zinc-400">compound/month</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40">
+            <div class="text-[10px] uppercase font-bold text-zinc-500">New MRR / Mo</div>
+            <div id="display-new-mrr" class="text-base font-mono font-bold text-zinc-900 dark:text-white mt-0.5">$1,358</div>
+            <div class="text-[9px] text-zinc-400">net addition</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40">
+            <div class="text-[10px] uppercase font-bold text-zinc-500">New Customers / Mo</div>
+            <div id="display-new-customers" class="text-base font-mono font-bold text-indigo-400 mt-0.5">+47</div>
+            <div class="text-[9px] text-zinc-400">at $29/mo ARPU</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40">
+            <div class="text-[10px] uppercase font-bold text-zinc-500">Target ARR</div>
+            <div id="display-target-arr" class="text-base font-mono font-bold text-zinc-900 dark:text-white mt-0.5">$120K</div>
+            <div class="text-[9px] text-zinc-400">annualized run-rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestone Checkpoint Roadmap -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-white flex items-center justify-between">
+          <span>Milestone Checkpoints Roadmap</span>
+          <span class="text-xs text-zinc-500 font-normal">Auto-Evaluated</span>
+        </h3>
+
+        <div class="space-y-2.5" id="milestones-container">
+          {milestones.map((m) => (
+            <div
+              data-milestone-amount={m.amount}
+              class={`milestone-item p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${m.amount <= 1850 ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-800/20 opacity-70'}`}
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class={`status-icon w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${m.amount <= 1850 ? 'bg-emerald-500 text-zinc-950' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'}`}>
+                  {m.amount <= 1850 ? '✓' : '•'}
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{m.title}</div>
+                  <div class="text-[10px] text-zinc-500 truncate">{m.perk}</div>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class={`status-badge text-[10px] font-bold px-2 py-0.5 rounded-full font-mono ${m.amount <= 1850 ? 'bg-emerald-500/15 text-emerald-500' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'}`}>
+                  {m.amount <= 1850 ? 'ACHIEVED' : ('$' + m.amount.toLocaleString())}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Shareable Goal Card & Embed Generator -->
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 text-white shadow-lg space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs uppercase font-bold tracking-wider text-emerald-400">Shareable Milestone Card</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">TrustMRR Verified</span>
+        </div>
+
+        <!-- Visual Live Card Box -->
+        <div id="preview-share-card" class="p-4 rounded-xl bg-zinc-900/90 border border-zinc-700/80 shadow-inner">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-emerald-500 text-zinc-950 font-bold flex items-center justify-center text-xs">✓</div>
+              <span id="preview-card-name" class="font-bold text-sm text-white">SuperSaaS</span>
+            </div>
+            <span class="text-xs font-mono font-bold text-emerald-400" id="preview-card-mrr">$1,850 / $10,000 MRR</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full bg-zinc-800 overflow-hidden mb-2">
+            <div id="preview-card-bar" class="h-full bg-emerald-500 rounded-full" style="width: 18.5%;"></div>
+          </div>
+          <div class="flex justify-between items-center text-[10px] text-zinc-400">
+            <span id="preview-card-status">18.5% towards Financial Freedom</span>
+            <span>trustmrr.com/goal</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button
+            id="copy-badge-code"
+            type="button"
+            class="px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white transition-colors flex items-center gap-1.5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+            </svg>
+            <span id="copy-btn-text">Copy Markdown Badge</span>
+          </button>
+
+          <a
+            id="share-twitter-link"
+            href="https://twitter.com/intent/tweet?text=I'm+tracking+my+SaaS+MRR+goal+on+TrustMRR!"
+            target="_blank"
+            rel="noreferrer"
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-colors flex items-center gap-1.5"
+          >
+            <span>Post Progress on X</span> &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Script for Goal Calculations -->
+  <script>
+    function updateGoalCalculator() {
+      const nameInput = document.getElementById('goal-startup-name') as HTMLInputElement | null;
+      const currentInput = document.getElementById('goal-current-mrr') as HTMLInputElement | null;
+      const targetInput = document.getElementById('goal-custom-target') as HTMLInputElement | null;
+      const arpuSelect = document.getElementById('goal-arpu') as HTMLSelectElement | null;
+
+      const startupName = nameInput?.value.trim() || 'My SaaS';
+      const currentMRR = Math.max(0, parseFloat(currentInput?.value || '0') || 0);
+      const targetMRR = Math.max(1, parseFloat(targetInput?.value || '10000') || 10000);
+      const arpu = parseFloat(arpuSelect?.value || '29') || 29;
+
+      const activeTimelineBtn = document.querySelector('.timeline-btn.border-emerald-500') as HTMLButtonElement | null;
+      const months = parseInt(activeTimelineBtn?.getAttribute('data-months') || '6', 10);
+
+      // Calculations
+      const pct = Math.min(100, Math.round((currentMRR / targetMRR) * 1000) / 10);
+      const gap = Math.max(0, targetMRR - currentMRR);
+      const newMrrPerMo = Math.round(gap / months);
+      const newCustPerMo = Math.ceil(newMrrPerMo / arpu);
+
+      // Compound MoM rate: (target / current)^(1/months) - 1
+      let momRate = 0;
+      if (currentMRR > 0 && targetMRR > currentMRR) {
+        momRate = Math.round((Math.pow(targetMRR / currentMRR, 1 / months) - 1) * 1000) / 10;
+      } else if (currentMRR === 0 && targetMRR > 0) {
+        momRate = 100;
+      }
+
+      // Update DOM
+      const displayPct = document.getElementById('display-progress-pct');
+      const displayBar = document.getElementById('display-progress-bar');
+      const displayTargetHeader = document.getElementById('display-target-header');
+      const displayGap = document.getElementById('display-gap-remaining');
+      const displayMom = document.getElementById('display-mom-growth');
+      const displayNewMrr = document.getElementById('display-new-mrr');
+      const displayNewCust = document.getElementById('display-new-customers');
+      const displayArr = document.getElementById('display-target-arr');
+
+      if (displayPct) displayPct.textContent = `${pct}%`;
+      if (displayBar) displayBar.style.width = `${Math.max(2, pct)}%`;
+      if (displayTargetHeader) displayTargetHeader.textContent = `$${targetMRR.toLocaleString()}`;
+      if (displayGap) displayGap.textContent = `$${gap.toLocaleString()}`;
+      if (displayMom) displayMom.textContent = `${momRate}%`;
+      if (displayNewMrr) displayNewMrr.textContent = `$${newMrrPerMo.toLocaleString()}`;
+      if (displayNewCust) displayNewCust.textContent = `+${newCustPerMo}`;
+      if (displayArr) displayArr.textContent = `$${Math.round((targetMRR * 12) / 1000)}K`;
+
+      // Update Preview Card
+      const cardName = document.getElementById('preview-card-name');
+      const cardMrr = document.getElementById('preview-card-mrr');
+      const cardBar = document.getElementById('preview-card-bar');
+      const cardStatus = document.getElementById('preview-card-status');
+      const twitterLink = document.getElementById('share-twitter-link') as HTMLAnchorElement | null;
+
+      if (cardName) cardName.textContent = startupName;
+      if (cardMrr) cardMrr.textContent = `$${currentMRR.toLocaleString()} / $${targetMRR.toLocaleString()} MRR`;
+      if (cardBar) cardBar.style.width = `${Math.max(2, pct)}%`;
+      if (cardStatus) cardStatus.textContent = `${pct}% towards $${targetMRR.toLocaleString()}/mo MRR milestone`;
+
+      if (twitterLink) {
+        const tweet = encodeURIComponent(`We are tracking our SaaS journey to $${targetMRR.toLocaleString()}/mo MRR (${pct}% complete at $${currentMRR.toLocaleString()} MRR) on @trustmrr verified database! 🚀`);
+        twitterLink.href = `https://twitter.com/intent/tweet?text=${tweet}`;
+      }
+
+      // Update Milestone Checkpoints
+      document.querySelectorAll('.milestone-item').forEach((elem) => {
+        const amount = parseFloat(elem.getAttribute('data-milestone-amount') || '0');
+        const icon = elem.querySelector('.status-icon');
+        const badge = elem.querySelector('.status-badge');
+
+        if (currentMRR >= amount) {
+          elem.classList.remove('opacity-70', 'bg-zinc-50/50', 'dark:bg-zinc-800/20');
+          elem.classList.add('border-emerald-500/40', 'bg-emerald-500/5');
+          if (icon) {
+            icon.className = 'status-icon w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-emerald-500 text-zinc-950';
+            icon.textContent = '✓';
+          }
+          if (badge) {
+            badge.className = 'status-badge text-[10px] font-bold px-2 py-0.5 rounded-full font-mono bg-emerald-500/15 text-emerald-500';
+            badge.textContent = 'ACHIEVED';
+          }
+        } else {
+          elem.classList.add('opacity-70', 'bg-zinc-50/50', 'dark:bg-zinc-800/20');
+          elem.classList.remove('border-emerald-500/40', 'bg-emerald-500/5');
+          if (icon) {
+            icon.className = 'status-icon w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-zinc-200 dark:bg-zinc-800 text-zinc-500';
+            icon.textContent = '•';
+          }
+          if (badge) {
+            badge.className = 'status-badge text-[10px] font-bold px-2 py-0.5 rounded-full font-mono bg-zinc-200 dark:bg-zinc-800 text-zinc-500';
+            badge.textContent = `$${amount.toLocaleString()}`;
+          }
+        }
+      });
+    }
+
+    // Attach listeners
+    document.getElementById('goal-startup-name')?.addEventListener('input', updateGoalCalculator);
+    document.getElementById('goal-current-mrr')?.addEventListener('input', updateGoalCalculator);
+    document.getElementById('goal-custom-target')?.addEventListener('input', () => {
+      document.querySelectorAll('.preset-btn').forEach((b) => {
+        b.className = 'preset-btn p-2.5 rounded-xl border text-left transition-all border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300';
+      });
+      updateGoalCalculator();
+    });
+    document.getElementById('goal-arpu')?.addEventListener('change', updateGoalCalculator);
+
+    // Presets Click
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const amount = btn.getAttribute('data-amount') || '10000';
+        const customTarget = document.getElementById('goal-custom-target') as HTMLInputElement | null;
+        if (customTarget) customTarget.value = amount;
+
+        document.querySelectorAll('.preset-btn').forEach((b) => {
+          b.className = 'preset-btn p-2.5 rounded-xl border text-left transition-all border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300';
+        });
+        btn.className = 'preset-btn p-2.5 rounded-xl border text-left transition-all border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold';
+        updateGoalCalculator();
+      });
+    });
+
+    // Timeline Buttons Click
+    document.querySelectorAll('.timeline-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.timeline-btn').forEach((b) => {
+          b.className = 'timeline-btn py-2 text-xs font-semibold rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400';
+        });
+        btn.className = 'timeline-btn py-2 text-xs font-semibold rounded-lg border border-emerald-500 bg-emerald-500/10 text-emerald-500';
+        updateGoalCalculator();
+      });
+    });
+
+    // Copy Badge Code
+    document.getElementById('copy-badge-code')?.addEventListener('click', () => {
+      const name = (document.getElementById('goal-startup-name') as HTMLInputElement)?.value.trim() || 'My SaaS';
+      const badge = `[![TrustMRR Goal](https://img.shields.io/badge/TrustMRR-Goal_In_Progress-10b981?logo=stripe)](https://trustmrr.com/goal)`;
+      navigator.clipboard.writeText(badge).then(() => {
+        const btnText = document.getElementById('copy-btn-text');
+        if (btnText) {
+          btnText.textContent = 'Copied to Clipboard!';
+          setTimeout(() => {
+            btnText.textContent = 'Copy Markdown Badge';
+          }, 2000);
+        }
+      });
+    });
+
+    // Initialize on load
+    updateGoalCalculator();
+  </script>
+</TrustMrrLayout>

@@ -1,0 +1,625 @@
+---
+import TrustMrrLayout from '../layouts/TrustMrrLayout.astro';
+import { STARTUPS, CATEGORIES, PAYMENT_PROVIDERS, formatCurrency, formatExactCurrency, formatGrowth } from '../data/startups';
+---
+
+<TrustMrrLayout title="Verified Startup Directory & Marketplace Browser | TrustMRR" description="Browse and filter 15,000+ verified startups, SaaS businesses, and digital apps by MRR, revenue growth, and acquisition asking price." activePath="/browser">
+  
+  <!-- Header & Search Hero -->
+  <div class="py-6 md:py-8 border-b border-zinc-200 dark:border-zinc-800/80 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1 text-xs text-zinc-500 font-medium">
+          <a href="/" class="hover:underline">Home</a>
+          <span>/</span>
+          <span class="text-zinc-900 dark:text-zinc-200 font-semibold">Startup Browser</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+          Startup Directory &amp; Marketplace Browser
+        </h1>
+        <p class="text-xs md:text-sm text-zinc-500 mt-1">
+          Explore startups verified via Stripe, Lemon Squeezy, Polar, RevenueCat &amp; Paddle APIs.
+        </p>
+      </div>
+
+      <!-- Quick Action Badges -->
+      <div class="flex items-center gap-2">
+        <a href="/boost" class="px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-bold hover:bg-amber-500/20 transition-all flex items-center gap-1.5">
+          <span>⚡ Boost Your Listing</span>
+        </a>
+        <a href="/goal" class="px-3 py-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-xs font-bold hover:bg-indigo-500/20 transition-all flex items-center gap-1.5">
+          <span>🎯 Set MRR Goal</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Search Input Bar -->
+    <div class="mt-6 relative">
+      <div class="relative flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-zinc-400 absolute left-4 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          id="browser-search-input"
+          type="text"
+          placeholder='Search startups by name, keyword, tech stack, or founder (e.g. "AI", "Gumroad", "Stripe", "Swift")...'
+          class="w-full pl-12 pr-28 py-3.5 text-sm rounded-2xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-zinc-900 dark:text-white"
+        />
+        <div class="absolute right-3 flex items-center gap-1.5">
+          <button
+            id="clear-search-btn"
+            type="button"
+            class="hidden px-2 py-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          >
+            Clear
+          </button>
+          <kbd class="hidden sm:inline-block px-2 py-1 text-[10px] font-mono text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md">
+            /
+          </kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Controls Toolbar -->
+  <div class="space-y-4 mb-8">
+    
+    <!-- Row 1: Status & Revenue Filters -->
+    <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+      
+      <!-- Status Pills -->
+      <div class="flex items-center gap-1.5 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" id="status-filter-group">
+        <button type="button" data-status="all" class="status-btn px-3 py-1.5 rounded-lg font-bold bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs">
+          All ({STARTUPS.length})
+        </button>
+        <button type="button" data-status="forSale" class="status-btn px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          🏷️ For Sale ({STARTUPS.filter(s => s.forSale).length})
+        </button>
+        <button type="button" data-status="verified" class="status-btn px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          ✓ Verified Only
+        </button>
+      </div>
+
+      <!-- Controls: Sort & View Toggle -->
+      <div class="flex items-center gap-3 ml-auto">
+        <!-- Sort Select -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-zinc-500 font-medium">Sort by:</span>
+          <select id="browser-sort-select" class="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="revenue-desc">Highest 30d Revenue</option>
+            <option value="mrr-desc">Highest MRR</option>
+            <option value="growth-desc">Fastest Growth (%)</option>
+            <option value="multiple-asc">Lowest Multiple (Deals)</option>
+            <option value="price-desc">Highest Asking Price</option>
+            <option value="newest">Recently Added</option>
+          </select>
+        </div>
+
+        <!-- View Mode Switcher -->
+        <div class="flex items-center p-1 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800" id="view-mode-toggle">
+          <button type="button" id="btn-view-grid" class="p-1.5 rounded bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs" title="Grid View">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="7" height="7" x="3" y="3" rx="1"/>
+              <rect width="7" height="7" x="14" y="3" rx="1"/>
+              <rect width="7" height="7" x="14" y="14" rx="1"/>
+              <rect width="7" height="7" x="3" y="14" rx="1"/>
+            </svg>
+          </button>
+          <button type="button" id="btn-view-table" class="p-1.5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white" title="Table View">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Category Filter Horizontal Scroll -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none text-xs" id="category-filter-group">
+      {CATEGORIES.map((cat) => (
+        <button
+          type="button"
+          data-category={cat}
+          class={`category-btn px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all ${cat === 'All' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400'}`}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+
+    <!-- Row 3: Provider & Revenue Range Chips -->
+    <div class="flex flex-wrap items-center gap-4 text-xs pt-1 border-t border-zinc-200 dark:border-zinc-800/60">
+      
+      <!-- Providers -->
+      <div class="flex items-center gap-1.5 flex-wrap" id="provider-filter-group">
+        <span class="text-zinc-500 font-medium mr-1">Provider:</span>
+        {PAYMENT_PROVIDERS.map((p) => (
+          <button
+            type="button"
+            data-provider={p.id}
+            class={`provider-btn px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-colors ${p.id === 'all' ? 'border-zinc-900 dark:border-white bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold' : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400'}`}
+          >
+            {p.name}
+          </button>
+        ))}
+      </div>
+
+      <!-- Revenue Range -->
+      <div class="flex items-center gap-1.5 flex-wrap ml-auto" id="revenue-filter-group">
+        <span class="text-zinc-500 font-medium mr-1">Revenue:</span>
+        <button type="button" data-rev-range="all" class="rev-btn px-2.5 py-1 rounded-lg border border-zinc-900 dark:border-white bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[11px] font-bold">All</button>
+        <button type="button" data-rev-range="0-1k" class="rev-btn px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-[11px] hover:border-zinc-400">$0 - $1K</button>
+        <button type="button" data-rev-range="1k-10k" class="rev-btn px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-[11px] hover:border-zinc-400">$1K - $10K</button>
+        <button type="button" data-rev-range="10k-50k" class="rev-btn px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-[11px] hover:border-zinc-400">$10K - $50K</button>
+        <button type="button" data-rev-range="50k+" class="rev-btn px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-[11px] hover:border-zinc-400">$50K+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Stats Count Banner -->
+  <div class="flex items-center justify-between text-xs text-zinc-500 mb-4 px-1">
+    <div>
+      Showing <span id="results-count" class="font-bold text-zinc-900 dark:text-white">{STARTUPS.length}</span> startups
+    </div>
+    <div id="active-filter-summary" class="hidden items-center gap-1.5">
+      <span>Filtered</span>
+      <button id="reset-all-filters" class="text-emerald-500 hover:underline font-semibold">Reset filters</button>
+    </div>
+  </div>
+
+  <!-- Grid View Container -->
+  <div id="startups-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+    {STARTUPS.map((startup) => (
+      <div
+        class="startup-card flex flex-col justify-between p-4 rounded-2xl border bg-white dark:bg-zinc-900/90 hover:shadow-md transition-all relative group cursor-pointer"
+        data-id={startup.id}
+        data-name={startup.name.toLowerCase()}
+        data-category={startup.category}
+        data-provider={startup.paymentProvider}
+        data-for-sale={startup.forSale ? 'true' : 'false'}
+        data-revenue={startup.verifiedRevenue30d}
+        data-mrr={startup.mrr}
+        data-growth={startup.revenueGrowth30d}
+        data-price={startup.askingPrice || 0}
+        data-multiple={startup.profitMultiple || 0}
+        data-tech={(startup.techStack || []).join(' ').toLowerCase()}
+        data-founder={startup.founder.name.toLowerCase() + ' ' + startup.founder.handle.toLowerCase()}
+        data-color={startup.cardColor || ''}
+        style={startup.cardColor ? `border-color: ${startup.cardColor === 'purple' ? '#d946ef' : startup.cardColor === 'amber' ? '#f59e0b' : startup.cardColor === 'rose' ? '#f43f5e' : startup.cardColor === 'mint' ? '#10b981' : startup.cardColor === 'indigo' ? '#6366f1' : '#0ea5e9'}40;` : 'border-color: rgba(63, 63, 70, 0.3);'}
+      >
+        <!-- Top Row: Logo, Name & Badge -->
+        <div>
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img
+                src={startup.logo}
+                alt={startup.name}
+                class="w-9 h-9 rounded-xl object-cover border border-zinc-200 dark:border-zinc-800 shrink-0 bg-zinc-100 dark:bg-zinc-800"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 40\'><rect width=\'40\' height=\'40\' fill=\'%2327272a\'/><text x=\'20\' y=\'26\' font-size=\'18\' font-weight=\'bold\' fill=\'%2310b981\' text-anchor=\'middle\'>S</text></svg>'"
+              />
+              <div class="min-w-0">
+                <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate group-hover:text-emerald-500 transition-colors">
+                  {startup.name}
+                </h3>
+                <div class="text-[10px] text-zinc-500 truncate flex items-center gap-1.5">
+                  <span>{startup.category}</span>
+                  <span>·</span>
+                  <span class="capitalize text-emerald-500 font-semibold">{startup.paymentProvider}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sale / Verified Tag -->
+            <div class="shrink-0">
+              {startup.forSale ? (
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                  FOR SALE
+                </span>
+              ) : (
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  VERIFIED
+                </span>
+              )}
+            </div>
+          </div>
+
+          <!-- Tagline -->
+          <p class="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed mb-4">
+            {startup.tagline}
+          </p>
+        </div>
+
+        <!-- Middle Row: 3 Financial Metrics -->
+        <div class="grid grid-cols-3 gap-2 py-2.5 px-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800/60 mb-3 text-center">
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">30d Revenue</div>
+            <div class="text-xs font-mono font-bold text-zinc-900 dark:text-white mt-0.5">
+              {formatCurrency(startup.verifiedRevenue30d)}
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">MRR</div>
+            <div class="text-xs font-mono font-bold text-zinc-900 dark:text-white mt-0.5">
+              {formatCurrency(startup.mrr)}
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-zinc-500 font-bold">30d Growth</div>
+            <div class={`text-xs font-mono font-bold mt-0.5 ${startup.revenueGrowth30d >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+              {formatGrowth(startup.revenueGrowth30d)}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Price / Multiple or Founder & Link -->
+        <div class="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/60 text-xs">
+          {startup.forSale && startup.askingPrice ? (
+            <div class="flex items-baseline gap-1.5 font-mono">
+              <span class="text-zinc-500 text-[10px]">Price:</span>
+              <span class="font-bold text-emerald-500 text-sm">{formatExactCurrency(startup.askingPrice)}</span>
+              {startup.profitMultiple && (
+                <span class="text-[10px] text-zinc-400">({startup.profitMultiple}x)</span>
+              )}
+            </div>
+          ) : (
+            <div class="flex items-center gap-1.5 text-zinc-500 text-[11px] truncate">
+              <span>By</span>
+              <span class="font-semibold text-zinc-800 dark:text-zinc-200">@{startup.founder.handle}</span>
+            </div>
+          )}
+
+          <a
+            href={`/startup/${startup.slug}`}
+            class="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-500 hover:text-white text-zinc-700 dark:text-zinc-300 font-bold text-[11px] transition-colors"
+          >
+            View Details &rarr;
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Table View Container (Initially Hidden) -->
+  <div id="startups-table-container" class="hidden border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-900 overflow-x-auto shadow-sm mb-12">
+    <table class="w-full text-left text-xs">
+      <thead class="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 font-semibold uppercase tracking-wider text-[10px]">
+        <tr>
+          <th class="py-3.5 px-4">Startup</th>
+          <th class="py-3.5 px-4">Category</th>
+          <th class="py-3.5 px-4">Provider</th>
+          <th class="py-3.5 px-4 font-mono">30d Revenue</th>
+          <th class="py-3.5 px-4 font-mono">MRR</th>
+          <th class="py-3.5 px-4 font-mono">30d Growth</th>
+          <th class="py-3.5 px-4">Status / Price</th>
+          <th class="py-3.5 px-4 text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800 font-medium">
+        {STARTUPS.map((s) => (
+          <tr class="startup-table-row hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors" data-id={s.id}>
+            <td class="py-3 px-4">
+              <a href={`/startup/${s.slug}`} class="flex items-center gap-2.5 group">
+                <img src={s.logo} alt={s.name} class="w-7 h-7 rounded-lg object-cover bg-zinc-800 shrink-0" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 28 28\'><rect width=\'28\' height=\'28\' fill=\'%2327272a\'/></svg>'" />
+                <div class="min-w-0">
+                  <div class="font-bold text-zinc-900 dark:text-white truncate group-hover:text-emerald-500">{s.name}</div>
+                  <div class="text-[10px] text-zinc-500 truncate">{s.tagline}</div>
+                </div>
+              </a>
+            </td>
+            <td class="py-3 px-4 text-zinc-500">{s.category}</td>
+            <td class="py-3 px-4 capitalize text-emerald-500 font-semibold">{s.paymentProvider}</td>
+            <td class="py-3 px-4 font-mono font-bold text-zinc-900 dark:text-white">{formatCurrency(s.verifiedRevenue30d)}</td>
+            <td class="py-3 px-4 font-mono text-zinc-600 dark:text-zinc-300">{formatCurrency(s.mrr)}</td>
+            <td class={`py-3 px-4 font-mono font-bold ${s.revenueGrowth30d >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+              {formatGrowth(s.revenueGrowth30d)}
+            </td>
+            <td class="py-3 px-4">
+              {s.forSale && s.askingPrice ? (
+                <div class="flex items-center gap-1 font-mono">
+                  <span class="font-bold text-amber-500">{formatExactCurrency(s.askingPrice)}</span>
+                  {s.profitMultiple && <span class="text-[10px] text-zinc-400">({s.profitMultiple}x)</span>}
+                </div>
+              ) : (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500">Verified</span>
+              )}
+            </td>
+            <td class="py-3 px-4 text-right">
+              <a href={`/startup/${s.slug}`} class="px-3 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-emerald-500 hover:text-white font-bold transition-colors">
+                View
+              </a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty Search Results State -->
+  <div id="no-results-box" class="hidden text-center py-16 px-4 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-2xl">
+    <div class="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 mx-auto flex items-center justify-center mb-3 text-lg">
+      🔍
+    </div>
+    <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-1">No startups found</h3>
+    <p class="text-xs text-zinc-500 max-w-sm mx-auto mb-4">
+      Try adjusting your search keywords, clearing categories, or broadening revenue filters.
+    </p>
+    <button id="btn-clear-filters-empty" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors">
+      Reset All Filters
+    </button>
+  </div>
+
+  <!-- Client-Side Filtering & Search Engine -->
+  <script>
+    let currentSearch = '';
+    let currentCategory = 'All';
+    let currentStatus = 'all';
+    let currentProvider = 'all';
+    let currentRevRange = 'all';
+    let currentSort = 'revenue-desc';
+
+    function filterAndSortStartups() {
+      const cards = Array.from(document.querySelectorAll('.startup-card')) as HTMLElement[];
+      const rows = Array.from(document.querySelectorAll('.startup-table-row')) as HTMLElement[];
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const name = card.getAttribute('data-name') || '';
+        const cat = card.getAttribute('data-category') || '';
+        const prov = card.getAttribute('data-provider') || '';
+        const forSale = card.getAttribute('data-for-sale') === 'true';
+        const rev = parseFloat(card.getAttribute('data-revenue') || '0');
+        const tech = card.getAttribute('data-tech') || '';
+        const founder = card.getAttribute('data-founder') || '';
+
+        // Check Search Query
+        const matchesQuery = !currentSearch ||
+          name.includes(currentSearch) ||
+          cat.toLowerCase().includes(currentSearch) ||
+          prov.toLowerCase().includes(currentSearch) ||
+          tech.includes(currentSearch) ||
+          founder.includes(currentSearch);
+
+        // Check Category
+        const matchesCat = currentCategory === 'All' || cat === currentCategory;
+
+        // Check Status
+        let matchesStatus = true;
+        if (currentStatus === 'forSale') matchesStatus = forSale;
+        if (currentStatus === 'verified') matchesStatus = true;
+
+        // Check Provider
+        const matchesProvider = currentProvider === 'all' || prov === currentProvider;
+
+        // Check Revenue Range
+        let matchesRev = true;
+        if (currentRevRange === '0-1k') matchesRev = rev <= 1000;
+        else if (currentRevRange === '1k-10k') matchesRev = rev > 1000 && rev <= 10000;
+        else if (currentRevRange === '10k-50k') matchesRev = rev > 10000 && rev <= 50000;
+        else if (currentRevRange === '50k+') matchesRev = rev > 50000;
+
+        const isVisible = matchesQuery && matchesCat && matchesStatus && matchesProvider && matchesRev;
+        card.style.display = isVisible ? 'flex' : 'none';
+
+        // Match table row
+        const id = card.getAttribute('data-id');
+        const correspondingRow = document.querySelector(`.startup-table-row[data-id="${id}"]`) as HTMLElement | null;
+        if (correspondingRow) {
+          correspondingRow.style.display = isVisible ? '' : 'none';
+        }
+
+        if (isVisible) visibleCount++;
+      });
+
+      // Sort Cards
+      const container = document.getElementById('startups-grid-container');
+      if (container) {
+        cards.sort((a, b) => {
+          const revA = parseFloat(a.getAttribute('data-revenue') || '0');
+          const revB = parseFloat(b.getAttribute('data-revenue') || '0');
+          const mrrA = parseFloat(a.getAttribute('data-mrr') || '0');
+          const mrrB = parseFloat(b.getAttribute('data-mrr') || '0');
+          const growthA = parseFloat(a.getAttribute('data-growth') || '0');
+          const growthB = parseFloat(b.getAttribute('data-growth') || '0');
+          const multA = parseFloat(a.getAttribute('data-multiple') || '999');
+          const multB = parseFloat(b.getAttribute('data-multiple') || '999');
+          const priceA = parseFloat(a.getAttribute('data-price') || '0');
+          const priceB = parseFloat(b.getAttribute('data-price') || '0');
+
+          if (currentSort === 'revenue-desc') return revB - revA;
+          if (currentSort === 'mrr-desc') return mrrB - mrrA;
+          if (currentSort === 'growth-desc') return growthB - growthA;
+          if (currentSort === 'multiple-asc') return (multA || 999) - (multB || 999);
+          if (currentSort === 'price-desc') return priceB - priceA;
+          return 0;
+        });
+        cards.forEach(c => container.appendChild(c));
+      }
+
+      // Update UI counts
+      const countElem = document.getElementById('results-count');
+      if (countElem) countElem.textContent = visibleCount.toString();
+
+      const noResultsBox = document.getElementById('no-results-box');
+      if (noResultsBox) {
+        if (visibleCount === 0) noResultsBox.classList.remove('hidden');
+        else noResultsBox.classList.add('hidden');
+      }
+
+      const summaryElem = document.getElementById('active-filter-summary');
+      const isFiltered = currentSearch || currentCategory !== 'All' || currentStatus !== 'all' || currentProvider !== 'all' || currentRevRange !== 'all';
+      if (summaryElem) {
+        if (isFiltered) summaryElem.classList.remove('hidden');
+        else summaryElem.classList.add('hidden');
+      }
+    }
+
+    // Bind Search Input
+    const searchInput = document.getElementById('browser-search-input') as HTMLInputElement | null;
+    const clearBtn = document.getElementById('clear-search-btn');
+
+    searchInput?.addEventListener('input', () => {
+      currentSearch = searchInput.value.trim().toLowerCase();
+      if (clearBtn) {
+        if (currentSearch) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
+      filterAndSortStartups();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        currentSearch = '';
+        clearBtn.classList.add('hidden');
+        filterAndSortStartups();
+      }
+    });
+
+    // Keyboard shortcut / to focus search
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput?.focus();
+      }
+    });
+
+    // Category Buttons
+    document.querySelectorAll('.category-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-btn').forEach((b) => {
+          b.className = 'category-btn px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400';
+        });
+        btn.className = 'category-btn px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold';
+        currentCategory = btn.getAttribute('data-category') || 'All';
+        filterAndSortStartups();
+      });
+    });
+
+    // Status Buttons
+    document.querySelectorAll('.status-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-btn').forEach((b) => {
+          b.className = 'status-btn px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors';
+        });
+        btn.className = 'status-btn px-3 py-1.5 rounded-lg font-bold bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs';
+        currentStatus = btn.getAttribute('data-status') || 'all';
+        filterAndSortStartups();
+      });
+    });
+
+    // Provider Buttons
+    document.querySelectorAll('.provider-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.provider-btn').forEach((b) => {
+          b.className = 'provider-btn px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-colors border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400';
+        });
+        btn.className = 'provider-btn px-2.5 py-1 rounded-lg border text-[11px] font-bold transition-colors border-zinc-900 dark:border-white bg-zinc-900 dark:bg-white text-white dark:text-zinc-950';
+        currentProvider = btn.getAttribute('data-provider') || 'all';
+        filterAndSortStartups();
+      });
+    });
+
+    // Revenue Range Buttons
+    document.querySelectorAll('.rev-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.rev-btn').forEach((b) => {
+          b.className = 'rev-btn px-2.5 py-1 rounded-lg border text-[11px] border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400';
+        });
+        btn.className = 'rev-btn px-2.5 py-1 rounded-lg border text-[11px] font-bold border-zinc-900 dark:border-white bg-zinc-900 dark:bg-white text-white dark:text-zinc-950';
+        currentRevRange = btn.getAttribute('data-rev-range') || 'all';
+        filterAndSortStartups();
+      });
+    });
+
+    // Sort Dropdown
+    document.getElementById('browser-sort-select')?.addEventListener('change', (e) => {
+      currentSort = (e.target as HTMLSelectElement).value;
+      filterAndSortStartups();
+    });
+
+    // View Toggle
+    const btnGrid = document.getElementById('btn-view-grid');
+    const btnTable = document.getElementById('btn-view-table');
+    const gridView = document.getElementById('startups-grid-container');
+    const tableView = document.getElementById('startups-table-container');
+
+    btnGrid?.addEventListener('click', () => {
+      btnGrid.className = 'p-1.5 rounded bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs';
+      if (btnTable) btnTable.className = 'p-1.5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white';
+      gridView?.classList.remove('hidden');
+      tableView?.classList.add('hidden');
+    });
+
+    btnTable?.addEventListener('click', () => {
+      if (btnGrid) btnGrid.className = 'p-1.5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white';
+      btnTable.className = 'p-1.5 rounded bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs';
+      gridView?.classList.add('hidden');
+      tableView?.classList.remove('hidden');
+    });
+
+    // Reset Filters
+    function resetAllFilters() {
+      if (searchInput) searchInput.value = '';
+      currentSearch = '';
+      currentCategory = 'All';
+      currentStatus = 'all';
+      currentProvider = 'all';
+      currentRevRange = 'all';
+      currentSort = 'revenue-desc';
+
+      // Reset category button active
+      document.querySelectorAll('.category-btn').forEach((b, i) => {
+        b.className = i === 0 ? 'category-btn px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' : 'category-btn px-3 py-1.5 rounded-xl border whitespace-nowrap transition-all border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400';
+      });
+
+      // Reset status button active
+      document.querySelectorAll('.status-btn').forEach((b, i) => {
+        b.className = i === 0 ? 'status-btn px-3 py-1.5 rounded-lg font-bold bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs' : 'status-btn px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors';
+      });
+
+      filterAndSortStartups();
+    }
+
+    document.getElementById('reset-all-filters')?.addEventListener('click', resetAllFilters);
+    document.getElementById('btn-clear-filters-empty')?.addEventListener('click', resetAllFilters);
+
+    // Read URL query parameters on initial page load (e.g. ?q=... or ?category=... or ?status=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryParam = urlParams.get('q');
+    const categoryParam = urlParams.get('category');
+    const statusParam = urlParams.get('status');
+
+    if (queryParam && searchInput) {
+      searchInput.value = queryParam;
+      currentSearch = queryParam.toLowerCase();
+    }
+    if (categoryParam) {
+      currentCategory = categoryParam;
+      document.querySelectorAll('.category-btn').forEach((btn) => {
+        if (btn.getAttribute('data-category') === categoryParam) {
+          btn.classList.add('border-emerald-500', 'bg-emerald-500/10', 'text-emerald-600', 'dark:text-emerald-400', 'font-bold');
+        } else {
+          btn.classList.remove('border-emerald-500', 'bg-emerald-500/10', 'text-emerald-600', 'dark:text-emerald-400', 'font-bold');
+        }
+      });
+    }
+    if (statusParam) {
+      currentStatus = statusParam;
+      document.querySelectorAll('.status-btn').forEach((btn) => {
+        if (btn.getAttribute('data-status') === statusParam) {
+          btn.classList.add('bg-white', 'dark:bg-zinc-800', 'text-zinc-950', 'dark:text-white', 'font-bold');
+        } else {
+          btn.classList.remove('bg-white', 'dark:bg-zinc-800', 'text-zinc-950', 'dark:text-white', 'font-bold');
+        }
+      });
+    }
+
+    // Initial run
+    filterAndSortStartups();
+  </script>
+</TrustMrrLayout>

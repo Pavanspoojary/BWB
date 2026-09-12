@@ -1,0 +1,503 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  activePath?: string;
+}
+
+const {
+  title = "TrustMRR - Buy and Sell SaaS Startups | Verified Startup Revenue Database",
+  description = "Buy and sell SaaS, apps, and digital businesses on TrustMRR, the startup marketplace with verified revenue, MRR, growth, and acquisition metrics.",
+  activePath = "/",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%2310b981'/><path d='M30 52 L44 66 L72 34' fill='none' stroke='white' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="application-name" content="TrustMRR" />
+    <meta name="keywords" content="buy SaaS, sell SaaS, SaaS marketplace, startup marketplace, verified startup revenue, verified MRR, Stripe verified, Lemon Squeezy, indie hackers, builtwhilebroke" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TrustMRR" />
+
+    <!-- Font imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script is:inline>
+      (function() {
+        const storageKey = 'trustmrr-theme';
+        const stored = localStorage.getItem(storageKey);
+        const theme = stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'dark';
+        const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = theme === 'dark' || (theme === 'system' && systemIsDark);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+      })();
+    </script>
+  </head>
+  <body class="bg-zinc-950 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-300 min-h-screen relative flex flex-col antialiased transition-colors duration-200">
+    
+    <!-- Left Sponsor Panel (Desktop only: lg:w-[16.666%]) -->
+    <aside class="hidden lg:flex fixed left-0 top-0 w-[16.666%] h-screen p-4 flex-col justify-between border-r border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/50 dark:bg-zinc-900/40 backdrop-blur z-20 pointer-events-auto">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between text-[11px] font-bold tracking-wider uppercase text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+          <span>Featured Sponsors</span>
+          <span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/10 text-emerald-500">Live</span>
+        </div>
+
+        <a href="/startup/appalchemy" class="block p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-emerald-500/50 transition-all group shadow-sm">
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-6 h-6 rounded-md bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">A</div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-emerald-500 transition-colors">AppAlchemy</div>
+              <div class="text-[10px] text-zinc-500 truncate">$5.8K/mo · AI App Builder</div>
+            </div>
+          </div>
+          <p class="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-tight">
+            Turn prompt into native iOS/Android apps with chat.
+          </p>
+          <div class="mt-2 text-[10px] font-semibold text-emerald-500 flex items-center gap-1">
+            <span>Verified Stripe</span> &rarr;
+          </div>
+        </a>
+
+        <a href="/startup/goodie-ai" class="block p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-emerald-500/50 transition-all group shadow-sm">
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-6 h-6 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">G</div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold truncate group-hover:text-emerald-500 transition-colors">Goodie AI</div>
+              <div class="text-[10px] text-zinc-500 truncate">$14.1K/mo · Health &amp; Bio</div>
+            </div>
+          </div>
+          <p class="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-tight">
+            AI food scanner decoding ingredients & seed oils.
+          </p>
+          <div class="mt-2 text-[10px] font-semibold text-emerald-500 flex items-center gap-1">
+            <span>RevenueCat Verified</span> &rarr;
+          </div>
+        </a>
+      </div>
+
+      <div class="border-t border-zinc-200 dark:border-zinc-800 pt-3">
+        <a href="/boost" class="block p-2.5 rounded-lg text-center bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-sm">
+          ⚡ Sponsor Spot ($399)
+        </a>
+        <p class="text-[10px] text-center text-zinc-500 mt-1">200K monthly tech visitors</p>
+      </div>
+    </aside>
+
+    <!-- Right Sponsor Panel (Desktop only: lg:w-[16.666%]) -->
+    <aside class="hidden lg:flex fixed right-0 top-0 w-[16.666%] h-screen p-4 flex-col justify-between border-l border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/50 dark:bg-zinc-900/40 backdrop-blur z-20 pointer-events-auto">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between text-[11px] font-bold tracking-wider uppercase text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+          <span>Acquisitions</span>
+          <span class="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-500 font-bold">Deals</span>
+        </div>
+
+        <a href="/startup/gitskins" class="block p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-amber-500/50 transition-all group shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500 transition-colors">GitSkins</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded">FOR SALE</span>
+          </div>
+          <div class="text-[10px] text-zinc-500 mb-2">DevTools · Lemon Squeezy</div>
+          <div class="flex justify-between items-center text-xs font-semibold">
+            <span class="text-zinc-500 text-[10px]">Asking Price:</span>
+            <span class="text-emerald-500 font-mono font-bold">$3,500</span>
+          </div>
+          <div class="flex justify-between items-center text-xs font-semibold mt-0.5">
+            <span class="text-zinc-500 text-[10px]">Profit Multiple:</span>
+            <span class="text-zinc-400 font-mono">2.9x</span>
+          </div>
+        </a>
+
+        <a href="/startup/musicx" class="block p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-amber-500/50 transition-all group shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500 transition-colors">MusicX AI</span>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded">FOR SALE</span>
+          </div>
+          <div class="text-[10px] text-zinc-500 mb-2">AI Music Generator (iOS)</div>
+          <div class="flex justify-between items-center text-xs font-semibold">
+            <span class="text-zinc-500 text-[10px]">Asking Price:</span>
+            <span class="text-emerald-500 font-mono font-bold">$16,500</span>
+          </div>
+          <div class="flex justify-between items-center text-xs font-semibold mt-0.5">
+            <span class="text-zinc-500 text-[10px]">Monthly Revenue:</span>
+            <span class="text-zinc-400 font-mono">$568/mo</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="border-t border-zinc-200 dark:border-zinc-800 pt-3 text-center space-y-1">
+        <a href="/browser?status=forSale" class="text-xs font-semibold text-emerald-500 hover:underline flex items-center justify-center gap-1">
+          Explore all 3,000+ startups for sale &rarr;
+        </a>
+        <p class="text-[10px] text-zinc-500">Zero commission buyer marketplace</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Container with centered offset matching TrustMRR lg:mx-[16.666%] -->
+    <div class="flex-1 w-full lg:px-[16.666%] flex flex-col">
+      
+      <!-- Top Navigation Header -->
+      <header class="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-950/90 backdrop-blur transition-colors">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          
+          <!-- Logo & Brand -->
+          <a href="/" class="flex items-center gap-2.5 group">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-zinc-950 shadow-md group-hover:scale-105 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="flex flex-col leading-none">
+              <span class="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1">
+                TrustMRR
+                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">VERIFIED</span>
+              </span>
+              <span class="text-[10px] text-zinc-500 font-medium">Startup Revenue Database</span>
+            </div>
+          </a>
+
+          <!-- Center Nav Links -->
+          <nav class="hidden md:flex items-center gap-1 text-sm font-medium">
+            <a
+              href="/"
+              class={`px-3 py-1.5 rounded-lg transition-colors ${activePath === '/' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}
+            >
+              Leaderboard
+            </a>
+            <a
+              href="/browser"
+              class={`px-3 py-1.5 rounded-lg transition-colors ${activePath === '/browser' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}
+            >
+              Marketplace
+            </a>
+            <a
+              href="/goal"
+              class={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${activePath === '/goal' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}
+            >
+              <span>Goal Tracker</span>
+              <span class="text-[9px] px-1 py-0.2 rounded bg-indigo-500/10 text-indigo-400 font-bold">PRO</span>
+            </a>
+            <a
+              href="/boost"
+              class={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${activePath === '/boost' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}
+            >
+              <span>Boost</span>
+              <span class="text-[9px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-500 font-bold">5x</span>
+            </a>
+            <a
+              href="/stats"
+              class={`px-3 py-1.5 rounded-lg transition-colors ${activePath === '/stats' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-950 dark:text-white font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'}`}
+            >
+              Stats
+            </a>
+          </nav>
+
+          <!-- Right Action Buttons -->
+          <div class="flex items-center gap-2">
+            <!-- Theme Toggle Button -->
+            <button
+              id="theme-toggle-btn"
+              type="button"
+              class="p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Toggle theme"
+              aria-label="Toggle theme"
+            >
+              <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden text-zinc-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+
+            <!-- Add Startup Modal Button -->
+            <button
+              id="open-add-startup-modal"
+              type="button"
+              class="px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 text-xs sm:text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add startup</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Page Slot -->
+      <main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-20 md:pb-12">
+        <slot />
+      </main>
+
+      <!-- Complete TrustMRR Footer -->
+      <footer class="mt-auto border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950 py-12 text-sm text-zinc-500 dark:text-zinc-400">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <!-- Col 1 -->
+            <div>
+              <h4 class="font-bold text-zinc-900 dark:text-white mb-3 text-xs uppercase tracking-wider">Navigation</h4>
+              <ul class="space-y-2 text-xs">
+                <li><a href="/browser" class="hover:text-emerald-500 transition-colors">Buy / Sell Startups</a></li>
+                <li><a href="/goal" class="hover:text-emerald-500 transition-colors">Revenue Goal Planner</a></li>
+                <li><a href="/boost" class="hover:text-emerald-500 transition-colors">Boost &amp; Sponsorships</a></li>
+                <li><a href="/stats" class="hover:text-emerald-500 transition-colors">Platform Statistics</a></li>
+                <li><a href="/browser?status=forSale" class="hover:text-emerald-500 transition-colors">Acquisition Deals</a></li>
+              </ul>
+            </div>
+
+            <!-- Col 2 -->
+            <div>
+              <h4 class="font-bold text-zinc-900 dark:text-white mb-3 text-xs uppercase tracking-wider">Categories</h4>
+              <ul class="space-y-2 text-xs">
+                <li><a href="/browser?category=Artificial+Intelligence" class="hover:text-emerald-500 transition-colors">Artificial Intelligence</a></li>
+                <li><a href="/browser?category=SaaS" class="hover:text-emerald-500 transition-colors">SaaS &amp; Micro-SaaS</a></li>
+                <li><a href="/browser?category=Developer+Tools" class="hover:text-emerald-500 transition-colors">Developer Tools</a></li>
+                <li><a href="/browser?category=Health+%26+Fitness" class="hover:text-emerald-500 transition-colors">Health &amp; Mobile Apps</a></li>
+                <li><a href="/browser?category=E-commerce" class="hover:text-emerald-500 transition-colors">E-commerce &amp; Creators</a></li>
+              </ul>
+            </div>
+
+            <!-- Col 3 -->
+            <div>
+              <h4 class="font-bold text-zinc-900 dark:text-white mb-3 text-xs uppercase tracking-wider">Verification APIs</h4>
+              <ul class="space-y-2 text-xs">
+                <li><span class="text-zinc-600 dark:text-zinc-400">Stripe Connect &amp; API</span></li>
+                <li><span class="text-zinc-600 dark:text-zinc-400">Lemon Squeezy Webhooks</span></li>
+                <li><span class="text-zinc-600 dark:text-zinc-400">RevenueCat V2 Secret Key</span></li>
+                <li><span class="text-zinc-600 dark:text-zinc-400">Polar.sh Developer Sync</span></li>
+                <li><span class="text-zinc-600 dark:text-zinc-400">Paddle &amp; Dodo Payments</span></li>
+              </ul>
+            </div>
+
+            <!-- Col 4 -->
+            <div>
+              <h4 class="font-bold text-zinc-900 dark:text-white mb-3 text-xs uppercase tracking-wider">About &amp; Ecosystem</h4>
+              <p class="text-xs leading-relaxed text-zinc-500 mb-3">
+                TrustMRR is the verified startup revenue marketplace created by independent entrepreneur Marc Lou.
+              </p>
+              <p class="text-xs leading-relaxed text-zinc-500">
+                Engineered with zero-runtime static architecture in the <a href="https://github.com/Pavanspoojary/builtwhilebroke" class="underline text-emerald-500 hover:text-emerald-400">builtwhilebroke</a> open ecosystem.
+              </p>
+            </div>
+          </div>
+
+          <div class="border-t border-zinc-200 dark:border-zinc-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>TrustMRR &copy; {new Date().getFullYear()} · Verified Startup Revenue Engine</span>
+            </div>
+            <div class="flex items-center gap-4 text-zinc-500">
+              <a href="/browser" class="hover:underline">Marketplace</a>
+              <a href="/goal" class="hover:underline">MRR Goals</a>
+              <a href="/boost" class="hover:underline">Boost Visibility</a>
+              <a href="https://x.com/marclou" target="_blank" rel="noreferrer" class="hover:underline">@marclou</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Floating Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-white/95 dark:bg-zinc-950/95 border-t border-zinc-200 dark:border-zinc-800 backdrop-blur z-50 flex items-center justify-around px-2">
+      <a href="/" class={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${activePath === '/' ? 'text-emerald-500 font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Home</span>
+      </a>
+
+      <a href="/browser" class={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${activePath === '/browser' ? 'text-emerald-500 font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="7" x="3" y="3" rx="1"/>
+          <rect width="7" height="7" x="14" y="3" rx="1"/>
+          <rect width="7" height="7" x="14" y="14" rx="1"/>
+          <rect width="7" height="7" x="3" y="14" rx="1"/>
+        </svg>
+        <span>Browse</span>
+      </a>
+
+      <a href="/goal" class={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${activePath === '/goal' ? 'text-emerald-500 font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 13V2l8 4-8 4"/>
+          <path d="M20.55 10.23A9 9 0 1 1 8 4.94"/>
+        </svg>
+        <span>Goal</span>
+      </a>
+
+      <a href="/boost" class={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${activePath === '/boost' ? 'text-emerald-500 font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        <span>Boost</span>
+      </a>
+
+      <a href="/stats" class={`flex flex-col items-center justify-center w-14 py-1 text-[10px] ${activePath === '/stats' ? 'text-emerald-500 font-bold' : 'text-zinc-500 dark:text-zinc-400'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span>Stats</span>
+      </a>
+    </nav>
+
+    <!-- Interactive "Add Startup" Modal -->
+    <div id="add-startup-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+        <button id="close-add-startup-modal" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-100 p-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-7 h-7 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-zinc-900 dark:text-white">Verify &amp; Add Startup</h3>
+        </div>
+        <p class="text-xs text-zinc-500 mb-4">
+          Connect your payment provider to verify MRR and get listed in front of 200,000+ monthly buyers.
+        </p>
+
+        <form id="startup-submit-form" class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-semibold mb-1 text-zinc-700 dark:text-zinc-300">Startup Name</label>
+            <input type="text" required placeholder="e.g. Acme AI" class="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1 text-zinc-700 dark:text-zinc-300">Website URL</label>
+            <input type="url" required placeholder="https://example.com" class="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1 text-zinc-700 dark:text-zinc-300">Payment Provider</label>
+            <select class="w-full px-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
+              <option value="stripe">Stripe (Direct API key or OAuth)</option>
+              <option value="lemonsqueezy">Lemon Squeezy (API Key / Webhook)</option>
+              <option value="revenuecat">RevenueCat V2 Read-Only Key</option>
+              <option value="polar">Polar.sh API Token</option>
+              <option value="paddle">Paddle Billing</option>
+              <option value="dodo">Dodo Payments</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1 text-zinc-700 dark:text-zinc-300">Current Monthly Revenue (MRR)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">$</span>
+              <input type="number" placeholder="2,500" class="w-full pl-7 pr-3 py-2 text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-md">
+              Connect &amp; Verify Revenue
+            </button>
+          </div>
+          <p class="text-[10px] text-center text-zinc-500">
+            Read-only permissions. We never store customer personal information.
+          </p>
+        </form>
+
+        <div id="startup-submit-success" class="hidden text-center py-6">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+          </div>
+          <h4 class="text-base font-bold text-zinc-900 dark:text-white mb-1">Verification Initiated!</h4>
+          <p class="text-xs text-zinc-500 mb-4">Your startup profile has been queued for real-time payment provider sync.</p>
+          <button id="startup-submit-done" class="px-4 py-2 rounded-lg bg-zinc-800 text-white text-xs font-bold hover:bg-zinc-700">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client-side script for Modal and Theme Toggle -->
+    <script>
+      // Theme Toggle Logic
+      const themeBtn = document.getElementById('theme-toggle-btn');
+      themeBtn?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+          localStorage.setItem('trustmrr-theme', 'light');
+        } else {
+          document.documentElement.classList.remove('light');
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('trustmrr-theme', 'dark');
+        }
+      });
+
+      // Add Startup Modal Logic
+      const modal = document.getElementById('add-startup-modal');
+      const openBtn = document.getElementById('open-add-startup-modal');
+      const closeBtn = document.getElementById('close-add-startup-modal');
+      const form = document.getElementById('startup-submit-form');
+      const successBox = document.getElementById('startup-submit-success');
+      const doneBtn = document.getElementById('startup-submit-done');
+
+      openBtn?.addEventListener('click', () => {
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+        if (form) form.classList.remove('hidden');
+        if (successBox) successBox.classList.add('hidden');
+      });
+
+      closeBtn?.addEventListener('click', () => {
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+      });
+
+      doneBtn?.addEventListener('click', () => {
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+      });
+
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      });
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        form.classList.add('hidden');
+        successBox?.classList.remove('hidden');
+      });
+    </script>
+  </body>
+</html>

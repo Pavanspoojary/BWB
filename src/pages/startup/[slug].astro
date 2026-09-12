@@ -1,0 +1,283 @@
+---
+import TrustMrrLayout from '../../layouts/TrustMrrLayout.astro';
+import { STARTUPS, formatCurrency, formatExactCurrency, formatGrowth, type Startup } from '../../data/startups';
+
+export function getStaticPaths() {
+  return STARTUPS.map((startup) => ({
+    params: { slug: startup.slug },
+    props: { startup },
+  }));
+}
+
+interface Props {
+  startup: Startup;
+}
+
+const { startup } = Astro.props;
+---
+
+<TrustMrrLayout
+  title={`${startup.name} - Verified Startup Revenue & MRR | TrustMRR`}
+  description={`View verified revenue metrics for ${startup.name}: ${formatCurrency(startup.verifiedRevenue30d)} last 30 days, ${formatCurrency(startup.mrr)} MRR, verified via ${startup.paymentProvider}.`}
+  activePath="/browser"
+>
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2 text-xs text-zinc-500 mb-6 font-medium">
+    <a href="/" class="hover:underline">Home</a>
+    <span>/</span>
+    <a href="/browser" class="hover:underline">Marketplace</a>
+    <span>/</span>
+    <span class="text-zinc-900 dark:text-zinc-200 font-semibold">{startup.name}</span>
+  </div>
+
+  <!-- Startup Header Card -->
+  <div class="p-6 md:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm mb-8 relative overflow-hidden">
+    
+    <!-- Pinned / Boost indicator -->
+    {startup.boostLevel && startup.boostLevel !== 'none' && (
+      <div class="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-gradient-to-l from-emerald-500 to-teal-500 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase shadow-sm">
+        {startup.boostLevel === 'scale' ? '⚡ 20x Scale Boosted' : '⚡ 5x Boosted'}
+      </div>
+    )}
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex items-start gap-4">
+        <img
+          src={startup.logo}
+          alt={startup.name}
+          class="w-16 h-16 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shadow-md shrink-0"
+          onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'><rect width=\'64\' height=\'64\' fill=\'%2327272a\'/><text x=\'32\' y=\'40\' font-size=\'28\' font-weight=\'bold\' fill=\'%2310b981\' text-anchor=\'middle\'>S</text></svg>'"
+        />
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap mb-1">
+            <h1 class="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white">
+              {startup.name}
+            </h1>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 capitalize">
+              ✓ {startup.paymentProvider} Verified
+            </span>
+            {startup.forSale && (
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                FOR SALE
+              </span>
+            )}
+          </div>
+          <p class="text-sm text-zinc-600 dark:text-zinc-400 max-w-2xl leading-relaxed">
+            {startup.tagline}
+          </p>
+        </div>
+      </div>
+
+      <!-- Outbound Links -->
+      <div class="flex items-center gap-2 shrink-0">
+        <a
+          href={startup.website}
+          target="_blank"
+          rel="noreferrer"
+          class="px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all flex items-center gap-1.5 shadow-sm"
+        >
+          <span>Visit Website</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Financial Metrics Grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-[11px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Verified 30d Revenue</div>
+      <div class="text-2xl font-mono font-black text-zinc-900 dark:text-white">
+        {formatCurrency(startup.verifiedRevenue30d)}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1 font-mono">
+        {formatExactCurrency(startup.verifiedRevenue30d)} exact
+      </div>
+    </div>
+
+    <div class="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-[11px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Current MRR</div>
+      <div class="text-2xl font-mono font-black text-emerald-500">
+        {formatCurrency(startup.mrr)}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1 font-mono">
+        Annualized: {formatCurrency(startup.mrr * 12)} ARR
+      </div>
+    </div>
+
+    <div class="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-[11px] uppercase tracking-wider text-zinc-500 font-bold mb-1">30d Revenue Growth</div>
+      <div class={`text-2xl font-mono font-black ${startup.revenueGrowth30d >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+        {formatGrowth(startup.revenueGrowth30d)}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Month-over-month trajectory
+      </div>
+    </div>
+
+    <div class="p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <div class="text-[11px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Total Lifetime Revenue</div>
+      <div class="text-2xl font-mono font-black text-zinc-900 dark:text-white">
+        {formatCurrency(startup.verifiedTotalRevenue)}
+      </div>
+      <div class="text-[11px] text-zinc-400 mt-1">
+        Aggregated via {startup.paymentProvider} API
+      </div>
+    </div>
+  </div>
+
+  <!-- Acquisition Terms (if for sale) -->
+  {startup.forSale && (
+    <div class="p-6 rounded-2xl border-2 border-amber-500/40 bg-amber-500/5 dark:bg-amber-950/20 mb-8 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏷️</span>
+          <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Acquisition Terms &amp; Asking Price</h2>
+        </div>
+        <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-500">
+          Accepting Inquiries
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono">
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-amber-500/20">
+          <div class="text-[10px] text-zinc-500 uppercase font-sans font-bold">Asking Price</div>
+          <div class="text-xl font-black text-emerald-500 mt-0.5">
+            {startup.askingPrice ? formatExactCurrency(startup.askingPrice) : 'Undisclosed'}
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-amber-500/20">
+          <div class="text-[10px] text-zinc-500 uppercase font-sans font-bold">Profit Multiple</div>
+          <div class="text-xl font-black text-zinc-900 dark:text-white mt-0.5">
+            {startup.profitMultiple ? `${startup.profitMultiple}x Annual` : 'N/A'}
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-zinc-900/80 border border-amber-500/20">
+          <div class="text-[10px] text-zinc-500 uppercase font-sans font-bold">Asset Transfer</div>
+          <div class="text-sm font-sans font-bold text-zinc-900 dark:text-white mt-1">
+            Domain, Code, Customer Accounts
+          </div>
+        </div>
+      </div>
+
+      <!-- Acquisition Inquiry Contact Form -->
+      <form id="acq-inquiry-form" class="space-y-3 pt-2">
+        <h3 class="text-xs font-bold text-zinc-800 dark:text-zinc-200">Contact Founder Regarding Acquisition</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input type="text" placeholder="Your Name or Firm" required class="px-3 py-2 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900" />
+          <input type="email" placeholder="Your Email Address" required class="px-3 py-2 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900" />
+        </div>
+        <textarea rows="2" placeholder="Describe your background and offer interest..." class="w-full px-3 py-2 text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900"></textarea>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition-colors">
+          Send Acquisition Inquiry &rarr;
+        </button>
+      </form>
+    </div>
+  )}
+
+  <!-- Deep Information Grid: Description, Tech Stack, Verification Proof -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    <!-- Left Details (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      
+      <!-- Full Description -->
+      <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3">
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-white">About the Startup</h3>
+        <p class="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+          {startup.description}
+        </p>
+
+        <!-- Tech Stack Chips -->
+        {startup.techStack && (
+          <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+            <div class="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Technology Stack</div>
+            <div class="flex flex-wrap gap-1.5">
+              {startup.techStack.map((tech) => (
+                <span class="px-2 py-1 rounded-md text-[11px] font-mono font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Historical Revenue Data -->
+      {startup.metricsHistory && startup.metricsHistory.length > 0 && (
+        <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-4">
+          <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Verified Revenue History</h3>
+          <div class="space-y-2 font-mono text-xs">
+            {startup.metricsHistory.map((m) => (
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-800/40">
+                <span class="font-bold text-zinc-700 dark:text-zinc-300">{m.month}</span>
+                <div class="flex items-center gap-6">
+                  <span class="text-zinc-500">Revenue: <strong class="text-zinc-900 dark:text-white">{formatCurrency(m.revenue)}</strong></span>
+                  <span class="text-zinc-500">MRR: <strong class="text-emerald-500">{formatCurrency(m.mrr)}</strong></span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Right Sidebar: Founder & Verification Audit (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      
+      <!-- Founder Profile -->
+      <div class="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-4">
+        <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Founder Profile</h3>
+        <div class="flex items-center gap-3">
+          <img
+            src={startup.founder.avatar}
+            alt={startup.founder.name}
+            class="w-12 h-12 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-200 dark:bg-zinc-800"
+            onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 48 48\'><circle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%233f3f46\'/><text x=\'24\' y=\'30\' font-size=\'18\' font-weight=\'bold\' fill=\'%23a1a1aa\' text-anchor=\'middle\'>F</text></svg>'"
+          />
+          <div>
+            <div class="font-bold text-sm text-zinc-900 dark:text-white">{startup.founder.name}</div>
+            <a
+              href={`https://x.com/${startup.founder.handle}`}
+              target="_blank"
+              rel="noreferrer"
+              class="text-xs text-emerald-500 hover:underline flex items-center gap-1 font-semibold"
+            >
+              @{startup.founder.handle} &nearr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Audit Badge -->
+      <div class="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-950/20 space-y-3">
+        <div class="flex items-center gap-2 text-emerald-500 font-bold text-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <span>TrustMRR Verified Badge</span>
+        </div>
+        <p class="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          The revenue records for {startup.name} were fetched directly via read-only API authentication with {startup.paymentProvider.toUpperCase()}. No self-reported screenshots are allowed.
+        </p>
+        <div class="text-[10px] text-zinc-400 font-mono pt-1">
+          Last Synchronized: Real-Time Edge CDN
+        </div>
+      </div>
+
+      <!-- Goal & Boost Prompts -->
+      <div class="p-4 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 text-xs space-y-2">
+        <div class="font-bold text-zinc-800 dark:text-zinc-200">Want to reach these numbers?</div>
+        <a href="/goal" class="text-emerald-500 hover:underline font-semibold block">
+          Track your journey with TrustMRR Goal Planner &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+</TrustMrrLayout>
