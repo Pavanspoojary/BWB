@@ -234,6 +234,17 @@ describe('Tier 1: TrustMRR Clone - Static Distribution & Routes Integrity', () =
     expect(existsSync(join(dist, 'goal', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'boost', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'stats', 'index.html'))).toBe(true);
+    expect(existsSync(join(dist, 'city', 'index.html'))).toBe(true);
+  });
+
+  it('verifies /city page contains 3D doodle canvas and interactive tycoon HUD', () => {
+    const cityPath = join(process.cwd(), 'dist', 'city', 'index.html');
+    const html = readFileSync(cityPath, 'utf-8');
+    expect(html).toContain('DOODLE CITY');
+    expect(html).toContain('doodle-canvas');
+    expect(html).toContain('btn-mode-orbit');
+    expect(html).toContain('btn-mode-walk');
+    expect(html).toContain('ad-sponsor-form');
   });
 
   it('verifies index.html contains TrustMRR brand and verified revenue headlines', () => {
