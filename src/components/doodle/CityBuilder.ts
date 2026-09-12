@@ -306,21 +306,67 @@ export class CityBuilder {
     DistrictManager.buildAllDistricts(this);
   }
 
-  // Returns bounding boxes for solid structures to prevent walking through walls
-  public getColliders(): THREE.Box3[] {
-    const boxes: THREE.Box3[] = [];
+  public colliders: THREE.Box3[] = [];
+
+  // Updates and caches world-space bounding boxes for all physical obstacles in the city
+  public updateColliders() {
+    this.colliders = [];
+    if (this.engine && this.engine.scene) {
+      this.engine.scene.updateMatrixWorld(true);
+    }
+
+    const scanObject = (obj: THREE.Object3D) => {
+      if (obj.userData && obj.userData.noCollision) return;
+      if (obj === this.groundPlane) return;
+
+      if (obj instanceof THREE.Mesh) {
+        const geo = obj.geometry;
+        // Exclude ground/floor planes, road strips, water surfaces, torus loops, or decorative wireframes
+        if (
+          geo instanceof THREE.PlaneGeometry ||
+          geo instanceof THREE.RingGeometry
+        ) {
+          return;
+        }
+
+        const box = new THREE.Box3().setFromObject(obj);
+        const sizeX = box.max.x - box.min.x;
+        const sizeY = box.max.y - box.min.y;
+        const sizeZ = box.max.z - box.min.z;
+
+        // Valid physical obstacle: walls, buildings, pillars, trees, fences, crates, monuments
+        // Must have non-trivial height and thickness, and not be an oversized district container
+        if (sizeY >= 0.7 && sizeX >= 0.3 && sizeZ >= 0.3 && sizeX <= 280 && sizeZ <= 280) {
+          this.colliders.push(box);
+        }
+        return;
+      }
+
+      for (let i = 0; i < obj.children.length; i++) {
+        scanObject(obj.children[i]);
+      }
+    };
+
+    // Scan all registered buildings
     for (const b of this.buildings) {
-      if (b.userData && b.userData.noCollision) continue;
-      const box = new THREE.Box3().setFromObject(b);
-      const sizeX = box.max.x - box.min.x;
-      const sizeY = box.max.y - box.min.y;
-      const sizeZ = box.max.z - box.min.z;
-      // Filter out flat planes, particles, or oversized district boundaries
-      if (sizeY > 1.2 && sizeX < 250 && sizeZ < 250 && sizeX > 0.4 && sizeZ > 0.4) {
-        boxes.push(box);
+      scanObject(b);
+    }
+
+    // Scan root metropolis group if attached to scene
+    if (this.engine && this.engine.scene) {
+      const metropolisRoot = this.engine.scene.getObjectByName("DoodleMetropolis_Root");
+      if (metropolisRoot) {
+        scanObject(metropolisRoot);
       }
     }
-    return boxes;
+  }
+
+  // Returns bounding boxes for solid structures to prevent walking through walls
+  public getColliders(): THREE.Box3[] {
+    if (this.colliders.length === 0) {
+      this.updateColliders();
+    }
+    return this.colliders;
   }
 
   // Master method: Builds the authentic, fully detailed New York City at blueprint scale

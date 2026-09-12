@@ -54,6 +54,7 @@ export class CameraController {
       this.walkPos.set(0, 2.0, 35);
       this.walkYaw = Math.PI;
       this.walkPitch = 0;
+      this.resolvePenetration();
       this.updateWalkCamera();
     } else {
       this.updateOrbitCamera();
@@ -61,11 +62,13 @@ export class CameraController {
   }
 
   private setupEvents() {
-    this.domElement.addEventListener("mousedown", this.onMouseDown);
+    if (typeof window === "undefined") return;
+    if (this.domElement && typeof this.domElement.addEventListener === "function") {
+      this.domElement.addEventListener("mousedown", this.onMouseDown);
+      this.domElement.addEventListener("wheel", this.onWheel, { passive: false });
+    }
     window.addEventListener("mouseup", this.onMouseUp);
     window.addEventListener("mousemove", this.onMouseMove);
-    this.domElement.addEventListener("wheel", this.onWheel, { passive: false });
-
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
   }
@@ -225,6 +228,24 @@ export class CameraController {
       this.walkPos.set(x, y + 2.0, z);
       this.verticalVelocity = 0;
       this.isGrounded = true;
+
+      // If spawn position hits an obstacle, nudge player until clear
+      if (this.checkCollision(this.walkPos)) {
+        for (const offset of [1.5, -1.5, 3.0, -3.0, 4.5, -4.5]) {
+          const nudgeZ = this.walkPos.clone().setZ(this.walkPos.z + offset);
+          if (!this.checkCollision(nudgeZ)) {
+            this.walkPos.copy(nudgeZ);
+            break;
+          }
+          const nudgeX = this.walkPos.clone().setX(this.walkPos.x + offset);
+          if (!this.checkCollision(nudgeX)) {
+            this.walkPos.copy(nudgeX);
+            break;
+          }
+        }
+      }
+      this.resolvePenetration();
+
       if (targetLookAt) {
         const dir = new THREE.Vector3().subVectors(targetLookAt, this.walkPos);
         this.walkYaw = Math.atan2(-dir.x, -dir.z);
@@ -236,18 +257,63 @@ export class CameraController {
     }
   }
 
+  private resolvePenetration() {
+    if (!this.getColliders) return;
+    const colliders = this.getColliders();
+    if (!colliders || colliders.length === 0) return;
+
+    const radius = 0.65;
+    const pMinY = this.walkPos.y - 1.85;
+    const pMaxY = this.walkPos.y + 0.3;
+
+    for (let iter = 0; iter < 4; iter++) {
+      let collided = false;
+      for (let i = 0; i < colliders.length; i++) {
+        const b = colliders[i];
+        if (pMinY < b.max.y && pMaxY > b.min.y) {
+          const pMinX = this.walkPos.x - radius;
+          const pMaxX = this.walkPos.x + radius;
+          const pMinZ = this.walkPos.z - radius;
+          const pMaxZ = this.walkPos.z + radius;
+
+          if (pMinX < b.max.x && pMaxX > b.min.x && pMinZ < b.max.z && pMaxZ > b.min.z) {
+            collided = true;
+            // Push player out towards the shallowest exit normal
+            const overlapX1 = b.max.x - pMinX; // push +X
+            const overlapX2 = pMaxX - b.min.x; // push -X
+            const overlapZ1 = b.max.z - pMinZ; // push +Z
+            const overlapZ2 = pMaxZ - b.min.z; // push -Z
+
+            const minOverlap = Math.min(overlapX1, overlapX2, overlapZ1, overlapZ2);
+            if (minOverlap === overlapX1) {
+              this.walkPos.x += overlapX1 + 0.02;
+            } else if (minOverlap === overlapX2) {
+              this.walkPos.x -= overlapX2 + 0.02;
+            } else if (minOverlap === overlapZ1) {
+              this.walkPos.z += overlapZ1 + 0.02;
+            } else {
+              this.walkPos.z -= overlapZ2 + 0.02;
+            }
+          }
+        }
+      }
+      if (!collided) break;
+    }
+  }
+
   private checkCollision(testPos: THREE.Vector3): boolean {
     if (!this.getColliders) return false;
     const colliders = this.getColliders();
     if (!colliders || colliders.length === 0) return false;
 
-    const radius = 0.8;
+    const radius = 0.65;
     const pMinX = testPos.x - radius;
     const pMaxX = testPos.x + radius;
     const pMinZ = testPos.z - radius;
     const pMaxZ = testPos.z + radius;
-    const pMinY = testPos.y - 0.8;
-    const pMaxY = testPos.y + 0.8;
+    // Player's feet are at ground level (testPos.y - 1.85), head is at (testPos.y + 0.3)
+    const pMinY = testPos.y - 1.85;
+    const pMaxY = testPos.y + 0.3;
 
     for (let i = 0; i < colliders.length; i++) {
       const b = colliders[i];
@@ -304,20 +370,29 @@ export class CameraController {
 
         if (moveDir.lengthSq() > 0) {
           moveDir.normalize();
-          const deltaMove = moveDir.clone().multiplyScalar(speed * delta);
+          const totalMove = moveDir.clone().multiplyScalar(speed * delta);
+          const dist = totalMove.length();
+          const maxStep = 0.25; // Sub-stepping prevents wall tunneling at high speed
+          const steps = Math.max(1, Math.ceil(dist / maxStep));
+          const stepMove = totalMove.clone().divideScalar(steps);
 
-          // Wall collision with smooth sliding along axes
-          const testX = this.walkPos.clone();
-          testX.x += deltaMove.x;
-          if (!this.checkCollision(testX)) {
-            this.walkPos.x = testX.x;
+          for (let s = 0; s < steps; s++) {
+            // Wall collision with smooth sliding along X axis
+            const testX = this.walkPos.clone();
+            testX.x += stepMove.x;
+            if (!this.checkCollision(testX)) {
+              this.walkPos.x = testX.x;
+            }
+
+            // Wall collision with smooth sliding along Z axis
+            const testZ = this.walkPos.clone();
+            testZ.z += stepMove.z;
+            if (!this.checkCollision(testZ)) {
+              this.walkPos.z = testZ.z;
+            }
           }
 
-          const testZ = this.walkPos.clone();
-          testZ.z += deltaMove.z;
-          if (!this.checkCollision(testZ)) {
-            this.walkPos.z = testZ.z;
-          }
+          this.resolvePenetration();
 
           // Clamp inside district boundary
           this.walkPos.x = Math.max(-this.walkClamp.x, Math.min(this.walkClamp.x, this.walkPos.x));
