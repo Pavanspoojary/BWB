@@ -56,21 +56,42 @@
 
         <!-- In-HUD Quick Map Switcher -->
         <div class="flex items-center gap-1 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
-          <button id="hud-map-nyc" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer" title="Switch to New York City">
+          <button id="hud-map-nyc" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer" title="Fast travel to New York City">
             🗽 NYC
           </button>
-          <button id="hud-map-monaco" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to F1 Track Monaco">
+          <button id="hud-map-monaco" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Fast travel to F1 Track Monaco">
             🏎️ Monaco
           </button>
-          <button id="hud-map-neon" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Neon District">
+          <button id="hud-map-neon" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Fast travel to Neon District">
             ⚡ Neon
           </button>
-          <button id="hud-map-oldtown" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Old Town District">
+          <button id="hud-map-oldtown" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Fast travel to Old Town District">
             🏘️ Old Town
           </button>
-          <button id="hud-map-waterfront" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Waterfront District">
+          <button id="hud-map-waterfront" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Fast travel to Waterfront District">
             🌊 Waterfront
           </button>
+
+          <!-- 15 Districts Dropdown Jump -->
+          <div class="relative flex items-center pl-1 border-l border-[#1a30c0]/30">
+            <select id="hud-district-select" class="px-2 py-1 text-xs font-bold bg-[#faf7ee] border border-[#1a30c0] rounded-xl text-[#1a30c0] cursor-pointer outline-none hover:bg-[#1a30c0]/10 transition-all">
+              <option value="downtown">📍 Downtown / NYC</option>
+              <option value="entertainment">🎭 Entertainment District</option>
+              <option value="market">🍜 Market District</option>
+              <option value="oldtown">🏰 Old Town</option>
+              <option value="neon">⚡ Neon City</option>
+              <option value="hills">🏡 Residential Hills</option>
+              <option value="cloud">☁️ Cloud District (Sky)</option>
+              <option value="university">🎓 University &amp; Arts</option>
+              <option value="monaco">🏎️ Doodle Grand Prix</option>
+              <option value="industrial">🏭 Industrial District</option>
+              <option value="underground">🚇 Underground City</option>
+              <option value="waterfront">🌊 Waterfront &amp; Pier</option>
+              <option value="port">🚢 Port District</option>
+              <option value="airport">✈️ Airport District</option>
+              <option value="secret">🖋️ The Blueprint Core</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -90,15 +111,15 @@
         <span>·</span>
         <span>Leased: <b id="metric-slots" class="text-[#059669]">6 / 8</b></span>
         <span>·</span>
-        <span>Secrets: <b id="metric-secrets" class="text-[#ea580c]">0 / 12 ✨</b></span>
+        <span>Secrets: <b id="metric-secrets" class="text-[#ea580c]">0 / 30 ✨</b></span>
       </div>
     </div>
 
-    <!-- Discovery Toast Notification -->
+    <!-- Discovery & District Notification Toast -->
     <div id="discovery-toast" class="hidden fixed left-1/2 -translate-x-1/2 top-20 pointer-events-auto flex items-center gap-3 px-5 py-2.5 bg-[#faf7ee] border-2 border-[#1a30c0] rounded-2xl shadow-2xl z-50 transition-all">
-      <span class="text-3xl">✨</span>
+      <span id="discovery-icon" class="text-3xl">✨</span>
       <div>
-        <div class="text-[10px] font-bold uppercase tracking-wider text-[#d02030]">Secret Discovered!</div>
+        <div id="discovery-category" class="text-[10px] font-bold uppercase tracking-wider text-[#d02030]">Secret Discovered!</div>
         <div id="discovery-title" class="text-sm sm:text-base font-black text-[#1a30c0]">Secret Landmark</div>
       </div>
     </div>
@@ -189,54 +210,131 @@
       </div>
 
       <!-- District / Map Switcher Tabs -->
-      <div class="flex items-center justify-center gap-3 mb-6">
-        <span class="text-sm font-bold text-[#1a30c0]/70 lowercase font-[Caveat,cursive] text-lg">map</span>
-        
-        <button
-          type="button"
-          id="tab-district-nyc"
-          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all"
-          data-district="nyc"
-        >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEW YORK CITY</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">hand‑drawn nyc vibe</span>
-        </button>
-        <button
-          type="button"
-          id="tab-district-monaco"
-          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
-          data-district="monaco"
-        >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">MONACO</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">f1 racing vibe</span>
-        </button>
-        <button
-          type="button"
-          id="tab-district-neon"
-          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
-          data-district="neon"
-        >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEON DISTRICT</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">bright neon buildings</span>
-        </button>
-        <button
-          type="button"
-          id="tab-district-oldtown"
-          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
-          data-district="oldtown"
-        >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">OLD TOWN</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">brownstone vibe</span>
-        </button>
-        <button
-          type="button"
-          id="tab-district-waterfront"
-          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
-          data-district="waterfront"
-        >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">WATERFRONT</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">water & boardwalk</span>
-        </button>
+      <div class="flex flex-col items-center gap-2 mb-6">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-[#1a30c0]/70 lowercase font-[Caveat,cursive] text-lg">select district</span>
+          <span class="text-[11px] font-mono text-[#1a30c0]/60">(15 Connected Districts · 1 Seamless Metropolis)</span>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 max-w-[760px]">
+          <button
+            type="button"
+            id="tab-district-nyc"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all"
+            data-district="nyc"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEW YORK CITY</span>
+            <span class="block text-[10px] text-blue-100/80 mt-0.5">hand‑drawn nyc vibe</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-monaco"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="monaco"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">MONACO</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">f1 racing vibe</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-neon"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="neon"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEON DISTRICT</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">bright cyber spire</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-oldtown"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="oldtown"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">OLD TOWN</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">clock tower plaza</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-waterfront"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="waterfront"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">WATERFRONT</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">boardwalk &amp; wheel</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-cloud"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="cloud"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">CLOUD DISTRICT</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">sky spires (80m)</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-entertainment"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="entertainment"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">ENTERTAINMENT</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">doodle dome arena</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-underground"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="underground"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">UNDERGROUND</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">subway &amp; secret lab</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-hills"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="hills"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">HILLS</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">hilltop observatory</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-university"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="university"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">UNIVERSITY</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">library dome</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-market"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="market"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">MARKET</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">street bazaar</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-airport"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="airport"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">AIRPORT</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">terminal &amp; runway</span>
+          </button>
+          <button
+            type="button"
+            id="tab-district-secret"
+            class="district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+            data-district="secret"
+          >
+            <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">SECRET CORE</span>
+            <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">pen monument</span>
+          </button>
+        </div>
       </div>
 
       <!-- Pen Line Separator -->
@@ -448,6 +546,7 @@
   import { CityBuilder, type BuildingType } from "./CityBuilder";
   import { CameraController } from "./CameraController";
   import { doodleAudio } from "./DoodleAudio";
+  import { DISTRICT_REGISTRY } from "./DistrictManager";
 
   function initDoodleDistrict() {
     const canvas = document.getElementById("doodle-canvas") as HTMLCanvasElement;
@@ -457,6 +556,7 @@
     const city = new CityBuilder(engine);
     const cameraCtrl = new CameraController(engine.camera, canvas);
     cameraCtrl.getColliders = () => city.getColliders();
+    city.cameraController = cameraCtrl;
 
     // Start with auto-orbit so background rotates while landing overlay is open
     cameraCtrl.autoRotate = true;
@@ -467,16 +567,12 @@
     const btnStart = document.getElementById("btn-start-game");
     const btnBuyAction = document.getElementById("btn-buy-spaces-action");
     const btnOpenMenu = document.getElementById("btn-open-menu");
-    const tabDistrictNyc = document.getElementById("tab-district-nyc") || document.getElementById("tab-district-tech");
-    const tabDistrictMonaco = document.getElementById("tab-district-monaco") || document.getElementById("tab-district-indie");
-    const tabDistrictNeon = document.getElementById("tab-district-neon");
-    const tabDistrictOldtown = document.getElementById("tab-district-oldtown");
-    const tabDistrictWaterfront = document.getElementById("tab-district-waterfront");
     const hudMapNyc = document.getElementById("hud-map-nyc");
     const hudMapMonaco = document.getElementById("hud-map-monaco");
     const hudMapNeon = document.getElementById("hud-map-neon");
     const hudMapOldtown = document.getElementById("hud-map-oldtown");
     const hudMapWaterfront = document.getElementById("hud-map-waterfront");
+    const hudDistrictSelect = document.getElementById("hud-district-select") as HTMLSelectElement | null;
     const hudDistrictLabel = document.getElementById("hud-district-label");
     const promoInput = document.getElementById("promo-code-input") as HTMLInputElement | null;
 
@@ -486,6 +582,8 @@
     const secretsEl = document.getElementById("metric-secrets");
     const discoveryToast = document.getElementById("discovery-toast");
     const discoveryTitle = document.getElementById("discovery-title");
+    const discoveryIcon = document.getElementById("discovery-icon");
+    const discoveryCategory = document.getElementById("discovery-category");
     const modal = document.getElementById("ad-modal");
     const modalClose = document.getElementById("btn-close-modal");
     const modalCategory = document.getElementById("modal-category");
@@ -511,13 +609,27 @@
     let toastTimeout: any = null;
     function showDiscoveryToast(secret: any) {
       if (!discoveryToast || !discoveryTitle) return;
-      discoveryTitle.textContent = `${secret.name} (${city.collectedSecrets.size}/12 Found!)`;
+      if (discoveryIcon) discoveryIcon.textContent = "✨";
+      if (discoveryCategory) discoveryCategory.textContent = "SECRET DISCOVERED!";
+      discoveryTitle.textContent = `${secret.name} (${city.collectedSecrets.size}/30 Found!)`;
       discoveryToast.classList.remove("hidden");
       updateDashboardMetrics();
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => {
         discoveryToast.classList.add("hidden");
       }, 4000);
+    }
+
+    function showDistrictEntryToast(info: any) {
+      if (!discoveryToast || !discoveryTitle) return;
+      if (discoveryIcon) discoveryIcon.textContent = "📍";
+      if (discoveryCategory) discoveryCategory.textContent = "DISTRICT ENTERED";
+      discoveryTitle.textContent = `${info.name} — ${info.subtitle}`;
+      discoveryToast.classList.remove("hidden");
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        discoveryToast.classList.add("hidden");
+      }, 3500);
     }
 
     updateDashboardMetrics();
@@ -560,72 +672,77 @@
       }
     });
 
+    let activeDistrictId = "downtown";
+
     // District / Map Switcher Function
-    function setDistrict(district: "nyc" | "monaco" | "neon" | "oldtown" | "waterfront") {
-      city.switchDistrict(district as any);
+    function setDistrict(district: string) {
+      city.switchDistrict(district);
+      activeDistrictId = city.currentDistrict;
       updateDashboardMetrics();
       doodleAudio.penClick();
 
+      const info = DISTRICT_REGISTRY.find((d) => d.id === city.currentDistrict || d.id === district) || DISTRICT_REGISTRY[0];
+      if (hudDistrictLabel) hudDistrictLabel.textContent = `${info.name} · 3D Ad Tycoon`;
+      if (hudDistrictSelect) hudDistrictSelect.value = info.id;
+      showDistrictEntryToast(info);
+
       // Reset all tabs to inactive state
-      const inactiveTabClass = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
-      const activeTabClass = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+      const inactiveTabClass = "district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+      const activeTabClass = "district-tab px-3.5 py-1.5 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
       const inactiveMapClass = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
       const activeMapClass = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
 
-      // Set all to inactive
-      if (tabDistrictNyc) tabDistrictNyc.className = inactiveTabClass;
-      if (tabDistrictMonaco) tabDistrictMonaco.className = inactiveTabClass;
-      if (tabDistrictNeon) tabDistrictNeon.className = inactiveTabClass;
-      if (tabDistrictOldtown) tabDistrictOldtown.className = inactiveTabClass;
-      if (tabDistrictWaterfront) tabDistrictWaterfront.className = inactiveTabClass;
+      // Reset tabs
+      document.querySelectorAll(".district-tab").forEach((tab) => {
+        tab.className = inactiveTabClass;
+        const subtext = tab.querySelector("span:last-child");
+        if (subtext) subtext.className = "block text-[10px] text-[#1a30c0]/70 mt-0.5";
+      });
+
+      // Highlight matching tab
+      const tabTarget = document.querySelector(`.district-tab[data-district="${info.id}"]`) ||
+                        (info.id === "downtown" ? document.getElementById("tab-district-nyc") : null) ||
+                        (info.id === "monaco" ? document.getElementById("tab-district-monaco") : null);
+      if (tabTarget) {
+        tabTarget.className = activeTabClass;
+        const subtext = tabTarget.querySelector("span:last-child");
+        if (subtext) subtext.className = "block text-[10px] text-blue-100/80 mt-0.5";
+      }
+
+      // Reset HUD map buttons
       if (hudMapNyc) hudMapNyc.className = inactiveMapClass;
       if (hudMapMonaco) hudMapMonaco.className = inactiveMapClass;
       if (hudMapNeon) hudMapNeon.className = inactiveMapClass;
       if (hudMapOldtown) hudMapOldtown.className = inactiveMapClass;
       if (hudMapWaterfront) hudMapWaterfront.className = inactiveMapClass;
 
-      // Activate selected district
-      switch (district) {
-        case "nyc":
-          if (tabDistrictNyc) tabDistrictNyc.className = activeTabClass;
-          if (hudMapNyc) hudMapNyc.className = activeMapClass;
-          if (hudDistrictLabel) hudDistrictLabel.textContent = "NEW YORK CITY · 3D Ad Tycoon";
-          break;
-        case "monaco":
-          if (tabDistrictMonaco) tabDistrictMonaco.className = activeTabClass;
-          if (hudMapMonaco) hudMapMonaco.className = activeMapClass;
-          if (hudDistrictLabel) hudDistrictLabel.textContent = "F1 TRACK MONACO · 3D Ad Tycoon";
-          break;
-        case "neon":
-          if (tabDistrictNeon) tabDistrictNeon.className = activeTabClass;
-          if (hudMapNeon) hudMapNeon.className = activeMapClass;
-          if (hudDistrictLabel) hudDistrictLabel.textContent = "NEON DISTRICT · 3D Ad Tycoon";
-          break;
-        case "oldtown":
-          if (tabDistrictOldtown) tabDistrictOldtown.className = activeTabClass;
-          if (hudMapOldtown) hudMapOldtown.className = activeMapClass;
-          if (hudDistrictLabel) hudDistrictLabel.textContent = "OLD TOWN · 3D Ad Tycoon";
-          break;
-        case "waterfront":
-          if (tabDistrictWaterfront) tabDistrictWaterfront.className = activeTabClass;
-          if (hudMapWaterfront) hudMapWaterfront.className = activeMapClass;
-          if (hudDistrictLabel) hudDistrictLabel.textContent = "WATERFRONT · 3D Ad Tycoon";
-          break;
-      }
+      if ((info.id === "downtown" || info.id === "nyc") && hudMapNyc) hudMapNyc.className = activeMapClass;
+      if (info.id === "monaco" && hudMapMonaco) hudMapMonaco.className = activeMapClass;
+      if (info.id === "neon" && hudMapNeon) hudMapNeon.className = activeMapClass;
+      if (info.id === "oldtown" && hudMapOldtown) hudMapOldtown.className = activeMapClass;
+      if (info.id === "waterfront" && hudMapWaterfront) hudMapWaterfront.className = activeMapClass;
     }
 
-    // District tab listeners
-    tabDistrictNyc?.addEventListener("click", () => setDistrict("nyc"));
-    tabDistrictMonaco?.addEventListener("click", () => setDistrict("monaco"));
-    tabDistrictNeon?.addEventListener("click", () => setDistrict("neon"));
-    tabDistrictOldtown?.addEventListener("click", () => setDistrict("oldtown"));
-    tabDistrictWaterfront?.addEventListener("click", () => setDistrict("waterfront"));
-    // HUD map button listeners
-    hudMapNyc?.addEventListener("click", () => setDistrict("nyc"));
+    // Bind all district tabs in landing overlay
+    document.querySelectorAll(".district-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const dist = tab.getAttribute("data-district") || "downtown";
+        setDistrict(dist);
+      });
+    });
+
+    // In-HUD Quick Map Switcher button listeners
+    hudMapNyc?.addEventListener("click", () => setDistrict("downtown"));
     hudMapMonaco?.addEventListener("click", () => setDistrict("monaco"));
     hudMapNeon?.addEventListener("click", () => setDistrict("neon"));
     hudMapOldtown?.addEventListener("click", () => setDistrict("oldtown"));
     hudMapWaterfront?.addEventListener("click", () => setDistrict("waterfront"));
+
+    // In-HUD 15 Districts Dropdown Jump
+    hudDistrictSelect?.addEventListener("change", (e) => {
+      const selected = (e.target as HTMLSelectElement).value;
+      setDistrict(selected);
+    });
 
     // Tool Switching
     document.querySelectorAll(".tool-btn").forEach((btn) => {
@@ -763,6 +880,23 @@
       }
     });
 
+    function checkDistrictBoundary(pos: any) {
+      for (const d of DISTRICT_REGISTRY) {
+        if (pos.x >= d.bounds.minX && pos.x <= d.bounds.maxX &&
+            pos.z >= d.bounds.minZ && pos.z <= d.bounds.maxZ) {
+          if (Math.abs(pos.y - d.elevation) < 25) {
+            if (activeDistrictId !== d.id) {
+              activeDistrictId = d.id;
+              if (hudDistrictLabel) hudDistrictLabel.textContent = `${d.name} · 3D Ad Tycoon`;
+              if (hudDistrictSelect) hudDistrictSelect.value = d.id;
+              showDistrictEntryToast(d);
+            }
+            break;
+          }
+        }
+      }
+    }
+
     // Animation Loop
     let lastTime = performance.now();
     function animate(time: number) {
@@ -773,9 +907,11 @@
       cameraCtrl.update(delta);
       city.update(delta);
       if (cameraCtrl.mode === "walk") {
-        city.checkSecretsProximity(cameraCtrl.getPosition(), (secret) => {
+        const p = cameraCtrl.getPosition();
+        city.checkSecretsProximity(p, (secret) => {
           showDiscoveryToast(secret);
         });
+        checkDistrictBoundary(p);
       }
       engine.render(delta);
     }

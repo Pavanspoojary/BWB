@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { DoodleEngine, INK_COLORS } from "./DoodleEngine";
 import { doodleAudio } from "./DoodleAudio";
-import { DistrictManager } from "./DistrictManager";
+import { DistrictManager, DISTRICT_REGISTRY } from "./DistrictManager";
 export type BuildingType =
   | "skyscraper"
   | "indie-loft"
@@ -54,9 +54,10 @@ export class CityBuilder {
   public buildings: THREE.Group[] = [];
   public selectedAdSpace: AdSpace | null = null;
   public buildTool: BuildingType | "select" | "demolish" = "select";
-  public currentDistrict: "tech" | "indie" | "nyc" | "monaco" | "neon" | "oldtown" | "waterfront" = "nyc";
+  public currentDistrict: string = "downtown";
   public secrets: DoodleSecret[] = [];
   public collectedSecrets: Set<string> = new Set();
+  public cameraController?: any;
 
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
@@ -293,15 +294,16 @@ export class CityBuilder {
       cyan: engine.createDoodleMaterial({ ink: INK_COLORS.CYAN, fill: false }),
     };
 
-    // Ground Plane with Notebook Grid - Hand-drawn blueprint aesthetic
-    const groundGeo = new THREE.PlaneGeometry(650, 650, 64, 64);
+    // Ground Plane with Notebook Grid - Hand-drawn blueprint aesthetic across Doodle Metropolis
+    const groundGeo = new THREE.PlaneGeometry(1200, 1200, 64, 64);
     groundGeo.rotateX(-Math.PI / 2);
     const groundMat = engine.createDoodleMaterial({ ink: INK_COLORS.BLACK, fill: false, shadeBias: 0.18 });
     this.groundPlane = new THREE.Mesh(groundGeo, groundMat);
     this.groundPlane.position.y = 0;
     this.engine.scene.add(this.groundPlane);
 
-    this.buildNewYorkCity();
+    // Build the complete, unified Doodle Metropolis containing all 15 connected districts
+    DistrictManager.buildAllDistricts(this);
   }
 
   // Returns bounding boxes for solid structures to prevent walking through walls
@@ -1882,11 +1884,21 @@ export class CityBuilder {
     }
   }
 
-  // District switcher
-  // Updated to support core districts: "neon", "oldtown", "waterfront"
-  public switchDistrict(district: "tech" | "indie" | "nyc" | "monaco" | "neon" | "oldtown" | "waterfront") {
-    // Map "tech" and "indie" to Monaco district; other identifiers are used directly.
-    const target = (district === "indie" || district === "tech") ? "monaco" : district;
+  // District switcher / Fast-Travel Navigation across Doodle Metropolis
+  public switchDistrict(district: string) {
+    const target = (district === "indie" || district === "tech" || district === "nyc") ? (district === "nyc" ? "downtown" : "monaco") : district;
+    const info = DISTRICT_REGISTRY.find((d) => d.id === target || d.id === district);
+
+    // If already running the full unified metropolis with a camera controller, teleport seamlessly
+    if (this.cameraController && typeof this.cameraController.teleportTo === "function" && info) {
+      this.currentDistrict = info.id;
+      this.cameraController.teleportTo(info.spawnPoint.x, info.spawnPoint.y, info.spawnPoint.z, info.lookAt);
+      doodleAudio.scribble();
+      return;
+    }
+
+    // Fallback: build district directly for test runners or standalone instances
+    this.currentDistrict = target;
     DistrictManager.buildDistrict(target as any, this);
   }
 
@@ -3179,6 +3191,86 @@ export class CityBuilder {
     });
   }
 
+  public spawnAllSecrets() {
+    // Clear existing secret meshes
+    this.secrets.forEach((s) => {
+      if (s.mesh) this.engine.scene.remove(s.mesh);
+    });
+    this.secrets = [];
+
+    const allSecretDefs: { id: string; district: string; name: string; pos: [number, number, number] }[] = [
+      // 1. Downtown
+      { id: "downtown_vault", district: "downtown", name: "🗝️ 34th St Rooftop Vault Key", pos: [-70, 10.0, 18] },
+      { id: "downtown_bull", district: "downtown", name: "🐂 Golden Bull of Wall Street", pos: [-72, 1.2, -10] },
+      // 2. Entertainment
+      { id: "ent_pass", district: "entertainment", name: "🎟️ Golden VIP Backstage Pass", pos: [70, 1.5, 10] },
+      { id: "ent_arcade", district: "entertainment", name: "🕹️ Pixel Palace High-Score Cartridge", pos: [106, 1.5, 24] },
+      // 3. Market
+      { id: "market_spoon", district: "market", name: "🍜 Golden Ramen Spoon of Fortune", pos: [0, 1.5, -40] },
+      { id: "market_compass", district: "market", name: "🧭 Merchant's Antique Brass Compass", pos: [-18, 1.5, -50] },
+      // 4. Old Town
+      { id: "oldtown_gear", district: "oldtown", name: "🕰️ Master Belfry Clockwork Gear", pos: [-70, 1.8, -158] },
+      { id: "oldtown_coin", district: "oldtown", name: "⛲ Renaissance Fountain Wish Coin", pos: [-70, 2.0, -118] },
+      // 5. Neon City
+      { id: "neon_deck", district: "neon", name: "💾 Cyberpunk Zero-Day Cyberdeck", pos: [52, 1.5, -152] },
+      { id: "neon_core", district: "neon", name: "⚡ Nexus Holo-Spire Data Core", pos: [70, 1.8, -130] },
+      // 6. Residential Hills
+      { id: "hills_astrolabe", district: "hills", name: "🔭 Hilltop Observatory Brass Astrolabe", pos: [0, 26.8, -285] },
+      { id: "hills_rose", district: "hills", name: "🌹 Secret Villa Garden Golden Rose", pos: [30, 15.5, -225] },
+      // 7. Cloud District
+      { id: "cloud_feather", district: "cloud", name: "🪶 Stratospheric Nimbus Golden Feather", pos: [0, 81.8, -340] },
+      { id: "cloud_token", district: "cloud", name: "🚁 Skyway Helipad Master Token", pos: [45, 126.8, -340] },
+      // 8. University
+      { id: "uni_scroll", district: "university", name: "📜 Grand Library Ancient Blueprint Scroll", pos: [-170, 1.8, 40] },
+      { id: "uni_medal", district: "university", name: "🎨 Creative Arts Academy Gold Medal", pos: [-170, 5.0, 82] },
+      // 9. Monaco GP
+      { id: "monaco_trophy", district: "monaco", name: "🏆 Grand Prix Winner's Golden Trophy", pos: [170, 1.8, 108] },
+      { id: "monaco_flag", district: "monaco", name: "🏁 Coastal Paddock Checkered Flag", pos: [145, 1.8, 50] },
+      // 10. Industrial
+      { id: "ind_wrench", district: "industrial", name: "🔧 Titanium Gantry Crane Wrench", pos: [-180, 1.8, 225] },
+      { id: "ind_valve", district: "industrial", name: "⚙️ High-Pressure Steam Boiler Valve", pos: [-145, 1.8, 190] },
+      // 11. Underground
+      { id: "und_keycard", district: "underground", name: "💳 Subterranean Transit Master Keycard", pos: [0, -14.5, 75] },
+      { id: "und_crystal", district: "underground", name: "💎 Forgotten Metro Tunnel Crystal", pos: [-35, -14.5, 115] },
+      // 12. Waterfront
+      { id: "water_pearl", district: "waterfront", name: "🦪 Ocean Boardwalk Golden Pearl Shell", pos: [-60, 2.0, 325] },
+      { id: "water_lens", district: "waterfront", name: "💡 Lighthouse Keeper's Prismatic Lens", pos: [-22, 1.8, 275] },
+      // 13. Port
+      { id: "port_manifest", district: "port", name: "📋 Golden Shipping Container Manifest", pos: [125, 1.8, 300] },
+      { id: "port_anchor", district: "port", name: "⚓ Dockside Anchor of Prosperity", pos: [55, 1.8, 300] },
+      // 14. Airport
+      { id: "air_wings", district: "airport", name: "✈️ Supersonic Aviator's Golden Wings", pos: [-85, 3.5, 415] },
+      { id: "air_badge", district: "airport", name: "📡 Air Traffic Radar Operator's Badge", pos: [-12, 1.8, 395] },
+      // 15. Secret Core
+      { id: "secret_fountain_pen", district: "secret", name: "🖋️ The Creator's Colossal Fountain Pen", pos: [0, -23.5, -340] },
+      { id: "secret_seed", district: "secret", name: "✨ Infinite Blueprint Drafting Seed", pos: [24, -20.0, -316] },
+    ];
+
+    allSecretDefs.forEach((def) => {
+      const isCollected = this.collectedSecrets.has(def.id);
+      const secret: DoodleSecret = {
+        id: def.id,
+        district: def.district,
+        name: def.name,
+        position: new THREE.Vector3(...def.pos),
+        collected: isCollected,
+      };
+
+      if (!isCollected) {
+        const sGroup = new THREE.Group();
+        sGroup.position.copy(secret.position);
+        const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.7, 0), this.defaultMats.orange);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.08, 8, 16), this.defaultMats.cyan);
+        ring.rotation.x = Math.PI / 3;
+        sGroup.add(core, ring);
+        sGroup.userData.noCollision = true;
+        this.engine.scene.add(sGroup);
+        secret.mesh = sGroup;
+      }
+      this.secrets.push(secret);
+    });
+  }
+
   public checkSecretsProximity(playerPos: THREE.Vector3, onDiscover?: (secret: DoodleSecret) => void): void {
     for (let i = 0; i < this.secrets.length; i++) {
       const s = this.secrets[i];
@@ -3219,7 +3311,7 @@ export class CityBuilder {
       rentedSpaces,
       occupancyPct: totalSpaces > 0 ? Math.round((rentedSpaces / totalSpaces) * 100) : 0,
       secretsFound: this.collectedSecrets.size,
-      totalSecrets: 12,
+      totalSecrets: Math.max(30, this.secrets.length),
     };
   }
 }

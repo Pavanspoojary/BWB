@@ -33,12 +33,12 @@ export class CameraController {
   private jumpsRemaining = 2;
   private groundHeight = 2.0;
 
-  // Walk bounds for comfortable district exploration
-  private readonly walkClamp = new THREE.Vector3(320, 0, 320);
+  // Walk bounds for comfortable megacity exploration
+  private readonly walkClamp = new THREE.Vector3(600, 0, 600);
 
   // Zoom limits for orbit mode (distance from target)
   private readonly minOrbitRadius = 15;
-  private readonly maxOrbitRadius = 550;
+  private readonly maxOrbitRadius = 900;
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
     this.domElement = domElement;
@@ -219,6 +219,23 @@ export class CameraController {
     return this.mode === "walk" ? this.walkPos : this.camera.position;
   }
 
+  public teleportTo(x: number, y: number, z: number, targetLookAt?: THREE.Vector3) {
+    if (this.mode === "walk") {
+      this.groundHeight = y + 2.0;
+      this.walkPos.set(x, y + 2.0, z);
+      this.verticalVelocity = 0;
+      this.isGrounded = true;
+      if (targetLookAt) {
+        const dir = new THREE.Vector3().subVectors(targetLookAt, this.walkPos);
+        this.walkYaw = Math.atan2(-dir.x, -dir.z);
+      }
+      this.updateWalkCamera();
+    } else {
+      this.target.set(x, y + 6, z);
+      this.updateOrbitCamera();
+    }
+  }
+
   private checkCollision(testPos: THREE.Vector3): boolean {
     if (!this.getColliders) return false;
     const colliders = this.getColliders();
@@ -252,6 +269,24 @@ export class CameraController {
         this.updateOrbitCamera();
       }
     } else if (this.mode === "walk") {
+      // Dynamic ground height determination based on position in megacity
+      let targetGround = 0;
+      if (this.walkPos.z >= -280 && this.walkPos.z <= -180 && Math.abs(this.walkPos.x) <= 90) {
+        // Residential hills elevation transition: slopes up to 25m
+        const t = Math.max(0, Math.min(1, ((-this.walkPos.z) - 180) / 100));
+        targetGround = t * 25;
+      } else if (this.walkPos.z <= -280 && Math.abs(this.walkPos.x) <= 100 && this.walkPos.y >= 50) {
+        // Cloud district sky platforms
+        targetGround = 80;
+      } else if (this.walkPos.z >= 30 && this.walkPos.z <= 160 && Math.abs(this.walkPos.x) <= 80 && this.walkPos.y < -5) {
+        // Underground city
+        targetGround = -16;
+      } else if (this.walkPos.z <= -280 && Math.abs(this.walkPos.x) <= 80 && this.walkPos.y < -10) {
+        // Secret endgame core
+        targetGround = -25;
+      }
+      this.groundHeight = targetGround + 2.0;
+
       const isMoving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
       const speed = this.isSprinting ? 36.0 : (this.isCrouching ? 8.0 : 20.0);
 
@@ -301,6 +336,8 @@ export class CameraController {
           this.isGrounded = true;
           this.jumpsRemaining = 2;
         }
+      } else {
+        this.walkPos.y = this.groundHeight;
       }
 
       this.updateWalkCamera();

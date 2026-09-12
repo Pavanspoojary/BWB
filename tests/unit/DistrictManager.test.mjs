@@ -75,4 +75,31 @@ assert.strictEqual(cityWater.buildings.length, 1, 'Waterfront building should be
 assert.strictEqual(cityWater._calls.clear, 1, 'clearDistrict should be called once for waterfront');
 assert.strictEqual(cityWater._calls.scribble, 1, 'scribble should be called once for waterfront');
 
-// Existing Monaco test remains unchanged
+// Test 15-District Registry & Contiguous Metropolis Architecture
+import { DISTRICT_REGISTRY } from '../../src/components/doodle/DistrictManager.ts';
+assert.strictEqual(DISTRICT_REGISTRY.length, 15, 'Registry must define exactly 15 districts');
+const expectedDistrictIds = [
+  'downtown', 'entertainment', 'market', 'oldtown', 'neon',
+  'hills', 'cloud', 'university', 'monaco', 'industrial',
+  'underground', 'waterfront', 'port', 'airport', 'secret'
+];
+for (const id of expectedDistrictIds) {
+  const found = DISTRICT_REGISTRY.find(d => d.id === id);
+  assert.ok(found, `District '${id}' must exist in registry`);
+  assert.ok(found.spawnPoint instanceof THREE.Vector3, `District '${id}' must have valid spawnPoint`);
+  assert.ok(found.lookAt instanceof THREE.Vector3, `District '${id}' must have valid lookAt`);
+  assert.ok(found.bounds && typeof found.bounds.minX === 'number', `District '${id}' must have bounding box`);
+}
+
+// Verify multi-elevation verticality
+const hills = DISTRICT_REGISTRY.find(d => d.id === 'hills');
+assert.strictEqual(hills.elevation, 25, 'Residential Hills must be at elevation Y=25m');
+const cloud = DISTRICT_REGISTRY.find(d => d.id === 'cloud');
+assert.strictEqual(cloud.elevation, 80, 'Cloud District must be at elevation Y=80m');
+const underground = DISTRICT_REGISTRY.find(d => d.id === 'underground');
+assert.strictEqual(underground.elevation, -16, 'Underground District must be subterranean Y=-16m');
+const secret = DISTRICT_REGISTRY.find(d => d.id === 'secret');
+assert.strictEqual(secret.elevation, -25, 'Blueprint Core must be deep subterranean Y=-25m');
+
+console.log('✔ All 15-District Registry & Multi-Elevation tests passed successfully!');
+
