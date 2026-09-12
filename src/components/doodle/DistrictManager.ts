@@ -301,28 +301,63 @@ export class DistrictManager {
     const mats = this.getMaterials(city);
 
     // 1. Notebook Paper Ground with Ruled Lines & Red Margin Line
+    arena.add(this.buildPaperGround(mats));
+
+    // 2. Quarter 1: Center 3-Story Construction Frame & Summit Tower Crane (Enriched Part 1)
+    arena.add(this.buildCentralTowerQuarter(city, mats));
+
+    // 3. Quarter 2: West Tech Lofts & Suspended Skybridge
+    arena.add(this.buildWestLoftsQuarter(city, mats));
+
+    // 4. Quarter 3: East Blueprint Arcade & Market
+    arena.add(this.buildEastArcadeQuarter(city, mats));
+
+    // 5. Quarter 4: North Civic Colonnade & Master Clocktower
+    arena.add(this.buildNorthColonnadeQuarter(city, mats));
+
+    // 6. Quarter 5: South Boulevard Entrance, Street Plaza & Cabs
+    arena.add(this.buildSouthBoulevardQuarter(city, mats));
+
+    // 7. Urban Perimeter Townhouses & Street Furniture
+    arena.add(this.buildPerimeterQuarter(mats));
+
+    return arena;
+  }
+
+  // --- SUB-BUILDER MODULES ---
+
+  /** Ground Paper with Ruled Lines and Red Margin */
+  private static buildPaperGround(mats: any): THREE.Group {
+    const group = new THREE.Group();
+    group.name = "PaperGround";
+
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), mats.black);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = 0.02;
     floor.userData.noCollision = true;
-    arena.add(floor);
+    group.add(floor);
 
     // Blue ruled lines across paper
     for (let z = -65; z <= 65; z += 6) {
       const line = new THREE.Mesh(new THREE.BoxGeometry(150, 0.04, 0.25), mats.cyan);
       line.position.set(0, 0.03, z);
       line.userData.noCollision = true;
-      arena.add(line);
+      group.add(line);
     }
 
     // Iconic Red Margin Crease Line on Left (matching reference screenshot!)
     const redMargin = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.06, 150), mats.red);
     redMargin.position.set(-36, 0.04, 0);
     redMargin.userData.noCollision = true;
-    arena.add(redMargin);
+    group.add(redMargin);
 
-    // 2. Quarter 1: Center 3-Story Construction Frame (18m x 16m x 18m tall at [0, 0, -6])
+    return group;
+  }
+
+  /** Quarter 1: Center 3-Story Construction Frame & Summit Tower Crane (Part 1 Enriched) */
+  private static buildCentralTowerQuarter(city: any, mats: any): THREE.Group {
     const centerBldg = new THREE.Group();
+    centerBldg.name = "CentralTowerQuarter";
     centerBldg.position.set(0, 0, -6);
 
     // 4 Walkable Floor Slabs (Ground y=0.4, Level 2 y=6, Level 3 y=12, Roof y=18)
@@ -331,13 +366,28 @@ export class DistrictManager {
       const slab = new THREE.Mesh(new THREE.BoxGeometry(18, 0.8, 16), mats.blue);
       slab.position.y = fy;
       centerBldg.add(slab);
+
+      // Blueprint edge trims on each floor slab
+      const trimN = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.1, 0.2), mats.cyan);
+      trimN.position.set(0, fy + 0.45, -8.05);
+      trimN.userData.noCollision = true;
+      const trimS = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.1, 0.2), mats.cyan);
+      trimS.position.set(0, fy + 0.45, 8.05);
+      trimS.userData.noCollision = true;
+      centerBldg.add(trimN, trimS);
     });
 
-    // Concrete/Steel Columns Grid (8 vertical pillars holding up the structure, 3 tiers each)
+    // Concrete/Steel Columns Grid (8 vertical pillars, 3 tiers each)
     const colX = [-8, 0, 8];
     const colZ = [-7, 7];
     colX.forEach((cx) => {
       colZ.forEach((cz) => {
+        // Welded baseplates at ground
+        const baseplate = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.75, 1.4), mats.black);
+        baseplate.position.set(cx, 0.375, cz);
+        centerBldg.add(baseplate);
+
+        // 3 Tiers of columns
         [3.0, 9.0, 15.0].forEach((cy) => {
           const col = new THREE.Mesh(new THREE.BoxGeometry(0.9, 6.0, 0.9), mats.black);
           col.position.set(cx, cy, cz);
@@ -346,7 +396,38 @@ export class DistrictManager {
       });
     });
 
-    // Floor Safety Handrails (Level 2, Level 3, and Roof)
+    // Structural X-Truss Cross Bracing on Rear Facade (Z = -7.8m)
+    [-4, 4].forEach((bayCenterX) => {
+      [3.0, 9.0, 15.0].forEach((tierY) => {
+        const brace1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 8.5, 0.25), mats.orange);
+        brace1.position.set(bayCenterX, tierY, -7.8);
+        brace1.rotation.z = Math.PI / 5;
+        const brace2 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 8.5, 0.25), mats.orange);
+        brace2.position.set(bayCenterX, tierY, -7.8);
+        brace2.rotation.z = -Math.PI / 5;
+        centerBldg.add(brace1, brace2);
+      });
+    });
+
+    // Ceiling I-Beams under slabs
+    [6, 12, 18].forEach((fy) => {
+      [-8, 0, 8].forEach((bx) => {
+        const beamZ = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.75, 15.6), mats.black);
+        beamZ.position.set(bx, fy - 0.7, 0);
+        centerBldg.add(beamZ);
+      });
+      // Hanging fluorescent light fixtures
+      for (let lx of [-4, 4]) {
+        for (let lz of [-4, 4]) {
+          const lightFixture = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.15, 0.5), mats.cyan);
+          lightFixture.position.set(lx, fy - 0.9, lz);
+          lightFixture.userData.noCollision = true;
+          centerBldg.add(lightFixture);
+        }
+      }
+    });
+
+    // Floor Safety Handrails with Pickets
     [6, 12, 18].forEach((fy) => {
       const railFrontL = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.3), mats.orange);
       railFrontL.position.set(-5, fy + 0.8, 7.9);
@@ -364,43 +445,92 @@ export class DistrictManager {
       }
     });
 
-    // Internal Walkable Staircases (each step: 0.75m height, 0.5m rise, size 3.4 x 0.75 x 0.95)
+    // Internal Walkable Staircases with Stringers
     // Stair 1: Ground -> Level 2
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
       step.position.set(-4.5, 0.375 + st * 0.5, -5 + st * 1.0);
       centerBldg.add(step);
     }
+    const str1L = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str1L.position.set(-6.3, 3.2, 0.5);
+    str1L.rotation.x = -Math.PI / 7;
+    const str1R = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str1R.position.set(-2.7, 3.2, 0.5);
+    str1R.rotation.x = -Math.PI / 7;
+    centerBldg.add(str1L, str1R);
+
     // Stair 2: Level 2 -> Level 3
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
       step.position.set(4.5, 6.375 + st * 0.5, 6 - st * 1.0);
       centerBldg.add(step);
     }
+    const str2L = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str2L.position.set(2.7, 9.2, 0.5);
+    str2L.rotation.x = Math.PI / 7;
+    const str2R = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str2R.position.set(6.3, 9.2, 0.5);
+    str2R.rotation.x = Math.PI / 7;
+    centerBldg.add(str2L, str2R);
+
     // Stair 3: Level 3 -> Roof
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
       step.position.set(-4.5, 12.375 + st * 0.5, -5 + st * 1.0);
       centerBldg.add(step);
     }
+    const str3L = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str3L.position.set(-6.3, 15.2, 0.5);
+    str3L.rotation.x = -Math.PI / 7;
+    const str3R = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.75, 13.0), mats.black);
+    str3R.position.set(-2.7, 15.2, 0.5);
+    str3R.rotation.x = -Math.PI / 7;
+    centerBldg.add(str3L, str3R);
 
     // Articulated Rooftop Tower Crane (mounted on Roof at y=18)
     const crane = new THREE.Group();
     crane.position.set(0, 18, 0);
+
+    const pedestal = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.2, 3.6), mats.black);
+    pedestal.position.set(0, 0.6, 0);
+
     const mast = new THREE.Mesh(new THREE.BoxGeometry(2.4, 14, 2.4), mats.blue);
     mast.position.set(0, 7, 0);
+
+    const ladderCage = new THREE.Mesh(new THREE.BoxGeometry(0.8, 14.0, 0.4), mats.orange);
+    ladderCage.position.set(0, 7, 1.3);
+
     const cab = new THREE.Mesh(new THREE.BoxGeometry(3.2, 3.0, 3.2), mats.orange);
     cab.position.set(2.4, 13.5, 0);
     const cabWindow = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 0.3), mats.cyan);
     cabWindow.position.set(2.4, 14, 1.65);
     cabWindow.userData.noCollision = true;
 
+    const cabSeat = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.8, 1.0), mats.black);
+    cabSeat.position.set(2.4, 12.8, 0);
+
+    const beacon = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.75, 0.5), mats.red);
+    beacon.position.set(2.4, 15.4, 0);
+
+    const cathead = new THREE.Mesh(new THREE.BoxGeometry(1.6, 5.0, 1.6), mats.blue);
+    cathead.position.set(0, 17.0, 0);
+
     const boom = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.6, 32), mats.blue);
     boom.position.set(0, 14.8, 6);
+    const boomWalkway = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.75, 32), mats.black);
+    boomWalkway.position.set(0, 15.7, 6);
+    const boomRailL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, 32), mats.orange);
+    boomRailL.position.set(-0.6, 16.2, 6);
+    const boomRailR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.0, 32), mats.orange);
+    boomRailR.position.set(0.6, 16.2, 6);
+
     const counterJib = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.6, 12), mats.blue);
     counterJib.position.set(0, 14.8, -14);
     const counterWeights = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.8, 3.2), mats.black);
     counterWeights.position.set(0, 14.8, -18);
+    const winchMachinery = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.5, 2.4), mats.black);
+    winchMachinery.position.set(0, 15.8, -8);
 
     const trolley = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 2.2), mats.red);
     trolley.position.set(0, 15.2, 8);
@@ -410,79 +540,511 @@ export class DistrictManager {
     const hook = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.6), mats.orange);
     hook.position.set(0, 1.6, 8);
 
-    crane.add(mast, cab, cabWindow, boom, counterJib, counterWeights, trolley, cable, hook);
-    centerBldg.add(crane);
-    arena.add(centerBldg);
+    const floodL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mats.cyan);
+    floodL.position.set(-1.4, 14.5, 1.2);
+    const floodR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mats.cyan);
+    floodR.position.set(1.4, 14.5, 1.2);
 
-    // 3. Quarter 2: West Tech Loft & Skybridge ([-36, 0, -6])
+    crane.add(
+      pedestal, mast, ladderCage, cab, cabWindow, cabSeat, beacon, cathead,
+      boom, boomWalkway, boomRailL, boomRailR, counterJib, counterWeights, winchMachinery,
+      trolley, cable, hook, floodL, floodR
+    );
+    centerBldg.add(crane);
+
+    // Billboards on Central Quarter
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bCenter = city.createAdBillboardMesh(
+        {
+          title: "Courtyard Centerpiece Megaboard",
+          category: "Rooftop Billboard" as const,
+          viewsMonthly: 350000,
+          priceMonthly: 2800,
+          sponsorName: "BUILT WHILE BROKE",
+          sponsorTagline: "Radical $0 SaaS Architecture Hacks",
+          accentColor: "#d02030",
+          isAvailable: false,
+          imageUrl: "https://builtwhilebroke.tech/favicon.svg",
+          linkUrl: "https://builtwhilebroke.tech",
+        },
+        12.0,
+        5.2,
+        centerBldg
+      );
+      bCenter.position.set(0, 14.5, 8.1);
+      centerBldg.add(bCenter);
+
+      const bCrane = city.createAdBillboardMesh(
+        {
+          title: "Tower Crane Summit Skyboard",
+          category: "Rooftop Billboard" as const,
+          viewsMonthly: 420000,
+          priceMonthly: 3400,
+          sponsorName: "SUPABASE",
+          sponsorTagline: "Postgres Database & Realtime Auth",
+          accentColor: "#10b981",
+          isAvailable: false,
+          imageUrl: "https://supabase.com/_next/image?url=%2Fimages%2Fcompany%2Fbrand%2Fsupabase-logo-wordmark--light.png&w=384&q=75",
+          linkUrl: "https://supabase.com",
+        },
+        10.5,
+        4.6,
+        crane
+      );
+      bCrane.position.set(0, 8.5, 14);
+      crane.add(bCrane);
+    }
+
+    return centerBldg;
+  }
+
+  /** Quarter 2: West Tech Lofts & Suspended Skybridge */
+  private static buildWestLoftsQuarter(city: any, mats: any): THREE.Group {
+    const group = new THREE.Group();
+    group.name = "WestLoftsQuarter";
+
+    // 1. Tech Lofts Main Building Group (Position: [-36, 0, -6])
     const westBldg = new THREE.Group();
     westBldg.position.set(-36, 0, -6);
+
+    // Primary building mass
     const wBase = new THREE.Mesh(new THREE.BoxGeometry(20, 16, 24), mats.blue);
     wBase.position.y = 8;
+
+    // Foundation plinth (Ground sill)
+    const wPlinth = new THREE.Mesh(new THREE.BoxGeometry(20.8, 0.75, 24.8), mats.black);
+    wPlinth.position.y = 0.375;
+
+    // Roof perimeter cornice molding
+    const wCornice = new THREE.Mesh(new THREE.BoxGeometry(20.6, 0.75, 24.6), mats.orange);
+    wCornice.position.y = 16.1;
+
+    // Second-floor terrace balcony (walkable platform at Y=6)
     const wBalcony = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 18), mats.cyan);
     wBalcony.position.set(11, 6, 0);
+
+    // Balcony safety guardrails
+    const wBalconyRailN = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 0.3), mats.orange);
+    wBalconyRailN.position.set(11, 7.0, -8.9);
+    const wBalconyRailS = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 0.3), mats.orange);
+    wBalconyRailS.position.set(11, 7.0, 8.9);
+    // East balcony outer rails with clearance gateway opening for skybridge (gap from z=-2 to z=2)
+    const wBalconyRailE1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 7.0), mats.orange);
+    wBalconyRailE1.position.set(14.9, 7.0, -5.5);
+    const wBalconyRailE2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 7.0), mats.orange);
+    wBalconyRailE2.position.set(14.9, 7.0, 5.5);
+
+    // Roof parapet safety handrails
     const wRoofRailN = new THREE.Mesh(new THREE.BoxGeometry(20, 1.2, 0.3), mats.orange);
     wRoofRailN.position.set(0, 16.6, -11.8);
     const wRoofRailS = new THREE.Mesh(new THREE.BoxGeometry(20, 1.2, 0.3), mats.orange);
     wRoofRailS.position.set(0, 16.6, 11.8);
     const wRoofRailW = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 24), mats.orange);
     wRoofRailW.position.set(-9.8, 16.6, 0);
-    const wEntrance = new THREE.Mesh(new THREE.BoxGeometry(6, 0.8, 3), mats.black);
-    wEntrance.position.set(0, 3.5, 12.2);
 
-    // Exterior stairs (Ground to 2nd floor balcony)
+    // 2. Rooftop HVAC Penthouse & Mechanical Service Equipment
+    const hvacCabin = new THREE.Mesh(new THREE.BoxGeometry(7, 3.6, 8), mats.blue);
+    hvacCabin.position.set(-4, 17.8, 0);
+    const hvacRoof = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.75, 8.6), mats.orange);
+    hvacRoof.position.set(-4, 19.8, 0);
+    const hvacDoor = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.6, 0.4), mats.black);
+    hvacDoor.position.set(-0.3, 17.3, 2);
+    hvacDoor.userData.noCollision = true;
+
+    // Dual circular ventilation fan units
+    const fanCylGeo = new THREE.CylinderGeometry(1.2, 1.2, 1.6, 12);
+    const fanTorusGeo = new THREE.TorusGeometry(1.2, 0.2, 6, 12);
+    const fan1 = new THREE.Mesh(fanCylGeo, mats.black);
+    fan1.position.set(-4, 21.0, -2.2);
+    const fanRim1 = new THREE.Mesh(fanTorusGeo, mats.orange);
+    fanRim1.rotation.x = Math.PI / 2;
+    fanRim1.position.set(-4, 21.8, -2.2);
+    fanRim1.userData.noCollision = true;
+
+    const fan2 = new THREE.Mesh(fanCylGeo, mats.black);
+    fan2.position.set(-4, 21.0, 2.2);
+    const fanRim2 = new THREE.Mesh(fanTorusGeo, mats.orange);
+    fanRim2.rotation.x = Math.PI / 2;
+    fanRim2.position.set(-4, 21.8, 2.2);
+    fanRim2.userData.noCollision = true;
+
+    // Industrial ductwork runs
+    const ductMain = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 8.0), mats.cyan);
+    ductMain.position.set(-4, 16.5, -7.0);
+    const ductBrace1 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.75, 0.4), mats.black);
+    ductBrace1.position.set(-4, 16.2, -4.5);
+    const ductBrace2 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.75, 0.4), mats.black);
+    ductBrace2.position.set(-4, 16.2, -9.5);
+    const elecCabinet = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.8, 1.2), mats.black);
+    elecCabinet.position.set(4, 16.9, -6);
+
+    westBldg.add(
+      wBase,
+      wPlinth,
+      wCornice,
+      wBalcony,
+      wBalconyRailN,
+      wBalconyRailS,
+      wBalconyRailE1,
+      wBalconyRailE2,
+      wRoofRailN,
+      wRoofRailS,
+      wRoofRailW,
+      hvacCabin,
+      hvacRoof,
+      hvacDoor,
+      fan1,
+      fanRim1,
+      fan2,
+      fanRim2,
+      ductMain,
+      ductBrace1,
+      ductBrace2,
+      elecCabinet
+    );
+
+    // 3. Ground Floor Main Entrance Portico
+    const porticoCanopy = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.6, 3.6), mats.orange);
+    porticoCanopy.position.set(0, 4.2, 13.6);
+    const porticoColL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.2, 0.8), mats.blue);
+    porticoColL.position.set(-2.8, 2.1, 13.6);
+    const porticoColR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.2, 0.8), mats.blue);
+    porticoColR.position.set(2.8, 2.1, 13.6);
+    const porticoStep1 = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.75, 1.2), mats.black);
+    porticoStep1.position.set(0, 0.375, 13.8);
+    const porticoStep2 = new THREE.Mesh(new THREE.BoxGeometry(5.0, 0.75, 1.2), mats.black);
+    porticoStep2.position.set(0, 0.75, 12.6);
+    const doubleDoors = new THREE.Mesh(new THREE.BoxGeometry(3.4, 3.2, 0.4), mats.black);
+    doubleDoors.position.set(0, 2.2, 12.1);
+    const handleL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.2), mats.orange);
+    handleL.position.set(-0.25, 2.2, 12.35);
+    handleL.userData.noCollision = true;
+    const handleR = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.5, 0.2), mats.orange);
+    handleR.position.set(0.25, 2.2, 12.35);
+    handleR.userData.noCollision = true;
+    const coachLantern = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.6), mats.cyan);
+    coachLantern.position.set(0, 4.6, 13.6);
+    coachLantern.userData.noCollision = true;
+    const addressPlaque = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 0.2), mats.cyan);
+    addressPlaque.position.set(0, 3.6, 12.2);
+    addressPlaque.userData.noCollision = true;
+
+    westBldg.add(
+      porticoCanopy,
+      porticoColL,
+      porticoColR,
+      porticoStep1,
+      porticoStep2,
+      doubleDoors,
+      handleL,
+      handleR,
+      coachLantern,
+      addressPlaque
+    );
+
+    // 4. Multi-Pane Industrial Window Casements & Relief Lintels
+    // South Facade windows (Z = 12.1)
+    for (const wy of [7, 12]) {
+      for (const wx of [-6, 6]) {
+        const winGlass = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.0, 0.4), mats.cyan);
+        winGlass.position.set(wx, wy, 12.1);
+        const winLintel = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.5), mats.orange);
+        winLintel.position.set(wx, wy + 1.8, 12.15);
+        const winSill = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.3, 0.5), mats.black);
+        winSill.position.set(wx, wy - 1.7, 12.15);
+        winSill.userData.noCollision = true;
+        const mullionH = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.1, 0.45), mats.blue);
+        mullionH.position.set(wx, wy, 12.15);
+        mullionH.userData.noCollision = true;
+        const mullionV = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.8, 0.45), mats.blue);
+        mullionV.position.set(wx, wy, 12.15);
+        mullionV.userData.noCollision = true;
+        westBldg.add(winGlass, winLintel, winSill, mullionH, mullionV);
+      }
+    }
+
+    // West Facade windows (X = -10.1)
+    for (const wz of [-7, 0, 7]) {
+      for (const wy of [4.5, 9.0, 13.5]) {
+        const winGlassW = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.8, 2.6), mats.cyan);
+        winGlassW.position.set(-10.1, wy, wz);
+        const winLintelW = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.75, 3.2), mats.orange);
+        winLintelW.position.set(-10.15, wy + 1.6, wz);
+        const winSillW = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 3.0), mats.black);
+        winSillW.position.set(-10.15, wy - 1.6, wz);
+        winSillW.userData.noCollision = true;
+        westBldg.add(winGlassW, winLintelW, winSillW);
+      }
+    }
+
+    // North Facade windows (Z = -12.1)
+    for (const wy of [6, 11]) {
+      for (const wx of [-5, 5]) {
+        const winGlassN = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 0.4), mats.cyan);
+        winGlassN.position.set(wx, wy, -12.1);
+        const winLintelN = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.5), mats.orange);
+        winLintelN.position.set(wx, wy + 1.6, -12.15);
+        const winSillN = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.3, 0.5), mats.black);
+        winSillN.position.set(wx, wy - 1.6, -12.15);
+        winSillN.userData.noCollision = true;
+        westBldg.add(winGlassN, winLintelN, winSillN);
+      }
+    }
+
+    // 5. Complete Steel Fire Escape System (West Facade, X = -10.2)
+    for (const fep of [
+      { y: 6.0, name: "fe1" },
+      { y: 11.0, name: "fe2" },
+      { y: 16.0, name: "fe3" },
+    ]) {
+      // Solid grated platform
+      const plat = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 2.6), mats.black);
+      plat.position.set(-11.6, fep.y, 4.0);
+
+      // Platform safety railings
+      const railOuter = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 2.6), mats.orange);
+      railOuter.position.set(-13.2, fep.y + 0.8, 4.0);
+      const railN = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.2, 0.3), mats.orange);
+      railN.position.set(-11.6, fep.y + 0.8, 2.7);
+      const railS = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.2, 0.3), mats.orange);
+      railS.position.set(-11.6, fep.y + 0.8, 5.3);
+
+      // Cantilever wall bracket
+      const strut = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.3, 0.3), mats.orange);
+      strut.position.set(-10.9, fep.y - 0.7, 4.0);
+      strut.userData.noCollision = true;
+
+      westBldg.add(plat, railOuter, railN, railS, strut);
+    }
+
+    // Fire escape ladders
+    const ladderHigh = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.5, 0.4), mats.orange);
+    ladderHigh.position.set(-12.9, 13.5, 5.0);
+    const ladderMid = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.5, 0.4), mats.orange);
+    ladderMid.position.set(-12.9, 8.5, 5.0);
+    const ladderDrop = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.0, 0.4), mats.orange);
+    ladderDrop.position.set(-12.9, 3.5, 5.0);
+
+    // Counterweight pulley wheel and cable box
+    const pulley = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.8), mats.black);
+    pulley.position.set(-12.9, 6.8, 5.2);
+    pulley.userData.noCollision = true;
+    const counterweight = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.2, 8), mats.black);
+    counterweight.position.set(-12.9, 4.5, 5.4);
+    westBldg.add(ladderHigh, ladderMid, ladderDrop, pulley, counterweight);
+
+    // 6. Exterior Access Staircase (Ground to Balcony)
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.95), mats.black);
       step.position.set(11, 0.375 + st * 0.5, 9 - st * 0.8);
       westBldg.add(step);
     }
-    // Fire escape platforms and ladders
-    const fe1 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.75, 2.5), mats.black);
-    fe1.position.set(-10.2, 10, 4);
-    const fe2 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.75, 2.5), mats.black);
-    fe2.position.set(-10.2, 14, 4);
-    const feLadder1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.0, 0.4), mats.orange);
-    feLadder1.position.set(-10.2, 8, 5);
-    const feLadder2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.0, 0.4), mats.orange);
-    feLadder2.position.set(-10.2, 12, 5);
+    // Flanking diagonal steel stringer side beams
+    const stringerL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.75, 12.0), mats.blue);
+    stringerL.position.set(12.5, 3.2, 4.6);
+    stringerL.rotation.x = 0.55;
+    const stringerR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.75, 12.0), mats.blue);
+    stringerR.position.set(9.5, 3.2, 4.6);
+    stringerR.rotation.x = 0.55;
 
-    // Architectural window relief frames
-    for (let wy of [6, 11]) {
-      for (let wz of [-6, 0, 6]) {
-        const sill = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.5), mats.cyan);
-        sill.position.set(wz, wy, 12.2);
-        westBldg.add(sill);
-      }
+    // Staircase sloped safety handrail and vertical pickets
+    const stairRail = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.0, 12.0), mats.orange);
+    stairRail.position.set(12.55, 4.1, 4.6);
+    stairRail.rotation.x = 0.55;
+    westBldg.add(stringerL, stringerR, stairRail);
+
+    for (let stP = 0; stP < 12; stP += 3) {
+      const picket = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), mats.orange);
+      picket.position.set(12.55, 0.975 + stP * 0.5, 9 - stP * 0.8);
+      westBldg.add(picket);
     }
-    westBldg.add(wBase, wBalcony, wRoofRailN, wRoofRailS, wRoofRailW, wEntrance, fe1, fe2, feLadder1, feLadder2);
-    arena.add(westBldg);
 
-    // Overhead Suspended Skybridge (Truss Walkway connecting Central to West)
+    // 7. Attached Billboard for West Lofts
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bWest = city.createAdBillboardMesh(
+        {
+          title: "West Terrace Prime Wall",
+          category: "Wall Banner" as const,
+          viewsMonthly: 180000,
+          priceMonthly: 1500,
+          sponsorName: "STRIPE",
+          sponsorTagline: "Financial Infrastructure for the Internet",
+          accentColor: "#6366f1",
+          isAvailable: false,
+          imageUrl: "https://images.ctfassets.net/f60q1anpxzid/asset-1718873099042/727f7f858276f571fafead354f9a4fa1/stripe-logo.png",
+          linkUrl: "https://stripe.com",
+        },
+        9.5,
+        4.8,
+        westBldg
+      );
+      bWest.position.set(9.1, 10, 0);
+      bWest.rotation.y = Math.PI / 2;
+      westBldg.add(bWest);
+    }
+    group.add(westBldg);
+
+    // 8. Overhead Suspended Skybridge (Position: [-19, 6, -6])
     const skybridge = new THREE.Group();
     skybridge.position.set(-19, 6, -6);
-    const bridgeDeck = new THREE.Mesh(new THREE.BoxGeometry(20, 0.8, 3.6), mats.orange);
-    const bridgeRailN = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.3), mats.red);
-    bridgeRailN.position.set(0, 1.0, -1.7);
-    const bridgeRailS = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.3), mats.red);
-    bridgeRailS.position.set(0, 1.0, 1.7);
-    const bridgePillar1 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 6.0, 1.0), mats.black);
-    bridgePillar1.position.set(-6, -3, 0);
-    const bridgePillar2 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 6.0, 1.0), mats.black);
-    bridgePillar2.position.set(6, -3, 0);
-    skybridge.add(bridgeDeck, bridgeRailN, bridgeRailS, bridgePillar1, bridgePillar2);
-    arena.add(skybridge);
 
-    // 4. Quarter 3: East Blueprint Arcade & Market ([+36, 0, -6])
+    // Walkable bridge deck
+    const bridgeDeck = new THREE.Mesh(new THREE.BoxGeometry(18, 0.8, 3.6), mats.orange);
+    // Illuminated cyan floor runway strip
+    const runwayStrip = new THREE.Mesh(new THREE.BoxGeometry(18, 0.05, 0.5), mats.cyan);
+    runwayStrip.position.set(0, 0.41, 0);
+    runwayStrip.userData.noCollision = true;
+
+    // Heavy bridge support pylons underneath
+    const bridgePillar1 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 6.0, 1.2), mats.black);
+    bridgePillar1.position.set(-5, -3, 0);
+    const bridgePillar2 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 6.0, 1.2), mats.black);
+    bridgePillar2.position.set(5, -3, 0);
+    const bridgeTieBeam = new THREE.Mesh(new THREE.BoxGeometry(10, 0.75, 1.0), mats.blue);
+    bridgeTieBeam.position.set(0, -1.0, 0);
+
+    // Warren Truss Side Webbing (North & South flanks)
+    // Top chords
+    const topChordN = new THREE.Mesh(new THREE.BoxGeometry(18, 0.4, 0.3), mats.red);
+    topChordN.position.set(0, 2.2, -1.75);
+    const topChordS = new THREE.Mesh(new THREE.BoxGeometry(18, 0.4, 0.3), mats.red);
+    topChordS.position.set(0, 2.2, 1.75);
+    // Bottom chords
+    const botChordN = new THREE.Mesh(new THREE.BoxGeometry(18, 0.4, 0.3), mats.red);
+    botChordN.position.set(0, 0.4, -1.75);
+    const botChordS = new THREE.Mesh(new THREE.BoxGeometry(18, 0.4, 0.3), mats.red);
+    botChordS.position.set(0, 0.4, 1.75);
+
+    skybridge.add(
+      bridgeDeck,
+      runwayStrip,
+      bridgePillar1,
+      bridgePillar2,
+      bridgeTieBeam,
+      topChordN,
+      topChordS,
+      botChordN,
+      botChordS
+    );
+
+    // Vertical truss posts & diagonal Warren braces
+    for (let xPos = -7.5; xPos <= 7.5; xPos += 3) {
+      // North vertical post
+      const postN = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.8, 0.3), mats.red);
+      postN.position.set(xPos, 1.3, -1.75);
+      // South vertical post
+      const postS = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.8, 0.3), mats.red);
+      postS.position.set(xPos, 1.3, 1.75);
+      skybridge.add(postN, postS);
+
+      // Diagonal Warren strut (if not last bay)
+      if (xPos < 7.5) {
+        const diagStrutN = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.4, 0.25), mats.red);
+        diagStrutN.position.set(xPos + 1.5, 1.3, -1.75);
+        diagStrutN.rotation.z = (xPos % 6 === 0 ? 1 : -1) * 0.55;
+        const diagStrutS = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.4, 0.25), mats.red);
+        diagStrutS.position.set(xPos + 1.5, 1.3, 1.75);
+        diagStrutS.rotation.z = (xPos % 6 === 0 ? 1 : -1) * 0.55;
+        skybridge.add(diagStrutN, diagStrutS);
+      }
+    }
+
+    // Overhead suspension masts & cable stays
+    const mastW1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.0, 0.4), mats.black);
+    mastW1.position.set(-6, 4.5, -1.7);
+    const mastW2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.0, 0.4), mats.black);
+    mastW2.position.set(-6, 4.5, 1.7);
+    const mastE1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.0, 0.4), mats.black);
+    mastE1.position.set(6, 4.5, -1.7);
+    const mastE2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.0, 0.4), mats.black);
+    mastE2.position.set(6, 4.5, 1.7);
+
+    // Diagonal stay rods
+    const stayN = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.15, 0.15), mats.cyan);
+    stayN.position.set(0, 4.5, -1.7);
+    stayN.userData.noCollision = true;
+    const stayS = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.15, 0.15), mats.cyan);
+    stayS.position.set(0, 4.5, 1.7);
+    stayS.userData.noCollision = true;
+
+    // Portal clearance entry arches and headroom signage
+    const portalArchW = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3.0, 3.8), mats.blue);
+    portalArchW.position.set(-8.9, 1.5, 0);
+    const signW = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.6, 2.6), mats.orange);
+    signW.position.set(-8.8, 2.9, 0);
+    signW.userData.noCollision = true;
+
+    const portalArchE = new THREE.Mesh(new THREE.BoxGeometry(0.4, 3.0, 3.8), mats.blue);
+    portalArchE.position.set(8.9, 1.5, 0);
+    const signE = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.6, 2.6), mats.orange);
+    signE.position.set(8.8, 2.9, 0);
+    signE.userData.noCollision = true;
+
+    skybridge.add(
+      mastW1,
+      mastW2,
+      mastE1,
+      mastE2,
+      stayN,
+      stayS,
+      portalArchW,
+      signW,
+      portalArchE,
+      signE
+    );
+
+    // Attached Billboard for Overhead Skybridge
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bBridge = city.createAdBillboardMesh(
+        {
+          title: "Overhead Skybridge Catwalk Board",
+          category: "Wall Banner" as const,
+          viewsMonthly: 210000,
+          priceMonthly: 1750,
+          sponsorName: "TURSO",
+          sponsorTagline: "SQLite Distributed Database at the Edge",
+          accentColor: "#06b6d4",
+          isAvailable: false,
+          imageUrl: "https://turso.tech/images/turso-light.png",
+          linkUrl: "https://turso.tech",
+        },
+        8.5,
+        3.2,
+        skybridge
+      );
+      bBridge.position.set(0, 0, 1.9);
+      skybridge.add(bBridge);
+    }
+    group.add(skybridge);
+
+    return group;
+  }
+
+  /** Quarter 3: East Blueprint Arcade & Market */
+  private static buildEastArcadeQuarter(city: any, mats: any): THREE.Group {
     const eastBldg = new THREE.Group();
+    eastBldg.name = "EastArcadeQuarter";
     eastBldg.position.set(36, 0, -6);
+
+    // 1. Primary Building Mass & Foundations
     const eBase = new THREE.Mesh(new THREE.BoxGeometry(20, 16, 24), mats.blue);
     eBase.position.y = 8;
+    const ePlinth = new THREE.Mesh(new THREE.BoxGeometry(20.8, 0.75, 24.8), mats.black);
+    ePlinth.position.y = 0.375;
+    const eCornice = new THREE.Mesh(new THREE.BoxGeometry(20.6, 0.75, 24.6), mats.orange);
+    eCornice.position.y = 16.1;
+
+    // Mezzanine terrace walkway (walkable platform at Y=6)
     const eMezz = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 18), mats.cyan);
     eMezz.position.set(-11, 6, 0);
-    const eMezzRail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 18), mats.orange);
-    eMezzRail.position.set(-14.8, 6.8, 0);
+    const eMezzRailW = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 18), mats.orange);
+    eMezzRailW.position.set(-14.8, 6.8, 0);
+    const eMezzRailN = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 0.3), mats.orange);
+    eMezzRailN.position.set(-11, 6.8, -8.9);
+    const eMezzRailS = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 0.3), mats.orange);
+    eMezzRailS.position.set(-11, 6.8, 8.9);
 
-    // Cross-hatch blueprint ribs across the facade (matching reference screenshot!)
+    // Cross-hatch blueprint ribs across the facade
     for (let y = 3; y <= 13; y += 3) {
       const hStripe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 24), mats.cyan);
       hStripe.position.set(-9.1, y, 0);
@@ -496,94 +1058,418 @@ export class DistrictManager {
       eastBldg.add(vStripe);
     }
 
-    // Exterior switchback stairs
+    // 2. Exterior Switchback Staircase
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.95), mats.black);
       step.position.set(-11, 0.375 + st * 0.5, 9 - st * 0.8);
       eastBldg.add(step);
     }
+    // Flanking diagonal steel stringer side beams
+    const stringerL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.75, 12.0), mats.blue);
+    stringerL.position.set(-12.5, 3.2, 4.6);
+    stringerL.rotation.x = 0.55;
+    const stringerR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.75, 12.0), mats.blue);
+    stringerR.position.set(-9.5, 3.2, 4.6);
+    stringerR.rotation.x = 0.55;
+    const stairRail = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.0, 12.0), mats.orange);
+    stairRail.position.set(-12.55, 4.1, 4.6);
+    stairRail.rotation.x = 0.55;
+    eastBldg.add(stringerL, stringerR, stairRail);
 
-    // Storefront shop stalls: Ramen counter, cyber cafe counter, workshop
-    const ramenCounter = new THREE.Mesh(new THREE.BoxGeometry(6, 1.1, 1.8), mats.orange);
+    for (let stP = 0; stP < 12; stP += 3) {
+      const picket = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), mats.orange);
+      picket.position.set(-12.55, 0.975 + stP * 0.5, 9 - stP * 0.8);
+      eastBldg.add(picket);
+    }
+
+    // 3. Ramen Bar Artisan Storefront (South Arcade)
+    const ramenCounter = new THREE.Mesh(new THREE.BoxGeometry(6.0, 1.1, 1.8), mats.orange);
     ramenCounter.position.set(0, 0.55, 12.8);
-    const cafeCounter = new THREE.Mesh(new THREE.BoxGeometry(6, 1.1, 1.8), mats.black);
-    cafeCounter.position.set(0, 0.55, -12.8);
-    const techCounter = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.1, 6), mats.cyan);
-    techCounter.position.set(10.5, 0.55, 0);
-    const shopDivider1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4), mats.black);
+    const ramenReturn = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.1, 2.4), mats.orange);
+    ramenReturn.position.set(3.1, 0.55, 13.5);
+
+    // 4 Swivel barstools with cushions
+    for (const sx of [-2.4, -0.8, 0.8, 2.4]) {
+      const stoolPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.75, 0.7), mats.black);
+      stoolPedestal.position.set(sx, 0.375, 14.3);
+      const stoolCushion = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.15, 8), mats.red);
+      stoolCushion.position.set(sx, 0.8, 14.3);
+      stoolCushion.userData.noCollision = true;
+      eastBldg.add(stoolPedestal, stoolCushion);
+    }
+
+    // Ramen bowls props & chopsticks
+    for (const rx of [-1.5, 0.5, 2.0]) {
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.15, 0.2, 8), mats.cyan);
+      bowl.position.set(rx, 1.2, 12.8);
+      bowl.userData.noCollision = true;
+      eastBldg.add(bowl);
+    }
+
+    // Hanging fabric noren curtains
+    for (let nc = -2.2; nc <= 2.2; nc += 1.1) {
+      const noren = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.9, 0.1), mats.red);
+      noren.position.set(nc, 2.8, 13.5);
+      noren.userData.noCollision = true;
+      eastBldg.add(noren);
+    }
+
+    // Red paper lanterns (chōchin)
+    const lanternL = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.8, 8), mats.orange);
+    lanternL.position.set(-2.2, 3.2, 13.5);
+    lanternL.userData.noCollision = true;
+    const lanternR = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.8, 8), mats.orange);
+    lanternR.position.set(2.2, 3.2, 13.5);
+    lanternR.userData.noCollision = true;
+
+    // Hanging menu board
+    const menuBoard = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.2, 0.2), mats.black);
+    menuBoard.position.set(0, 3.2, 11.9);
+    menuBoard.userData.noCollision = true;
+
+    // Shop divider wall partitions
+    const shopDivider1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4.0), mats.black);
     shopDivider1.position.set(-3.5, 1.75, 13.5);
-    const shopDivider2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4), mats.black);
+    const shopDivider2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4.0), mats.black);
     shopDivider2.position.set(3.5, 1.75, 13.5);
 
-    // Rooftop water tank on 4 timber stilt legs
-    const wtLeg1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
-    wtLeg1.position.set(-1.5, 18, -1.5);
-    const wtLeg2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
-    wtLeg2.position.set(1.5, 18, -1.5);
-    const wtLeg3 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
-    wtLeg3.position.set(-1.5, 18, 1.5);
-    const wtLeg4 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
-    wtLeg4.position.set(1.5, 18, 1.5);
-    const wtTank = new THREE.Mesh(new THREE.BoxGeometry(4.5, 4.5, 4.5), mats.orange);
-    wtTank.position.set(0, 22.2, 0);
+    eastBldg.add(
+      ramenCounter,
+      ramenReturn,
+      lanternL,
+      lanternR,
+      menuBoard,
+      shopDivider1,
+      shopDivider2
+    );
 
-    // Rooftop AC chiller units
+    // 4. Cyber Cafe Storefront (North Arcade)
+    const cafeCounter = new THREE.Mesh(new THREE.BoxGeometry(6.0, 1.1, 1.8), mats.black);
+    cafeCounter.position.set(0, 0.55, -12.8);
+    const espressoMachine = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 0.8), mats.cyan);
+    espressoMachine.position.set(-2.0, 1.5, -12.8);
+    espressoMachine.userData.noCollision = true;
+
+    // Glowing computer terminals & keyboards
+    for (const cx of [0.6, 2.2]) {
+      const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 0.3), mats.cyan);
+      monitor.position.set(cx, 1.5, -12.8);
+      monitor.userData.noCollision = true;
+      const keyboard = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.4), mats.black);
+      keyboard.position.set(cx, 1.15, -12.4);
+      keyboard.userData.noCollision = true;
+      eastBldg.add(monitor, keyboard);
+    }
+
+    // Bistro outdoor patio tables & chairs
+    const table1 = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.75, 1.4), mats.orange);
+    table1.position.set(-3.5, 0.375, -15.5);
+    const table2 = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.75, 1.4), mats.orange);
+    table2.position.set(3.5, 0.375, -15.5);
+    const chair1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.75, 0.6), mats.black);
+    chair1.position.set(-3.5, 0.375, -17.0);
+    const chair2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.75, 0.6), mats.black);
+    chair2.position.set(3.5, 0.375, -17.0);
+    const cafeMarquee = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.4, 2.0), mats.cyan);
+    cafeMarquee.position.set(0, 3.8, -13.8);
+    cafeMarquee.userData.noCollision = true;
+
+    eastBldg.add(
+      cafeCounter,
+      espressoMachine,
+      table1,
+      table2,
+      chair1,
+      chair2,
+      cafeMarquee
+    );
+
+    // 5. Tech Hardware & Repair Workshop (East Facade)
+    const techCounter = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.1, 6.0), mats.cyan);
+    techCounter.position.set(10.5, 0.55, 0);
+    const scopeBox = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.6), mats.black);
+    scopeBox.position.set(10.5, 1.4, -1.5);
+    scopeBox.userData.noCollision = true;
+    const partsBin = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 1.2), mats.orange);
+    partsBin.position.set(10.5, 1.25, 1.5);
+    partsBin.userData.noCollision = true;
+    const toolRack = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.6, 5.0), mats.orange);
+    toolRack.position.set(9.9, 2.5, 0);
+    toolRack.userData.noCollision = true;
+    const rollShutter = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 6.2), mats.black);
+    rollShutter.position.set(10.5, 3.5, 0);
+
+    eastBldg.add(techCounter, scopeBox, partsBin, toolRack, rollShutter);
+
+    // 6. Traditional Cedar Rooftop Water Tank
+    const wtLeg1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.0, 0.8), mats.black);
+    wtLeg1.position.set(-1.5, 18, -1.5);
+    const wtLeg2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.0, 0.8), mats.black);
+    wtLeg2.position.set(1.5, 18, -1.5);
+    const wtLeg3 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.0, 0.8), mats.black);
+    wtLeg3.position.set(-1.5, 18, 1.5);
+    const wtLeg4 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.0, 0.8), mats.black);
+    wtLeg4.position.set(1.5, 18, 1.5);
+
+    // Stilt timber cross-braces
+    const brace1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.8, 0.2), mats.orange);
+    brace1.position.set(0, 18, -1.5);
+    brace1.rotation.z = 0.55;
+    brace1.userData.noCollision = true;
+    const brace2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.8, 0.2), mats.orange);
+    brace2.position.set(0, 18, 1.5);
+    brace2.rotation.z = -0.55;
+    brace2.userData.noCollision = true;
+
+    // Platform deck & water barrel
+    const wtDeck = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.75, 4.8), mats.black);
+    wtDeck.position.set(0, 20.0, 0);
+    const wtBarrel = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 4.5, 16), mats.orange);
+    wtBarrel.position.set(0, 22.5, 0);
+    const wtConeRoof = new THREE.Mesh(new THREE.ConeGeometry(2.7, 1.8, 16), mats.black);
+    wtConeRoof.position.set(0, 25.4, 0);
+    const wtFinial = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.5, 0.2), mats.orange);
+    wtFinial.position.set(0, 26.6, 0);
+    wtFinial.userData.noCollision = true;
+    const wtPipe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 8.0, 0.3), mats.cyan);
+    wtPipe.position.set(2.5, 19.5, 0);
+    wtPipe.userData.noCollision = true;
+    const wtLadder = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5.5, 0.4), mats.orange);
+    wtLadder.position.set(-2.5, 22.0, 0);
+
+    eastBldg.add(
+      wtLeg1,
+      wtLeg2,
+      wtLeg3,
+      wtLeg4,
+      brace1,
+      brace2,
+      wtDeck,
+      wtBarrel,
+      wtConeRoof,
+      wtFinial,
+      wtPipe,
+      wtLadder
+    );
+
+    // 7. Industrial Rooftop Electrical Substation
+    const xformer = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.4, 3.2), mats.blue);
+    xformer.position.set(4.5, 17.2, -6.0);
+    for (const fz of [-1.0, 0, 1.0]) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.8, 0.8), mats.black);
+      fin.position.set(6.2, 17.2, -6.0 + fz);
+      fin.userData.noCollision = true;
+      eastBldg.add(fin);
+    }
+    for (const bz of [-0.8, 0, 0.8]) {
+      const bushing = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8), mats.orange);
+      bushing.position.set(4.5, 19.0, -6.0 + bz);
+      bushing.userData.noCollision = true;
+      eastBldg.add(bushing);
+    }
+    const dangerSign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.1), mats.orange);
+    dangerSign.position.set(4.5, 17.5, -4.3);
+    dangerSign.userData.noCollision = true;
+    eastBldg.add(xformer, dangerSign);
+
+    // 8. Commercial HVAC Rooftop Chillers
     for (let ac = 0; ac < 3; ac++) {
       const unit = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.8, 2.0), mats.black);
       unit.position.set(ac * 3.5 - 3.5, 17, 6);
-      eastBldg.add(unit);
+      const louver = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.3, 1.6), mats.orange);
+      louver.position.set(ac * 3.5 - 3.5, 18.0, 6);
+      louver.userData.noCollision = true;
+      eastBldg.add(unit, louver);
     }
 
-    eastBldg.add(eBase, eMezz, eMezzRail, ramenCounter, cafeCounter, techCounter, shopDivider1, shopDivider2, wtLeg1, wtLeg2, wtLeg3, wtLeg4, wtTank);
-    arena.add(eastBldg);
+    eastBldg.add(eBase, ePlinth, eCornice, eMezz, eMezzRailW, eMezzRailN, eMezzRailS);
 
-    // 5. Quarter 4: North Civic Colonnade & Clocktower ([0, 0, -32])
+    // 9. Attached Billboard for East Arcade
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bEast = city.createAdBillboardMesh(
+        {
+          title: "East Blueprint Arcade Board",
+          category: "Wall Banner" as const,
+          viewsMonthly: 165000,
+          priceMonthly: 1350,
+          sponsorName: "GITHUB",
+          sponsorTagline: "Where the world builds software",
+          accentColor: "#1a30c0",
+          isAvailable: false,
+          imageUrl: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+          linkUrl: "https://github.com",
+        },
+        9.5,
+        4.8,
+        eastBldg
+      );
+      bEast.position.set(-9.1, 10, 0);
+      bEast.rotation.y = -Math.PI / 2;
+      eastBldg.add(bEast);
+    }
+
+    return eastBldg;
+  }
+
+  /** Quarter 4: North Civic Colonnade & Master Clocktower */
+  private static buildNorthColonnadeQuarter(city: any, mats: any): THREE.Group {
     const northBldg = new THREE.Group();
+    northBldg.name = "NorthColonnadeQuarter";
     northBldg.position.set(0, 0, -32);
+
+    // 1. Primary Wall & Side Wings
     const nWall = new THREE.Mesh(new THREE.BoxGeometry(76, 16, 6), mats.blue);
     nWall.position.y = 8;
+    const nPlinth = new THREE.Mesh(new THREE.BoxGeometry(76.8, 0.75, 6.8), mats.black);
+    nPlinth.position.y = 0.375;
+
     const nWingL = new THREE.Mesh(new THREE.BoxGeometry(8, 16, 12), mats.blue);
     nWingL.position.set(-36, 8, 4);
+    const nWingPlinthL = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.75, 12.8), mats.black);
+    nWingPlinthL.position.set(-36, 0.375, 4);
+    const nWingCorniceL = new THREE.Mesh(new THREE.BoxGeometry(8.6, 0.75, 12.6), mats.orange);
+    nWingCorniceL.position.set(-36, 16.1, 4);
+
     const nWingR = new THREE.Mesh(new THREE.BoxGeometry(8, 16, 12), mats.blue);
     nWingR.position.set(36, 8, 4);
+    const nWingPlinthR = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.75, 12.8), mats.black);
+    nWingPlinthR.position.set(36, 0.375, 4);
+    const nWingCorniceR = new THREE.Mesh(new THREE.BoxGeometry(8.6, 0.75, 12.6), mats.orange);
+    nWingCorniceR.position.set(36, 16.1, 4);
 
-    // 8 Grand Colonnade Pillars
+    northBldg.add(
+      nWall,
+      nPlinth,
+      nWingL,
+      nWingPlinthL,
+      nWingCorniceL,
+      nWingR,
+      nWingPlinthR,
+      nWingCorniceR
+    );
+
+    // 2. 8 Grand Colonnade Pillars with Bases, Capitals & Arch Entablature
     const pillarX = [-30, -21, -12, -3, 3, 12, 21, 30];
     pillarX.forEach((px) => {
-      const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.4, 7.0, 1.4), mats.black);
+      // Base pedestal block
+      const ped = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.75, 1.8), mats.black);
+      ped.position.set(px, 0.375, 4.5);
+      // Main pillar shaft
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.4, 5.5, 1.4), mats.black);
       pillar.position.set(px, 3.5, 4.5);
-      northBldg.add(pillar);
+      // Classical capital lower collar
+      const capCollar = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.4, 1.8), mats.orange);
+      capCollar.position.set(px, 6.25, 4.5);
+      // Classical capital abacus crown
+      const capCrown = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.3, 2.0), mats.orange);
+      capCrown.position.set(px, 6.55, 4.5);
+
+      northBldg.add(ped, pillar, capCollar, capCrown);
     });
-    // 7 Arch lintel beams
+
+    // 7 Arch lintel beams & dentil frieze moldings
     for (let i = 0; i < pillarX.length - 1; i++) {
       const lx = (pillarX[i] + pillarX[i + 1]) / 2;
       const lintel = new THREE.Mesh(new THREE.BoxGeometry(7.5, 1.2, 1.4), mats.orange);
       lintel.position.set(lx, 6.5, 4.5);
-      northBldg.add(lintel);
+      const dentil = new THREE.Mesh(new THREE.BoxGeometry(7.5, 0.2, 1.5), mats.black);
+      dentil.position.set(lx, 7.15, 4.5);
+      dentil.userData.noCollision = true;
+
+      // Sunken square ceiling coffer panel under the promenade
+      const coffer = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.15, 3.0), mats.cyan);
+      coffer.position.set(lx, 6.85, 2.25);
+      coffer.userData.noCollision = true;
+
+      northBldg.add(lintel, dentil, coffer);
     }
-    // 2nd-floor terrace slab and balustrade
+
+    // Hanging brass pendant lanterns
+    for (const lx of [-16.5, 0, 16.5]) {
+      const chain = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.4, 0.1), mats.black);
+      chain.position.set(lx, 5.8, 2.5);
+      chain.userData.noCollision = true;
+      const lantern = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.6), mats.orange);
+      lantern.position.set(lx, 5.0, 2.5);
+      lantern.userData.noCollision = true;
+      northBldg.add(chain, lantern);
+    }
+
+    // 3. 2nd-Floor Civic Promenade & Classical Balustrades
     const nTerrace = new THREE.Mesh(new THREE.BoxGeometry(76, 0.8, 8), mats.orange);
     nTerrace.position.set(0, 7.0, 2);
-    const nBalustradeL = new THREE.Mesh(new THREE.BoxGeometry(32, 1.2, 0.4), mats.orange);
-    nBalustradeL.position.set(-18, 8.0, 6);
-    const nBalustradeR = new THREE.Mesh(new THREE.BoxGeometry(32, 1.2, 0.4), mats.orange);
-    nBalustradeR.position.set(18, 8.0, 6);
 
-    // Grand entrance stairs
+    // Structural collision rails
+    const nBalustradeL = new THREE.Mesh(new THREE.BoxGeometry(30, 1.2, 0.4), mats.orange);
+    nBalustradeL.position.set(-19, 8.0, 5.8);
+    const nBalustradeR = new THREE.Mesh(new THREE.BoxGeometry(30, 1.2, 0.4), mats.orange);
+    nBalustradeR.position.set(19, 8.0, 5.8);
+
+    // Stone balustrade end pedestals & ornamental urn planters
+    for (const px of [-34, -4, 4, 34]) {
+      const pedestal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, 0.8), mats.black);
+      pedestal.position.set(px, 8.1, 5.8);
+      const urn = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.3, 0.7, 8), mats.orange);
+      urn.position.set(px, 9.05, 5.8);
+      urn.userData.noCollision = true;
+      const hedge = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 8), mats.cyan);
+      hedge.position.set(px, 9.6, 5.8);
+      hedge.userData.noCollision = true;
+      northBldg.add(pedestal, urn, hedge);
+    }
+
+    // 4. Grand Entrance Stairs with Monumental Cheek-Walls & Urns
     for (let st = 0; st < 12; st++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.75, 0.95), mats.black);
       step.position.set(0, 0.375 + st * 0.5, 6 + st * 0.8);
       northBldg.add(step);
     }
 
-    // Master Clocktower (Y=38m)
+    // Flanking stone cheek-walls
+    const cheekWallL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 12.0), mats.blue);
+    cheekWallL.position.set(-4.4, 3.2, 10.4);
+    cheekWallL.rotation.x = -0.55;
+    const cheekWallR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 12.0), mats.blue);
+    cheekWallR.position.set(4.4, 3.2, 10.4);
+    cheekWallR.rotation.x = -0.55;
+    northBldg.add(cheekWallL, cheekWallR);
+
+    // Ground urn planters at the foot of the stairs
+    const urnPedL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.0, 1.2), mats.black);
+    urnPedL.position.set(-5.2, 0.5, 15.6);
+    const urnL = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.4, 0.9, 8), mats.orange);
+    urnL.position.set(-5.2, 1.45, 15.6);
+    const topiaryL = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), mats.cyan);
+    topiaryL.position.set(-5.2, 2.15, 15.6);
+    topiaryL.userData.noCollision = true;
+
+    const urnPedR = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.0, 1.2), mats.black);
+    urnPedR.position.set(5.2, 0.5, 15.6);
+    const urnR = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.4, 0.9, 8), mats.orange);
+    urnR.position.set(5.2, 1.45, 15.6);
+    const topiaryR = new THREE.Mesh(new THREE.SphereGeometry(0.65, 8, 8), mats.cyan);
+    topiaryR.position.set(5.2, 2.15, 15.6);
+    topiaryR.userData.noCollision = true;
+
+    northBldg.add(urnPedL, urnL, topiaryL, urnPedR, urnR, topiaryR);
+
+    // 5. Historic Master Clocktower (Y=38m)
     const ctBase = new THREE.Mesh(new THREE.BoxGeometry(8, 10, 8), mats.blue);
     ctBase.position.set(0, 5, 0);
+    const ctTrim1 = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.75, 7.2), mats.orange);
+    ctTrim1.position.set(0, 10.1, 0);
+
     const ctShaft1 = new THREE.Mesh(new THREE.BoxGeometry(6.4, 10, 6.4), mats.blue);
     ctShaft1.position.set(0, 15, 0);
+    const ctTrim2 = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.75, 6.2), mats.orange);
+    ctTrim2.position.set(0, 20.1, 0);
+
     const ctShaft2 = new THREE.Mesh(new THREE.BoxGeometry(5.6, 10, 5.6), mats.blue);
     ctShaft2.position.set(0, 25, 0);
-    // Belfry corner piers
+    const ctBelfryDeck = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.75, 6.8), mats.orange);
+    ctBelfryDeck.position.set(0, 30.0, 0);
+
+    // Belfry chamber piers
     for (let bx of [-2.2, 2.2]) {
       for (let bz of [-2.2, 2.2]) {
         const pier = new THREE.Mesh(new THREE.BoxGeometry(1.2, 5.0, 1.2), mats.black);
@@ -591,28 +1477,155 @@ export class DistrictManager {
         northBldg.add(pier);
       }
     }
-    // Clock dial frames
+
+    // Belfry bronze bell & clapper
+    const bellYoke = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.4, 0.4), mats.black);
+    bellYoke.position.set(0, 34.2, 0);
+    bellYoke.userData.noCollision = true;
+    const bronzeBell = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.2, 1.8, 12), mats.orange);
+    bronzeBell.position.set(0, 33.0, 0);
+    const bellClapper = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), mats.black);
+    bellClapper.position.set(0, 32.0, 0);
+    bellClapper.userData.noCollision = true;
+    northBldg.add(bellYoke, bronzeBell, bellClapper);
+
+    // Clock dial bezels on all 4 faces
     for (let fz of [-2.9, 2.9]) {
-      const dial = new THREE.Mesh(new THREE.BoxGeometry(4.2, 4.2, 0.5), mats.orange);
-      dial.position.set(0, 32, fz);
-      northBldg.add(dial);
+      const dialFrame = new THREE.Mesh(new THREE.BoxGeometry(4.2, 4.2, 0.5), mats.orange);
+      dialFrame.position.set(0, 32, fz);
+      const dialFace = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.2, 16), mats.cyan);
+      dialFace.rotation.x = Math.PI / 2;
+      dialFace.position.set(0, 32, fz + (fz > 0 ? 0.2 : -0.2));
+      dialFace.userData.noCollision = true;
+
+      // Hour and minute hands pointing to 10:10
+      const handH = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.8, 0.05), mats.black);
+      handH.position.set(-0.3, 32.25, fz + (fz > 0 ? 0.35 : -0.35));
+      handH.rotation.z = 0.5;
+      handH.userData.noCollision = true;
+      const handM = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 0.05), mats.black);
+      handM.position.set(0.4, 32.35, fz + (fz > 0 ? 0.35 : -0.35));
+      handM.rotation.z = -0.5;
+      handM.userData.noCollision = true;
+
+      northBldg.add(dialFrame, dialFace, handH, handM);
     }
     for (let fx of [-2.9, 2.9]) {
-      const dial = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.2, 4.2), mats.orange);
-      dial.position.set(fx, 32, 0);
-      northBldg.add(dial);
+      const dialFrame = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.2, 4.2), mats.orange);
+      dialFrame.position.set(fx, 32, 0);
+      const dialFace = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.2, 16), mats.cyan);
+      dialFace.rotation.z = Math.PI / 2;
+      dialFace.position.set(fx + (fx > 0 ? 0.2 : -0.2), 32, 0);
+      dialFace.userData.noCollision = true;
+      northBldg.add(dialFrame, dialFace);
     }
+
+    // Copper pyramid roof spire
     const ctSpire = new THREE.Mesh(new THREE.BoxGeometry(4.5, 6.0, 4.5), mats.orange);
     ctSpire.position.set(0, 37.5, 0);
+    const spireMast = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 3.5, 8), mats.black);
+    spireMast.position.set(0, 41.5, 0);
+    const weathercock = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.6, 0.1), mats.red);
+    weathercock.position.set(0, 42.2, 0);
+    weathercock.userData.noCollision = true;
 
-    northBldg.add(nWall, nWingL, nWingR, nTerrace, nBalustradeL, nBalustradeR, ctBase, ctShaft1, ctShaft2, ctSpire);
-    arena.add(northBldg);
+    northBldg.add(
+      nTerrace,
+      nBalustradeL,
+      nBalustradeR,
+      ctBase,
+      ctTrim1,
+      ctShaft1,
+      ctTrim2,
+      ctShaft2,
+      ctBelfryDeck,
+      ctSpire,
+      spireMast,
+      weathercock
+    );
 
-    // 6. Quarter 5: South Boulevard Entrance & Street Plaza ([0, 0, +28])
+    // 6. Attached Billboard for North Colonnade
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bNorth = city.createAdBillboardMesh(
+        {
+          title: "North Colonnade Monumental Board",
+          category: "Wall Banner" as const,
+          viewsMonthly: 240000,
+          priceMonthly: 2100,
+          sponsorName: "VERCEL",
+          sponsorTagline: "Develop. Preview. Ship.",
+          accentColor: "#000000",
+          isAvailable: false,
+          imageUrl: "https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png",
+          linkUrl: "https://vercel.com",
+        },
+        12.0,
+        5.0,
+        northBldg
+      );
+      bNorth.position.set(0, 12, 6.2);
+      northBldg.add(bNorth);
+    }
+
+    return northBldg;
+  }
+
+  /** Quarter 5: South Boulevard Entrance, Street Plaza & Cabs */
+  private static buildSouthBoulevardQuarter(city: any, mats: any): THREE.Group {
     const southBldg = new THREE.Group();
+    southBldg.name = "SouthBoulevardQuarter";
     southBldg.position.set(0, 0, 28);
 
-    // Raised sidewalk curb blocks along North and South edges (20 blocks each)
+    // 1. Roadway Asphalt Strip & Street Surface Markings
+    const roadSurface = new THREE.Mesh(new THREE.BoxGeometry(120, 0.1, 16), mats.black);
+    roadSurface.position.set(0, 0.05, 0);
+    roadSurface.userData.noCollision = true;
+
+    // Double yellow center lines
+    const lineYellow1 = new THREE.Mesh(new THREE.BoxGeometry(120, 0.02, 0.2), mats.orange);
+    lineYellow1.position.set(0, 0.11, -0.25);
+    lineYellow1.userData.noCollision = true;
+    const lineYellow2 = new THREE.Mesh(new THREE.BoxGeometry(120, 0.02, 0.2), mats.orange);
+    lineYellow2.position.set(0, 0.11, 0.25);
+    lineYellow2.userData.noCollision = true;
+
+    southBldg.add(roadSurface, lineYellow1, lineYellow2);
+
+    // 3 Pedestrian zebra crosswalks (at X = -40, 0, 40)
+    for (const crossX of [-40, 0, 40]) {
+      for (let zi = -6; zi <= 6; zi += 2.4) {
+        const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.02, 1.4), mats.cyan);
+        stripe.position.set(crossX, 0.11, zi);
+        stripe.userData.noCollision = true;
+        southBldg.add(stripe);
+      }
+    }
+
+    // Circular cast-iron manhole covers
+    for (const mPos of [
+      { x: -20, z: -3 },
+      { x: -20, z: 3 },
+      { x: 20, z: -3 },
+      { x: 20, z: 3 },
+    ]) {
+      const manhole = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.05, 12), mats.black);
+      manhole.position.set(mPos.x, 0.08, mPos.z);
+      manhole.userData.noCollision = true;
+      southBldg.add(manhole);
+    }
+
+    // Storm drain curb catch-basin grates
+    for (const sx of [-35, -10, 10, 35]) {
+      const grateN = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.8), mats.black);
+      grateN.position.set(sx, 0.08, -7.5);
+      grateN.userData.noCollision = true;
+      const grateS = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.05, 0.8), mats.black);
+      grateS.position.set(sx, 0.08, 7.5);
+      grateS.userData.noCollision = true;
+      southBldg.add(grateN, grateS);
+    }
+
+    // 2. Raised Sidewalk Curb Blocks along North and South edges
     for (let ci = 0; ci < 20; ci++) {
       const cx = -57 + ci * 6.0;
       const curbN = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.75, 0.6), mats.black);
@@ -622,18 +1635,35 @@ export class DistrictManager {
       southBldg.add(curbN, curbS);
     }
 
-    // Street furniture: jersey barriers, streetlamps, benches, waste bins
+    // 3. Street Furniture: Jersey Barriers, Gooseneck Lamps, Benches & Trash Cans
     for (let bi = 0; bi < 8; bi++) {
       const bx = -42 + bi * 12.0;
+
+      // Concrete Jersey barrier with chevron hazard stripe
       const barrier = new THREE.Mesh(new THREE.BoxGeometry(4.0, 1.0, 0.8), mats.black);
       barrier.position.set(bx, 0.5, -9.0);
+      const chevron = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.3, 0.05), mats.orange);
+      chevron.position.set(bx, 0.65, -8.58);
+      chevron.userData.noCollision = true;
+
+      // Curved gooseneck street lamp
       const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6.5, 0.4), mats.black);
       lamp.position.set(bx, 3.25, 9.2);
+      const gooseneck = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 2.0), mats.black);
+      gooseneck.position.set(bx, 6.4, 8.2);
+      gooseneck.userData.noCollision = true;
+      const luminaire = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), mats.cyan);
+      luminaire.position.set(bx, 6.15, 7.2);
+      luminaire.userData.noCollision = true;
+
+      // Park bench
       const bench = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.8, 1.0), mats.orange);
       bench.position.set(bx + 3, 0.4, 9.5);
-      southBldg.add(barrier, lamp, bench);
+
+      southBldg.add(barrier, chevron, lamp, gooseneck, luminaire, bench);
     }
 
+    // Cylindrical trash bins
     for (let wi = 0; wi < 6; wi++) {
       const wx = -30 + wi * 12.0;
       const bin = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.9, 0.6), mats.black);
@@ -650,8 +1680,8 @@ export class DistrictManager {
       southBldg.add(sigPole, sigHead);
     }
 
-    // 2 Street Kiosks
-    // West Newsstand
+    // 4. Dual Street Kiosks with Newsstands
+    // Kiosk 1 (West: X = -16, Z = 12)
     const k1Base = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 3.2), mats.black);
     k1Base.position.set(-16, 0.5, 12);
     const k1WallN = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
@@ -662,9 +1692,15 @@ export class DistrictManager {
     k1WallW.position.set(-17.6, 2.1, 12);
     const k1Roof = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.75, 3.8), mats.black);
     k1Roof.position.set(-16, 3.5, 12);
-    southBldg.add(k1Base, k1WallN, k1WallS, k1WallW, k1Roof);
+    const k1Counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 0.8), mats.orange);
+    k1Counter.position.set(-16, 1.5, 10.2);
+    k1Counter.userData.noCollision = true;
+    const k1Rack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 0.3), mats.cyan);
+    k1Rack.position.set(-17.7, 2.0, 12);
+    k1Rack.userData.noCollision = true;
+    southBldg.add(k1Base, k1WallN, k1WallS, k1WallW, k1Roof, k1Counter, k1Rack);
 
-    // East Info Booth
+    // Kiosk 2 (East: X = 16, Z = 12)
     const k2Base = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 3.2), mats.black);
     k2Base.position.set(16, 0.5, 12);
     const k2WallN = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
@@ -675,27 +1711,86 @@ export class DistrictManager {
     k2WallE.position.set(17.6, 2.1, 12);
     const k2Roof = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.75, 3.8), mats.black);
     k2Roof.position.set(16, 3.5, 12);
-    southBldg.add(k2Base, k2WallN, k2WallS, k2WallE, k2Roof);
+    const k2Counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 0.8), mats.orange);
+    k2Counter.position.set(16, 1.5, 10.2);
+    k2Counter.userData.noCollision = true;
+    const k2Rack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 0.3), mats.red);
+    k2Rack.position.set(17.7, 2.0, 12);
+    k2Rack.userData.noCollision = true;
+    southBldg.add(k2Base, k2WallN, k2WallS, k2WallE, k2Roof, k2Counter, k2Rack);
 
-    // 3 NYC Cabs
+    // 5. 3 Highly Detailed NYC Yellow Cabs
     const cabPos = [
       { x: -28, z: -4 },
       { x: 4, z: 4 },
       { x: 28, z: -4 },
     ];
     cabPos.forEach((cp) => {
+      // Main body components
       const chassis = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.75, 2.2), mats.orange);
       chassis.position.set(cp.x, 0.375, cp.z);
       const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.9, 2.0), mats.orange);
       cabin.position.set(cp.x - 0.3, 1.2, cp.z);
       const hood = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.75, 2.0), mats.orange);
       hood.position.set(cp.x + 1.5, 0.6, cp.z);
+      const trunk = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.75, 2.0), mats.orange);
+      trunk.position.set(cp.x - 1.8, 0.6, cp.z);
       const sign = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.75, 0.4), mats.black);
       sign.position.set(cp.x - 0.3, 1.8, cp.z);
-      southBldg.add(chassis, cabin, hood, sign);
+
+      // 4 Wheels & Tires
+      for (const wx of [-1.3, 1.3]) {
+        for (const wz of [-1.15, 1.15]) {
+          const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.35, 12), mats.black);
+          wheel.rotation.x = Math.PI / 2;
+          wheel.position.set(cp.x + wx, 0.38, cp.z + wz);
+          wheel.userData.noCollision = true;
+          const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.37, 8), mats.cyan);
+          rim.rotation.x = Math.PI / 2;
+          rim.position.set(cp.x + wx, 0.38, cp.z + wz);
+          rim.userData.noCollision = true;
+          southBldg.add(wheel, rim);
+        }
+      }
+
+      // Bumpers, Grille & Lights
+      const bumperF = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 2.2), mats.cyan);
+      bumperF.position.set(cp.x + 2.3, 0.4, cp.z);
+      bumperF.userData.noCollision = true;
+      const grille = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.45, 1.4), mats.black);
+      grille.position.set(cp.x + 2.25, 0.65, cp.z);
+      grille.userData.noCollision = true;
+
+      const headlightL = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), mats.cyan);
+      headlightL.position.set(cp.x + 2.25, 0.65, cp.z - 0.7);
+      headlightL.userData.noCollision = true;
+      const headlightR = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), mats.cyan);
+      headlightR.position.set(cp.x + 2.25, 0.65, cp.z + 0.7);
+      headlightR.userData.noCollision = true;
+
+      const taillightL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.25, 0.4), mats.red);
+      taillightL.position.set(cp.x - 2.3, 0.65, cp.z - 0.7);
+      taillightL.userData.noCollision = true;
+      const taillightR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.25, 0.4), mats.red);
+      taillightR.position.set(cp.x - 2.3, 0.65, cp.z + 0.7);
+      taillightR.userData.noCollision = true;
+
+      southBldg.add(
+        chassis,
+        cabin,
+        hood,
+        trunk,
+        sign,
+        bumperF,
+        grille,
+        headlightL,
+        headlightR,
+        taillightL,
+        taillightR
+      );
     });
 
-    // 16 Parkour Crates
+    // 6. 16 Parkour Crates with Reinforced Bracing
     const crateConfigs = [
       { x: -14, y: 0.5, z: -10, w: 2.2, h: 1.0, d: 2.2 },
       { x: -14, y: 1.5, z: -10, w: 1.6, h: 1.0, d: 1.6 },
@@ -717,14 +1812,61 @@ export class DistrictManager {
     crateConfigs.forEach((cr) => {
       const crate = new THREE.Mesh(new THREE.BoxGeometry(cr.w, cr.h, cr.d), mats.orange);
       crate.position.set(cr.x, cr.y, cr.z);
-      southBldg.add(crate);
+      // Metal edge braces
+      const braceTop = new THREE.Mesh(new THREE.BoxGeometry(cr.w * 0.95, 0.08, cr.d * 0.95), mats.black);
+      braceTop.position.set(cr.x, cr.y + cr.h / 2, cr.z);
+      braceTop.userData.noCollision = true;
+      southBldg.add(crate, braceTop);
     });
 
-    arena.add(southBldg);
+    // 7. Preserved Billboards for Street Kiosks
+    if (city && typeof city.createAdBillboardMesh === "function") {
+      const bKiosk1 = city.createAdBillboardMesh(
+        {
+          title: "Plaza Spawn Kiosk (West)",
+          category: "Street Kiosk" as const,
+          viewsMonthly: 95000,
+          priceMonthly: 750,
+          sponsorName: "YOUR BRAND HERE",
+          sponsorTagline: "Click to rent this high-traffic kiosk slot",
+          accentColor: "#d02030",
+          isAvailable: true,
+        },
+        5.0,
+        3.2,
+        southBldg
+      );
+      bKiosk1.position.set(-16, 2.0, 10);
+      southBldg.add(bKiosk1);
 
-    // 7. Urban Perimeter Townhouses & Enclosure (16 Brownstones)
+      const bKiosk2 = city.createAdBillboardMesh(
+        {
+          title: "Plaza Spawn Kiosk (East)",
+          category: "Street Kiosk" as const,
+          viewsMonthly: 90000,
+          priceMonthly: 700,
+          sponsorName: "RAYCAST",
+          sponsorTagline: "Supercharged productivity for Mac",
+          accentColor: "#ef4444",
+          isAvailable: false,
+          imageUrl: "https://www.raycast.com/favicon-production.png",
+          linkUrl: "https://raycast.com",
+        },
+        5.0,
+        3.2,
+        southBldg
+      );
+      bKiosk2.position.set(16, 2.0, 10);
+      southBldg.add(bKiosk2);
+    }
+
+    return southBldg;
+  }
+
+  /** Quarter 6: Urban Perimeter Townhouses & Street Furniture */
+  private static buildPerimeterQuarter(mats: any): THREE.Group {
     const perimeter = new THREE.Group();
-    perimeter.name = "UrbanPerimeter";
+    perimeter.name = "UrbanPerimeterQuarter";
 
     const brownstoneCoords = [
       // West row (X = -54)
@@ -754,248 +1896,197 @@ export class DistrictManager {
       bs.position.set(bc.x, 0, bc.z);
       bs.rotation.y = bc.rot;
 
+      // Main building body
       const body = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 12), mats.blue);
       body.position.y = 7;
-      // Stoop steps
+
+      // Authentic 3-step front stoop
       const stoop1 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 1.5), mats.black);
-      stoop1.position.set(0, 0.375, 6.75);
+      stoop1.position.set(0, 0.375, 7.5);
       const stoop2 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 1.5), mats.black);
-      stoop2.position.set(0, 0.875, 5.25);
-      // Stoop sidewalls
-      const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 3.0), mats.orange);
-      wallL.position.set(-1.7, 0.8, 6.0);
-      const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 3.0), mats.orange);
-      wallR.position.set(1.7, 0.8, 6.0);
-      // Portico canopy
+      stoop2.position.set(0, 0.875, 6.25);
+      const stoop3 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 1.5), mats.black);
+      stoop3.position.set(0, 1.375, 5.0);
+
+      // Stoop side balustrades / cheek-walls
+      const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 3.5), mats.orange);
+      wallL.position.set(-1.7, 0.9, 6.25);
+      const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 3.5), mats.orange);
+      wallR.position.set(1.7, 0.9, 6.25);
+
+      // Portico entrance canopy & door
       const portico = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.75, 1.8), mats.black);
-      portico.position.set(0, 3.8, 6.2);
-      // Cornice
-      const cornice1 = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.8, 0.8), mats.orange);
-      cornice1.position.set(0, 14.2, 5.8);
+      portico.position.set(0, 4.0, 6.4);
+      const porticoBracketL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.8), mats.orange);
+      porticoBracketL.position.set(-1.4, 3.4, 6.0);
+      porticoBracketL.userData.noCollision = true;
+      const porticoBracketR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.8), mats.orange);
+      porticoBracketR.position.set(1.4, 3.4, 6.0);
+      porticoBracketR.userData.noCollision = true;
+
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.6, 0.2), mats.black);
+      door.position.set(0, 2.6, 6.05);
+      door.userData.noCollision = true;
+      const transom = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.2), mats.cyan);
+      transom.position.set(0, 4.2, 6.05);
+      transom.userData.noCollision = true;
+
+      // Classic brownstone roofline cornice with dentil modillion molding
+      const cornice1 = new THREE.Mesh(new THREE.BoxGeometry(10.6, 0.8, 1.2), mats.orange);
+      cornice1.position.set(0, 14.3, 5.8);
       const cornice2 = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.8, 0.8), mats.orange);
-      cornice2.position.set(0, 14.2, -5.8);
-      // Chimney
+      cornice2.position.set(0, 14.3, -5.8);
+
+      // Dentil modillion blocks along front cornice underside
+      for (let dx = -4.0; dx <= 4.0; dx += 2.0) {
+        const modillion = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.6), mats.black);
+        modillion.position.set(dx, 13.8, 5.8);
+        modillion.userData.noCollision = true;
+        bs.add(modillion);
+      }
+
+      // Brick rooftop chimney stack & terra-cotta flue pots
       const chimney = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.5, 1.4), mats.black);
       chimney.position.set(3.5, 15.0, 0);
-      // Window sills
-      for (let wy of [5, 9]) {
+      const flue1 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 0.8, 8), mats.orange);
+      flue1.position.set(3.5, 16.6, -0.35);
+      flue1.userData.noCollision = true;
+      const flue2 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 0.8, 8), mats.orange);
+      flue2.position.set(3.5, 16.6, 0.35);
+      flue2.userData.noCollision = true;
+
+      // 2nd & 3rd Floor Windows with Keystones & Sills
+      for (let wy of [6.5, 10.5]) {
         for (let wx of [-2.5, 2.5]) {
-          const sill = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.75, 0.5), mats.cyan);
-          sill.position.set(wx, wy, 6.2);
-          bs.add(sill);
+          // Window glass pane
+          const win = new THREE.Mesh(new THREE.BoxGeometry(2.0, 2.4, 0.3), mats.cyan);
+          win.position.set(wx, wy, 6.1);
+          win.userData.noCollision = true;
+
+          // Stone sill
+          const sill = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.75, 0.5), mats.cyan);
+          sill.position.set(wx, wy - 1.2, 6.2);
+
+          // Ornamental keystone above window lintel
+          const keystone = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.55), mats.orange);
+          keystone.position.set(wx, wy + 1.4, 6.25);
+          keystone.userData.noCollision = true;
+
+          bs.add(win, sill, keystone);
         }
       }
 
-      bs.add(body, stoop1, stoop2, wallL, wallR, portico, cornice1, cornice2, chimney);
+      // Basement lightwell security grilles
+      const lightwellL = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 0.4), mats.black);
+      lightwellL.position.set(-2.5, 0.4, 6.1);
+      lightwellL.userData.noCollision = true;
+      const lightwellR = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 0.4), mats.black);
+      lightwellR.position.set(2.5, 0.4, 6.1);
+      lightwellR.userData.noCollision = true;
+
+      bs.add(
+        body,
+        stoop1,
+        stoop2,
+        stoop3,
+        wallL,
+        wallR,
+        portico,
+        porticoBracketL,
+        porticoBracketR,
+        door,
+        transom,
+        cornice1,
+        cornice2,
+        chimney,
+        flue1,
+        flue2,
+        lightwellL,
+        lightwellR
+      );
       perimeter.add(bs);
     });
 
-    // Street Trees (16 trees)
+    // Street Trees with Sidewalk Tree Grates (16 trees)
     for (let ti = 0; ti < 8; ti++) {
       const tz = -40 + ti * 12;
+
+      // West tree & grate
+      const grateW = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.05, 2.4), mats.black);
+      grateW.position.set(-45, 0.06, tz);
+      grateW.userData.noCollision = true;
       const trunkW = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.0, 0.6), mats.black);
       trunkW.position.set(-45, 2.0, tz);
-      const crownW = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 2.6), mats.green);
+      const crownW = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 2.8), mats.green);
       crownW.position.set(-45, 4.5, tz);
+
+      // East tree & grate
+      const grateE = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.05, 2.4), mats.black);
+      grateE.position.set(45, 0.06, tz);
+      grateE.userData.noCollision = true;
       const trunkE = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.0, 0.6), mats.black);
       trunkE.position.set(45, 2.0, tz);
-      const crownE = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 2.6), mats.green);
+      const crownE = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 2.8), mats.green);
       crownE.position.set(45, 4.5, tz);
-      perimeter.add(trunkW, crownW, trunkE, crownE);
+
+      perimeter.add(grateW, trunkW, crownW, grateE, trunkE, crownE);
     }
 
-    // Fire Hydrants (8 hydrants)
+    // Fire Hydrants (8 hydrants) with Side Outlet Caps
     for (let hi = 0; hi < 4; hi++) {
+      const hz = -30 + hi * 20;
+
+      // Hydrant 1 (West)
       const hyd1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), mats.red);
-      hyd1.position.set(-42, 0.4, -30 + hi * 20);
+      hyd1.position.set(-42, 0.4, hz);
+      const cap1 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.2, 0.2), mats.orange);
+      cap1.position.set(-42, 0.45, hz);
+      cap1.userData.noCollision = true;
+
+      // Hydrant 2 (East)
       const hyd2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), mats.red);
-      hyd2.position.set(42, 0.4, -30 + hi * 20);
-      perimeter.add(hyd1, hyd2);
+      hyd2.position.set(42, 0.4, hz);
+      const cap2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.2, 0.2), mats.orange);
+      cap2.position.set(42, 0.45, hz);
+      cap2.userData.noCollision = true;
+
+      perimeter.add(hyd1, cap1, hyd2, cap2);
     }
 
-    // Postal Mailboxes (8 mailboxes)
+    // Postal Mailboxes (8 mailboxes) with Chute Doors
     for (let mi = 0; mi < 4; mi++) {
+      const mz = -20 + mi * 20;
+
       const mb1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), mats.cyan);
-      mb1.position.set(-42, 0.6, -20 + mi * 20);
+      mb1.position.set(-42, 0.6, mz);
+      const chute1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.1), mats.black);
+      chute1.position.set(-42, 0.85, mz + 0.31);
+      chute1.userData.noCollision = true;
+
       const mb2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), mats.cyan);
-      mb2.position.set(42, 0.6, -20 + mi * 20);
-      perimeter.add(mb1, mb2);
+      mb2.position.set(42, 0.6, mz);
+      const chute2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.1), mats.black);
+      chute2.position.set(42, 0.85, mz - 0.31);
+      chute2.userData.noCollision = true;
+
+      perimeter.add(mb1, chute1, mb2, chute2);
     }
 
-    arena.add(perimeter);
+    // Bicycle Parking Racks (8 bike racks)
+    for (let bi = 0; bi < 4; bi++) {
+      const bz = -10 + bi * 20;
+      const bikeRackW = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, 0.2), mats.orange);
+      bikeRackW.position.set(-42, 0.45, bz);
+      bikeRackW.userData.noCollision = true;
 
-    // 8. Attach 8 High-Visibility 3D Ad Billboards with Real Images
-    if (city && typeof city.createAdBillboardMesh === "function") {
-      // 1. Centerpiece Megaboard (on Central Building Level 3 facade)
-      const bCenter = city.createAdBillboardMesh(
-        {
-          title: "Courtyard Centerpiece Megaboard",
-          category: "Rooftop Billboard" as const,
-          viewsMonthly: 350000,
-          priceMonthly: 2800,
-          sponsorName: "BUILT WHILE BROKE",
-          sponsorTagline: "Radical $0 SaaS Architecture Hacks",
-          accentColor: "#d02030",
-          isAvailable: false,
-          imageUrl: "https://builtwhilebroke.tech/favicon.svg",
-          linkUrl: "https://builtwhilebroke.tech",
-        },
-        12.0,
-        5.2,
-        centerBldg
-      );
-      bCenter.position.set(0, 14.5, 8.1);
-      centerBldg.add(bCenter);
+      const bikeRackE = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.9, 0.2), mats.orange);
+      bikeRackE.position.set(42, 0.45, bz);
+      bikeRackE.userData.noCollision = true;
 
-      // 2. Giant Crane Hanging Banner (visible from anywhere in the arena)
-      const bCrane = city.createAdBillboardMesh(
-        {
-          title: "Tower Crane Summit Skyboard",
-          category: "Rooftop Billboard" as const,
-          viewsMonthly: 420000,
-          priceMonthly: 3400,
-          sponsorName: "SUPABASE",
-          sponsorTagline: "Postgres Database & Realtime Auth",
-          accentColor: "#10b981",
-          isAvailable: false,
-          imageUrl: "https://supabase.com/_next/image?url=%2Fimages%2Fcompany%2Fbrand%2Fsupabase-logo-wordmark--light.png&w=384&q=75",
-          linkUrl: "https://supabase.com",
-        },
-        10.5,
-        4.6,
-        crane
-      );
-      bCrane.position.set(0, 8.5, 14);
-      crane.add(bCrane);
-
-      // 3. Skybridge Walkway Board (viewed when crossing the elevated bridge)
-      const bBridge = city.createAdBillboardMesh(
-        {
-          title: "Overhead Skybridge Catwalk Board",
-          category: "Wall Banner" as const,
-          viewsMonthly: 210000,
-          priceMonthly: 1750,
-          sponsorName: "TURSO",
-          sponsorTagline: "SQLite Distributed Database at the Edge",
-          accentColor: "#06b6d4",
-          isAvailable: false,
-          imageUrl: "https://turso.tech/images/turso-light.png",
-          linkUrl: "https://turso.tech",
-        },
-        8.5,
-        3.2,
-        skybridge
-      );
-      bBridge.position.set(0, 0, 1.9);
-      skybridge.add(bBridge);
-
-      // 4. West Building Facade Billboard
-      const bWest = city.createAdBillboardMesh(
-        {
-          title: "West Terrace Prime Wall",
-          category: "Wall Banner" as const,
-          viewsMonthly: 180000,
-          priceMonthly: 1500,
-          sponsorName: "STRIPE",
-          sponsorTagline: "Financial Infrastructure for the Internet",
-          accentColor: "#6366f1",
-          isAvailable: false,
-          imageUrl: "https://images.ctfassets.net/f60q1anpxzid/asset-1718873099042/727f7f858276f571fafead354f9a4fa1/stripe-logo.png",
-          linkUrl: "https://stripe.com",
-        },
-        9.5,
-        4.8,
-        westBldg
-      );
-      bWest.position.set(9.1, 10, 0);
-      bWest.rotation.y = Math.PI / 2;
-      westBldg.add(bWest);
-
-      // 5. East Building Facade Billboard
-      const bEast = city.createAdBillboardMesh(
-        {
-          title: "East Blueprint Arcade Board",
-          category: "Wall Banner" as const,
-          viewsMonthly: 165000,
-          priceMonthly: 1350,
-          sponsorName: "GITHUB",
-          sponsorTagline: "Where the world builds software",
-          accentColor: "#1a30c0",
-          isAvailable: false,
-          imageUrl: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
-          linkUrl: "https://github.com",
-        },
-        9.5,
-        4.8,
-        eastBldg
-      );
-      bEast.position.set(-9.1, 10, 0);
-      bEast.rotation.y = -Math.PI / 2;
-      eastBldg.add(bEast);
-
-      // 6. North Colonnade Monumental Billboard
-      const bNorth = city.createAdBillboardMesh(
-        {
-          title: "North Colonnade Monumental Board",
-          category: "Wall Banner" as const,
-          viewsMonthly: 240000,
-          priceMonthly: 2100,
-          sponsorName: "VERCEL",
-          sponsorTagline: "Develop. Preview. Ship.",
-          accentColor: "#000000",
-          isAvailable: false,
-          imageUrl: "https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png",
-          linkUrl: "https://vercel.com",
-        },
-        12.0,
-        5.0,
-        northBldg
-      );
-      bNorth.position.set(0, 12, 6.2);
-      northBldg.add(bNorth);
-
-      // 7. South Plaza Entrance Kiosk 1 (West side)
-      const bKiosk1 = city.createAdBillboardMesh(
-        {
-          title: "Plaza Spawn Kiosk (West)",
-          category: "Street Kiosk" as const,
-          viewsMonthly: 95000,
-          priceMonthly: 750,
-          sponsorName: "YOUR BRAND HERE",
-          sponsorTagline: "Click to rent this high-traffic kiosk slot",
-          accentColor: "#d02030",
-          isAvailable: true,
-        },
-        5.0,
-        3.2,
-        southBldg
-      );
-      bKiosk1.position.set(-16, 2.0, 10);
-      southBldg.add(bKiosk1);
-
-      // 8. South Plaza Entrance Kiosk 2 (East side)
-      const bKiosk2 = city.createAdBillboardMesh(
-        {
-          title: "Plaza Spawn Kiosk (East)",
-          category: "Street Kiosk" as const,
-          viewsMonthly: 90000,
-          priceMonthly: 700,
-          sponsorName: "RAYCAST",
-          sponsorTagline: "Supercharged productivity for Mac",
-          accentColor: "#ef4444",
-          isAvailable: false,
-          imageUrl: "https://www.raycast.com/favicon-production.png",
-          linkUrl: "https://raycast.com",
-        },
-        5.0,
-        3.2,
-        southBldg
-      );
-      bKiosk2.position.set(16, 2.0, 10);
-      southBldg.add(bKiosk2);
+      perimeter.add(bikeRackW, bikeRackE);
     }
 
-    return arena;
+    return perimeter;
   }
 
   // Material resolver: uses doodle shader materials if present, falls back to basic colors for tests
