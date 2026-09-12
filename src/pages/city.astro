@@ -3,8 +3,8 @@ import DoodleLayout from "../layouts/DoodleLayout.astro";
 ---
 
 <DoodleLayout title="Doodle City · 3D Sketch Ad Marketplace & City Builder" description="A 3D notebook-sketch city inspired by Doodle Shooter where you build buildings, place billboards, and buy/sell developer ad spaces.">
-  <!-- Container filling viewport -->
-  <div class="relative w-full h-[calc(100vh-100px)] min-h-[640px] rounded-3xl overflow-hidden border-2 border-[#1a30c0]/30 shadow-2xl bg-[#f6f3e6] select-none" id="doodle-city-container">
+  <!-- Fullscreen Edge-to-Edge Container -->
+  <div class="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#faf7ee]" id="doodle-city-container">
     
     <!-- 3D Canvas -->
     <canvas id="doodle-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
@@ -355,4 +355,4 @@ import DoodleLayout from "../layouts/DoodleLayout.astro";
       initDoodleCity();
     }
   </script>
-</DoodleLayout>\n
+</DoodleLayout>

@@ -4,7 +4,7 @@ import DoodleLayout from '../layouts/DoodleLayout.astro';
 
 <DoodleLayout title="DOODLE DISTRICT · The Scribbled City Builder & Ad Marketplace">
   <!-- Fullscreen 3D Doodle City Container -->
-  <div class="relative w-screen h-screen overflow-hidden select-none bg-[#faf7ee]" id="game-container">
+  <div class="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#faf7ee]" id="game-container">
     
     <!-- 3D WebGL Canvas for G-buffer and Post-Processing Shader -->
     <canvas id="doodle-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
