@@ -225,7 +225,7 @@ import { BOOST_COLORS } from '../data/startups';
             Select Custom Card Accent Color
           </label>
           <div class="grid grid-cols-6 gap-2" id="color-palette-buttons">
-            {BOOST_COLORS.map((c, i) => (
+            {BOOST_COLORS.map((c) => (
               <button
                 type="button"
                 data-color-key={c.key}
@@ -297,6 +297,10 @@ import { BOOST_COLORS } from '../data/startups';
           <div class="flex items-center justify-between text-zinc-300">
             <span id="order-tier-name">Growth Boost (5x Visibility)</span>
             <span id="order-tier-price" class="font-mono font-semibold">$199</span>
+          </div>
+          <div id="order-color-row" class="flex items-center justify-between text-zinc-400">
+            <span>Card Highlight Color</span>
+            <span id="order-color-name" class="font-semibold text-emerald-400 capitalize">Purple</span>
           </div>
           <div id="order-addon-ai-row" class="hidden items-center justify-between text-zinc-400">
             <span>AI Visibility Boost (ChatGPT/Perplexity)</span>
@@ -463,6 +467,13 @@ import { BOOST_COLORS } from '../data/startups';
         if (activeSpan) activeSpan.className = 'text-[10px] font-bold text-white';
 
         selectedColor = btn.getAttribute('data-color-border') || '#d946ef';
+        const colorName = btn.getAttribute('title') || 'Custom';
+        const colorNameElem = document.getElementById('order-color-name');
+        if (colorNameElem) {
+          colorNameElem.textContent = colorName;
+          colorNameElem.style.color = selectedColor;
+        }
+
         const liveCard = document.getElementById('live-preview-card');
         if (liveCard) {
           liveCard.style.borderColor = selectedColor;

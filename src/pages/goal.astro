@@ -1,6 +1,5 @@
 ---
 import TrustMrrLayout from '../layouts/TrustMrrLayout.astro';
-import { formatCurrency, formatExactCurrency } from '../data/startups';
 
 const presets = [
   { amount: 1000, label: 'Ramen Profitable', desc: 'Covers cloud servers & daily ramen ($12K ARR)' },
@@ -297,7 +296,7 @@ const milestones = [
       const arpu = parseFloat(arpuSelect?.value || '29') || 29;
 
       const activeTimelineBtn = document.querySelector('.timeline-btn.border-emerald-500') as HTMLButtonElement | null;
-      const months = parseInt(activeTimelineBtn?.getAttribute('data-months') || '6', 10);
+      const months = Math.max(1, parseInt(activeTimelineBtn?.getAttribute('data-months') || '6', 10));
 
       // Calculations
       const pct = Math.min(100, Math.round((currentMRR / targetMRR) * 1000) / 10);
@@ -342,7 +341,11 @@ const milestones = [
       if (cardName) cardName.textContent = startupName;
       if (cardMrr) cardMrr.textContent = `$${currentMRR.toLocaleString()} / $${targetMRR.toLocaleString()} MRR`;
       if (cardBar) cardBar.style.width = `${Math.max(2, pct)}%`;
-      if (cardStatus) cardStatus.textContent = `${pct}% towards $${targetMRR.toLocaleString()}/mo MRR milestone`;
+      if (cardStatus) {
+        cardStatus.textContent = currentMRR >= targetMRR
+          ? `🎉 100% Goal reached! ($${currentMRR.toLocaleString()}/mo MRR)`
+          : `${pct}% towards $${targetMRR.toLocaleString()}/mo MRR milestone`;
+      }
 
       if (twitterLink) {
         const tweet = encodeURIComponent(`We are tracking our SaaS journey to $${targetMRR.toLocaleString()}/mo MRR (${pct}% complete at $${currentMRR.toLocaleString()} MRR) on @trustmrr verified database! 🚀`);
@@ -394,7 +397,7 @@ const milestones = [
 
     // Presets Click
     document.querySelectorAll('.preset-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         const amount = btn.getAttribute('data-amount') || '10000';
         const customTarget = document.getElementById('goal-custom-target') as HTMLInputElement | null;
         if (customTarget) customTarget.value = amount;
@@ -420,9 +423,11 @@ const milestones = [
 
     // Copy Badge Code
     document.getElementById('copy-badge-code')?.addEventListener('click', () => {
-      const name = (document.getElementById('goal-startup-name') as HTMLInputElement)?.value.trim() || 'My SaaS';
-      const badge = `[![TrustMRR Goal](https://img.shields.io/badge/TrustMRR-Goal_In_Progress-10b981?logo=stripe)](https://trustmrr.com/goal)`;
-      navigator.clipboard.writeText(badge).then(() => {
+      const startupName = (document.getElementById('goal-startup-name') as HTMLInputElement)?.value.trim() || 'My SaaS';
+      const currentMRR = Math.max(0, parseFloat((document.getElementById('goal-current-mrr') as HTMLInputElement)?.value || '0') || 0);
+      const badge = `[![${startupName} TrustMRR Goal](https://img.shields.io/badge/${encodeURIComponent(startupName)}-%24${currentMRR.toLocaleString()}%20MRR-10b981?logo=stripe)](https://trustmrr.com/goal)`;
+
+      const onCopied = () => {
         const btnText = document.getElementById('copy-btn-text');
         if (btnText) {
           btnText.textContent = 'Copied to Clipboard!';
@@ -430,7 +435,15 @@ const milestones = [
             btnText.textContent = 'Copy Markdown Badge';
           }, 2000);
         }
-      });
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(badge).then(onCopied).catch(() => {
+          window.prompt('Copy badge markdown:', badge);
+        });
+      } else {
+        window.prompt('Copy badge markdown:', badge);
+      }
     });
 
     // Initialize on load

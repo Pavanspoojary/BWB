@@ -1,0 +1,228 @@
+---
+// SponsorSidebars.astro - Floating Left and Right sponsor panels matching TrustMRR screenshots
+---
+
+<!-- Left Floating Sponsor Sidebar -->
+<aside class="hidden xl:flex fixed left-3 2xl:left-6 top-6 w-[172px] 2xl:w-[184px] flex-col gap-3 z-30 pointer-events-auto">
+  <!-- 1. Higgsfield -->
+  <a
+    href="https://higgsfield.ai"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#0e2219] border border-[#1b3a2b] hover:border-[#2b5840] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#c6f135] flex items-center justify-center text-[#0e2219] shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-5 h-5 text-[#0e2219]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4c1.5 0 2.5.8 3.5 2 1-1.2 2-2 3.5-2a4 4 0 0 1 4 4 4 4 0 0 1-2 3.5"/>
+          <circle cx="9" cy="13.5" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="13.5" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#c6f135] transition-colors mb-0.5">
+      Higgsfield
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#8ea497]">
+      Create AI videos and images with Higgsfield
+    </p>
+  </a>
+
+  <!-- 2. GojiberryAI -->
+  <a
+    href="https://gojiberry.ai"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#261616] border border-[#402121] hover:border-[#5c3030] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#3a1d1d] border border-[#522929] flex items-center justify-center text-[#f87171] shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3c-1.5 2-1 4-3 5-1.5.8-3 .5-4 2-1.5 2-1 5 1 7s5 4 8 4 6-2 8-4 2.5-5 1-7c-1-1.5-2.5-1.2-4-2-2-1-1.5-3-3-5-.5-.8-1.2-1-1.5-1s-1 .2-1.5 1z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#f87171] transition-colors mb-0.5">
+      GojiberryAI
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#a88f8f]">
+      Find warm leads and book sales calls automatically
+    </p>
+  </a>
+
+  <!-- 3. Higgsfield -->
+  <a
+    href="https://higgsfield.ai"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#0e2219] border border-[#1b3a2b] hover:border-[#2b5840] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#c6f135] flex items-center justify-center text-[#0e2219] shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-5 h-5 text-[#0e2219]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4c1.5 0 2.5.8 3.5 2 1-1.2 2-2 3.5-2a4 4 0 0 1 4 4 4 4 0 0 1-2 3.5"/>
+          <circle cx="9" cy="13.5" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="13.5" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#c6f135] transition-colors mb-0.5">
+      Higgsfield
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#8ea497]">
+      Create AI videos and images with Higgsfield
+    </p>
+  </a>
+
+  <!-- 4. SocialBu -->
+  <a
+    href="https://socialbu.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#121e2c] border border-[#1d324c] hover:border-[#2b4c73] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#1d4ed8] flex items-center justify-center text-white font-black text-sm shadow-inner group-hover:scale-105 transition-transform">
+        S
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#60a5fa] transition-colors mb-0.5">
+      SocialBu
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#8499b2]">
+      Social media scheduling and automation tool for teams (API..
+    </p>
+  </a>
+
+  <!-- 5. VerifiedDR -->
+  <a
+    href="https://verifieddr.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#241e14] border border-[#42341f] hover:border-[#614c2b] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#453316] border border-[#5d441c] flex items-center justify-center text-[#f59e0b] shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 19h16v2H4zM7 11h3v6H7zm5-5h3v12h-3zm5-3h3v15h-3z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#fbbf24] transition-colors mb-0.5">
+      VerifiedDR
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#a5957a]">
+      Find link partners that grow your website's Domain Rating
+    </p>
+  </a>
+</aside>
+
+<!-- Right Floating Sponsor Sidebar -->
+<aside class="hidden xl:flex fixed right-3 2xl:right-6 top-6 w-[172px] 2xl:w-[184px] flex-col gap-3 z-30 pointer-events-auto">
+  <!-- 1. Replymer -->
+  <a
+    href="https://replymer.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#15222a] border border-[#223947] hover:border-[#2e4f64] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-full bg-[#0284c7] flex items-center justify-center text-white shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a6 6 0 00-6 6v1H3a1 1 0 000 2h1v2a6 6 0 0012 0v-2h1a1 1 0 100-2h-1V8a6 6 0 00-6-6zm-3 8a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm5 1.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#38bdf8] transition-colors mb-0.5">
+      Replymer
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#87a1ad]">
+      Get recommended by ChatGPT
+    </p>
+  </a>
+
+  <!-- 2. Mediaboost -->
+  <a
+    href="https://mediaboost.agency"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#20172b] border border-[#38244f] hover:border-[#533475] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-full bg-[#6366f1] flex items-center justify-center text-white font-extrabold text-xs shadow-inner group-hover:scale-105 transition-transform">
+        M
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#a5b4fc] transition-colors mb-0.5">
+      Mediaboost
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#9d8cb7]">
+      AI first agency
+    </p>
+  </a>
+
+  <!-- 3. Higgsfield -->
+  <a
+    href="https://higgsfield.ai"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#0e2219] border border-[#1b3a2b] hover:border-[#2b5840] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-xl bg-[#c6f135] flex items-center justify-center text-[#0e2219] shadow-inner group-hover:scale-105 transition-transform">
+        <svg class="w-5 h-5 text-[#0e2219]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4c1.5 0 2.5.8 3.5 2 1-1.2 2-2 3.5-2a4 4 0 0 1 4 4 4 4 0 0 1-2 3.5"/>
+          <circle cx="9" cy="13.5" r="1.5" fill="currentColor"/>
+          <circle cx="15" cy="13.5" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#c6f135] transition-colors mb-0.5">
+      Higgsfield
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#8ea497]">
+      Create AI videos and images with Higgsfield
+    </p>
+  </a>
+
+  <!-- 4. Hugo AI -->
+  <a
+    href="https://hugo.ai"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block p-3.5 rounded-2xl bg-[#131e2b] border border-[#1e3047] hover:border-[#2c4769] transition-all text-center group shadow-md"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-8 h-8 rounded-full bg-[#2563eb] flex items-center justify-center text-white shadow-inner group-hover:scale-105 transition-transform">
+        <div class="w-2.5 h-2.5 rounded-full bg-white"></div>
+      </div>
+    </div>
+    <div class="font-bold text-xs text-white group-hover:text-[#60a5fa] transition-colors mb-0.5">
+      Hugo AI
+    </div>
+    <p class="text-[10.5px] leading-tight text-[#8598ad]">
+      Hugo automates customer support, you ship features
+    </p>
+  </a>
+
+  <!-- 5. Advertise slot -->
+  <a
+    href="/boost"
+    class="block p-3.5 rounded-2xl bg-[#121316]/50 border border-dashed border-[#2f323a] hover:border-zinc-500 transition-all text-center group cursor-pointer"
+  >
+    <div class="flex justify-center mb-2">
+      <div class="w-7 h-7 flex items-center justify-center text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 11 18-5v12L3 14v-3z"/>
+          <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="font-medium text-xs text-zinc-300 group-hover:text-white transition-colors mb-0.5">
+      Advertise
+    </div>
+    <p class="text-[10.5px] text-zinc-500">
+      1/20 spot left
+    </p>
+  </a>
+</aside>

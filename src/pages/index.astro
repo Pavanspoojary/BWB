@@ -1,447 +1,559 @@
 ---
 import TrustMrrLayout from '../layouts/TrustMrrLayout.astro';
-import { STARTUPS, CATEGORIES, formatCurrency, formatExactCurrency, formatGrowth } from '../data/startups';
-import { getCollection } from 'astro:content';
-import BurnCalculator from '../components/BurnCalculator.astro';
-import HackCatalog from '../components/HackCatalog.astro';
-import { SEED_HACKS } from '../components/seedData';
-
-let collectionEntries: any[] = [];
-try {
-  collectionEntries = await getCollection('hacks');
-} catch (e) {
-  collectionEntries = [];
-}
-
-const hacks = collectionEntries && collectionEntries.length > 0
-  ? collectionEntries
-  : SEED_HACKS;
-
-// Top Startups for Leaderboard
-const topRevenueStartups = [...STARTUPS].sort((a, b) => b.verifiedRevenue30d - a.verifiedRevenue30d);
-const topMrrStartups = [...STARTUPS].sort((a, b) => b.mrr - a.mrr);
-const topGrowthStartups = [...STARTUPS].sort((a, b) => b.revenueGrowth30d - a.revenueGrowth30d);
-const forSaleStartups = STARTUPS.filter((s) => s.forSale);
+import {
+  LEADERBOARD_ROWS,
+  RECENTLY_LISTED_CARDS,
+  BEST_DEALS_CARDS,
+} from '../data/startups';
 ---
 
-<TrustMrrLayout title="TrustMRR - Buy and Sell SaaS Startups | Verified Startup Revenue Database" activePath="/">
+<TrustMrrLayout title="TrustMRR - The database of verified startup revenues" activePath="/">
   
   <!-- Hero Section -->
-  <section class="text-center pt-8 pb-10 md:pt-14 md:pb-12 max-w-3xl mx-auto">
-    <!-- TrustMRR Brand Badge -->
-    <div class="inline-flex items-center gap-2 mb-4 md:mb-6">
-      <div class="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-zinc-950 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <path d="m9 12 2 2 4-4"/>
-        </svg>
-      </div>
-      <span class="text-sm md:text-base font-bold text-zinc-600 dark:text-zinc-400">TrustMRR</span>
-    </div>
+  <section class="text-center pt-8 pb-8 max-w-2xl mx-auto">
+    
+    <!-- Centered Blue Star + TrustMRR Brand -->
+    <a href="/" class="inline-flex items-center gap-1.5 mb-6 group cursor-pointer">
+      <svg class="w-4 h-4 text-[#3b82f6] fill-current" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <span class="text-base font-bold text-white tracking-tight">TrustMRR</span>
+    </a>
 
-    <!-- H1 Headline -->
-    <h1 class="font-black text-3xl sm:text-5xl md:text-6xl text-zinc-900 dark:text-white tracking-tight leading-tight mb-4">
+    <!-- Main Bold Headline -->
+    <h1 class="text-3xl sm:text-[44px] font-black text-white tracking-tight leading-[1.12] mb-3.5">
       The database of verified startup revenues
     </h1>
 
     <!-- Subtitle -->
-    <p class="text-sm md:text-base text-zinc-600 dark:text-zinc-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+    <p class="text-[13px] sm:text-[14px] text-zinc-400 max-w-xl mx-auto mb-7 leading-relaxed font-normal">
       200K monthly visitors browse SaaS, mobile apps, and digital businesses for acquisition on TrustMRR.
-      <a href="/browser" class="underline underline-offset-4 text-emerald-600 dark:text-emerald-400 font-semibold hover:text-emerald-500 transition-colors">
-        Explore the marketplace &rarr;
+      <a href="/browser" class="text-zinc-300 underline underline-offset-3 hover:text-white transition-colors ml-0.5">
+        Explore the marketplace
       </a>
     </p>
 
-    <!-- Search Input & CTA Button Group -->
-    <div class="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-lg mx-auto mb-6">
-      <form action="/browser" method="get" class="relative flex-1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <!-- Pill Search Input & + Add startup Button -->
+    <div class="flex items-center justify-center gap-2.5 max-w-[420px] mx-auto mb-4">
+      <div class="relative flex-1">
+        <svg class="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <input
           type="text"
-          name="q"
+          id="trustmrr-search-input"
           placeholder='"SaaS over $10K/mo"'
-          class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white"
+          class="w-full pl-9 pr-3.5 py-2 text-xs sm:text-[13px] rounded-xl bg-[#16171b] border border-[#272932] text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors shadow-inner"
         />
-      </form>
+      </div>
 
       <button
         type="button"
-        id="hero-add-startup-btn"
-        class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0"
+        class="open-add-startup-btn px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs sm:text-[13px] font-semibold transition-all shadow-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <span class="text-base font-normal leading-none">+</span>
         <span>Add startup</span>
       </button>
     </div>
 
-    <!-- Quick Navigation Links -->
-    <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-      <a href="/browser" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Marketplace</a>
+    <!-- Sub-navigation Links -->
+    <div class="flex items-center justify-center gap-2.5 text-xs text-zinc-500 font-medium">
+      <a href="/browser" class="hover:text-zinc-300 transition-colors">Buy/sell</a>
       <span>·</span>
-      <a href="/goal" class="hover:text-zinc-900 dark:hover:text-white transition-colors">MRR Goal Tracker</a>
+      <a href="/stats" class="hover:text-zinc-300 transition-colors">Stats</a>
       <span>·</span>
-      <a href="/boost" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Boost Visibility</a>
-      <span>·</span>
-      <a href="/stats" class="hover:text-zinc-900 dark:hover:text-white transition-colors">Market Stats</a>
-      <span>·</span>
-      <a href="#builtwhilebroke-section" class="hover:text-zinc-900 dark:hover:text-white transition-colors font-mono font-semibold text-emerald-500">
-        builtwhilebroke.tech
-      </a>
+      <a href="/goal" class="hover:text-zinc-300 transition-colors">Dashboard</a>
     </div>
   </section>
 
-  <!-- Recently Listed Carousel Section -->
-  <section class="mb-12">
-    <div class="flex items-center justify-between mb-4 px-1">
-      <div class="flex items-center gap-2">
-        <h2 class="text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Recently listed</h2>
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500">New Startups</span>
-      </div>
-      <a href="/browser?status=forSale" class="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors">
+  <!-- Recently Listed Section -->
+  <section class="mb-9" id="recently-listed-section">
+    <div class="flex items-center justify-between mb-3 px-0.5">
+      <h2 class="text-sm sm:text-base font-bold text-white tracking-tight">Recently listed</h2>
+      <a href="/browser?status=forSale" class="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition-colors group">
         <span>View all</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-          <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
-        </svg>
+        <span class="group-hover:translate-x-0.5 transition-transform">&gt;</span>
       </a>
     </div>
 
-    <!-- Horizontal Scrolling Strip -->
-    <div class="flex gap-3.5 overflow-x-auto pb-4 scrollbar-none snap-x">
-      {forSaleStartups.slice(0, 6).map((startup) => (
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {RECENTLY_LISTED_CARDS.map((card) => (
         <a
-          href={`/startup/${startup.slug}`}
-          class="snap-start flex flex-col justify-between border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 hover:border-emerald-500/40 bg-white dark:bg-zinc-900/80 transition-all cursor-pointer group shrink-0 w-[240px] shadow-sm relative overflow-hidden"
+          href={card.slug === 'hidden-business' ? '/browser?status=forSale' : `/startup/${card.slug}`}
+          class="block p-3.5 rounded-2xl bg-[#141519] border border-[#23262f] hover:border-zinc-700 transition-all group shadow-sm flex flex-col justify-between cursor-pointer"
         >
-          <div class="absolute top-0 right-0 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-extrabold px-2 py-0.5 rounded-bl-lg border-b border-l border-amber-500/20">
-            FOR SALE
-          </div>
-
-          <div class="flex items-center gap-2.5 mb-3 mt-1">
-            <img
-              src={startup.logo}
-              alt={startup.name}
-              class="w-9 h-9 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shrink-0"
-              onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 36 36\'><rect width=\'36\' height=\'36\' fill=\'%2327272a\'/><text x=\'18\' y=\'23\' font-size=\'16\' font-weight=\'bold\' fill=\'%2310b981\' text-anchor=\'middle\'>S</text></svg>'"
-            />
-            <div class="min-w-0">
-              <h3 class="font-bold text-sm text-zinc-900 dark:text-white truncate group-hover:text-emerald-500 transition-colors">
-                {startup.name}
-              </h3>
-              <p class="text-[10px] text-zinc-500 truncate">{startup.category}</p>
+          <!-- Top Row: Icon + Name + Category + Badge -->
+          <div class="flex items-start justify-between gap-2 mb-3.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img
+                src={card.logo}
+                alt={card.name}
+                class="w-9 h-9 rounded-xl object-cover bg-zinc-800 border border-[#2d303b] shrink-0 startup-card-logo"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <div class={`font-bold text-xs sm:text-[13px] text-white truncate ${card.isBlurred ? 'filter blur-[4px] select-none text-zinc-300' : 'group-hover:text-blue-400 transition-colors'}`}>
+                  {card.name}
+                </div>
+                {card.category ? (
+                  <div class="text-[10.5px] text-zinc-500 truncate mt-0.5">
+                    {card.category}
+                  </div>
+                ) : (
+                  <div class="text-[10.5px] text-transparent select-none mt-0.5">&nbsp;</div>
+                )}
+              </div>
             </div>
+
+            <span class="px-1.5 py-0.5 rounded bg-[#33200a] border border-[#523310] text-[#f59e0b] text-[8.5px] font-bold tracking-wider uppercase shrink-0">
+              FOR SALE
+            </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-1.5 py-2 px-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/60 text-center font-mono">
+          <!-- Bottom Metrics Row: 3 columns -->
+          <div class="grid grid-cols-3 gap-1 pt-2 border-t border-zinc-800/60 font-mono text-center">
+            <div class="text-left pl-0.5">
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">REVENUE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.revenue}</div>
+            </div>
             <div>
-              <div class="text-[8px] uppercase tracking-wider text-zinc-400 font-bold">Revenue</div>
-              <div class="text-[11px] font-bold text-zinc-900 dark:text-white mt-0.5 truncate">{formatCurrency(startup.verifiedRevenue30d)}</div>
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">PRICE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.price}</div>
             </div>
-            <div>
-              <div class="text-[8px] uppercase tracking-wider text-zinc-400 font-bold">Multiple</div>
-              <div class="text-[11px] font-bold text-zinc-900 dark:text-white mt-0.5">{startup.profitMultiple ? `${startup.profitMultiple}x` : 'N/A'}</div>
+            <div class="text-right pr-0.5">
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">MULTIPLE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.multiple}</div>
             </div>
-            <div>
-              <div class="text-[8px] uppercase tracking-wider text-zinc-400 font-bold">Price</div>
-              <div class="text-[11px] font-bold text-emerald-500 mt-0.5 truncate">{startup.askingPrice ? formatCurrency(startup.askingPrice) : 'Offer'}</div>
-            </div>
-          </div>
-        </a>
-      ))}
-
-      <!-- Browse All Startups Link Tile -->
-      <a
-        href="/browser"
-        class="snap-start flex flex-col justify-center items-center border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-2xl p-6 hover:border-emerald-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer shrink-0 w-[240px] text-center group"
-      >
-        <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </div>
-        <span class="text-xs font-bold text-zinc-900 dark:text-white group-hover:text-emerald-500">
-          Browse all startups<br />on the marketplace
-        </span>
-      </a>
-    </div>
-  </section>
-
-  <!-- Best Deals this Week Carousel Section -->
-  <section class="mb-12">
-    <div class="flex items-center justify-between mb-4 px-1">
-      <div class="flex items-center gap-2">
-        <h2 class="text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Best deals this week</h2>
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500">High Growth</span>
-      </div>
-      <a href="/browser?status=forSale" class="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors">
-        <span>View all</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-          <path fill-rule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {topGrowthStartups.filter(s => s.forSale).slice(0, 3).map((startup) => (
-        <a
-          href={`/startup/${startup.slug}`}
-          class="p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-emerald-500/40 transition-all group shadow-sm flex flex-col justify-between"
-        >
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{startup.category}</span>
-              <span class="text-[10px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                {formatGrowth(startup.revenueGrowth30d)} growth
-              </span>
-            </div>
-            <div class="flex items-center gap-2.5 mb-2">
-              <img src={startup.logo} alt={startup.name} class="w-8 h-8 rounded-lg object-cover bg-zinc-800 shrink-0" onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><rect width=\'32\' height=\'32\' fill=\'%2327272a\'/></svg>'" />
-              <div class="font-bold text-sm text-zinc-900 dark:text-white truncate group-hover:text-emerald-500">{startup.name}</div>
-            </div>
-            <p class="text-xs text-zinc-500 line-clamp-2 mb-3 leading-relaxed">{startup.tagline}</p>
-          </div>
-
-          <div class="flex justify-between items-center pt-2 border-t border-zinc-100 dark:border-zinc-800 font-mono text-xs">
-            <span class="text-zinc-500 text-[10px]">Asking: <strong class="text-emerald-500">{startup.askingPrice ? formatExactCurrency(startup.askingPrice) : 'N/A'}</strong></span>
-            <span class="text-zinc-500 text-[10px]">Multiple: <strong class="text-zinc-900 dark:text-white">{startup.profitMultiple}x</strong></span>
           </div>
         </a>
       ))}
     </div>
   </section>
 
-  <!-- Verified Leaderboard Section -->
+  <!-- Best Deals this Week Section -->
+  <section class="mb-11" id="best-deals-section">
+    <div class="flex items-center justify-between mb-3 px-0.5">
+      <h2 class="text-sm sm:text-base font-bold text-white tracking-tight">Best deals this week</h2>
+      <a href="/browser?status=forSale" class="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition-colors group">
+        <span>View all</span>
+        <span class="group-hover:translate-x-0.5 transition-transform">&gt;</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {BEST_DEALS_CARDS.map((card) => (
+        <a
+          href={`/startup/${card.slug}`}
+          class="block p-3.5 rounded-2xl bg-[#141519] border border-[#23262f] hover:border-zinc-700 transition-all group shadow-sm flex flex-col justify-between cursor-pointer"
+        >
+          <!-- Top Row: Icon + Name + Category + Badge -->
+          <div class="flex items-start justify-between gap-2 mb-3.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img
+                src={card.logo}
+                alt={card.name}
+                class="w-9 h-9 rounded-xl object-cover bg-zinc-800 border border-[#2d303b] shrink-0 startup-card-logo"
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <div class="font-bold text-xs sm:text-[13px] text-white truncate group-hover:text-blue-400 transition-colors">
+                  {card.name}
+                </div>
+                <div class="text-[10.5px] text-zinc-500 truncate mt-0.5">
+                  {card.category}
+                </div>
+              </div>
+            </div>
+
+            <span class="px-1.5 py-0.5 rounded bg-[#33200a] border border-[#523310] text-[#f59e0b] text-[8.5px] font-bold tracking-wider uppercase shrink-0">
+              FOR SALE
+            </span>
+          </div>
+
+          <!-- Bottom Metrics Row: 3 columns -->
+          <div class="grid grid-cols-3 gap-1 pt-2 border-t border-zinc-800/60 font-mono text-center">
+            <div class="text-left pl-0.5">
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">REVENUE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.revenue}</div>
+            </div>
+            <div>
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">PRICE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.price}</div>
+            </div>
+            <div class="text-right pr-0.5">
+              <div class="text-[8px] uppercase tracking-wider text-zinc-500 font-bold">MULTIPLE</div>
+              <div class="text-xs sm:text-[13px] font-bold text-white mt-0.5">{card.multiple}</div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Leaderboard Table Section -->
   <section class="mb-14">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-      <div>
-        <h2 class="text-lg md:text-xl font-black text-zinc-900 dark:text-white tracking-tight">
-          Verified Startup Leaderboard
-        </h2>
-        <p class="text-xs text-zinc-500">Live API connections to Stripe, Lemon Squeezy, Polar &amp; RevenueCat</p>
-      </div>
+    <!-- Header with Title and Dropdowns -->
+    <div class="flex items-center justify-between gap-3 mb-3.5 px-0.5">
+      <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">Leaderboard</h2>
+      
+      <div class="flex items-center gap-2">
+        <!-- Metric Dropdown -->
+        <div class="relative" id="metric-dropdown-container">
+          <button
+            type="button"
+            id="metric-dropdown-btn"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17181c] border border-[#272932] text-xs font-semibold text-zinc-300 hover:border-zinc-500 transition-colors cursor-pointer"
+          >
+            <span id="metric-label">MRR</span>
+            <svg class="w-3 h-3 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </button>
 
-      <!-- Filter Tabs -->
-      <div class="flex items-center gap-1 p-1 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold" id="home-leaderboard-tabs">
-        <button type="button" data-tab="revenue" class="home-tab-btn px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs">
-          Top Revenue
-        </button>
-        <button type="button" data-tab="mrr" class="home-tab-btn px-3 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-          Highest MRR
-        </button>
-        <button type="button" data-tab="growth" class="home-tab-btn px-3 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-          Fastest Growth
-        </button>
-        <button type="button" data-tab="deals" class="home-tab-btn px-3 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-          Acquisitions
-        </button>
+          <div id="metric-menu" class="hidden absolute right-0 mt-1 w-44 rounded-xl bg-[#191a20] border border-[#2b2d38] shadow-2xl py-1 z-30 text-xs">
+            <button type="button" class="metric-choice w-full text-left px-3 py-1.5 text-white hover:bg-zinc-800 font-semibold" data-metric="mrr">MRR</button>
+            <button type="button" class="metric-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-metric="revenue">Verified Revenue</button>
+            <button type="button" class="metric-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-metric="growth">MoM Growth</button>
+            <button type="button" class="metric-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-metric="deals">For Sale / Deals</button>
+          </div>
+        </div>
+
+        <!-- Timeframe Dropdown -->
+        <div class="relative" id="timeframe-dropdown-container">
+          <button
+            type="button"
+            id="timeframe-dropdown-btn"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#17181c] border border-[#272932] text-xs font-semibold text-zinc-300 hover:border-zinc-500 transition-colors cursor-pointer"
+          >
+            <span id="timeframe-label">All time</span>
+            <svg class="w-3 h-3 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </button>
+
+          <div id="timeframe-menu" class="hidden absolute right-0 mt-1 w-36 rounded-xl bg-[#191a20] border border-[#2b2d38] shadow-2xl py-1 z-30 text-xs">
+            <button type="button" class="timeframe-choice w-full text-left px-3 py-1.5 text-white hover:bg-zinc-800 font-semibold" data-timeframe="all">All time</button>
+            <button type="button" class="timeframe-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-timeframe="30d">Last 30 days</button>
+            <button type="button" class="timeframe-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-timeframe="7d">Last 7 days</button>
+            <button type="button" class="timeframe-choice w-full text-left px-3 py-1.5 text-zinc-400 hover:bg-zinc-800" data-timeframe="24h">Last 24 hours</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Leaderboard Table Container -->
-    <div class="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white dark:bg-zinc-900/90 shadow-sm overflow-hidden">
+    <div class="border border-[#20222a] rounded-2xl bg-[#121317]/80 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 font-semibold uppercase tracking-wider text-[10px]">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="border-b border-[#20222a] text-[#71717a] font-medium text-[11px]">
             <tr>
               <th class="py-3 px-4 w-12 text-center">#</th>
               <th class="py-3 px-4">Startup</th>
-              <th class="py-3 px-4">Category</th>
-              <th class="py-3 px-4">Provider</th>
-              <th class="py-3 px-4 font-mono">30d Revenue</th>
-              <th class="py-3 px-4 font-mono">Current MRR</th>
-              <th class="py-3 px-4 font-mono">30d Growth</th>
-              <th class="py-3 px-4 text-right">Details</th>
+              <th class="py-3 px-4">Founder</th>
+              <th class="py-3 px-4 text-right font-mono">MRR</th>
+              <th class="py-3 px-4 text-right">MoM Growth</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800 font-medium" id="leaderboard-tbody">
-            {topRevenueStartups.slice(0, 10).map((startup, index) => (
-              <tr class="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
-                <td class="py-3.5 px-4 text-center font-mono font-bold text-zinc-400">
-                  {index + 1}
+          <tbody class="divide-y divide-[#1c1e26] text-zinc-200" id="leaderboard-tbody">
+            {LEADERBOARD_ROWS.map((row) => (
+              <tr class="hover:bg-[#181920] transition-colors group cursor-pointer startup-row" data-name={row.name.toLowerCase()} data-tagline={row.tagline.toLowerCase()} data-founder={row.founderName.toLowerCase()}>
+                <!-- Rank / Medal -->
+                <td class="py-3.5 px-4 text-center font-mono text-xs">
+                  {row.medal ? (
+                    <span class="text-base inline-block leading-none" title={`Rank #${row.rank}`}>{row.medal}</span>
+                  ) : (
+                    <span class="text-zinc-500 font-medium">{row.rank}</span>
+                  )}
                 </td>
+
+                <!-- Startup: Logo + Name + Tagline -->
                 <td class="py-3.5 px-4">
-                  <a href={`/startup/${startup.slug}`} class="flex items-center gap-3 group">
+                  <a href={`/startup/${row.slug}`} class="flex items-center gap-3">
                     <img
-                      src={startup.logo}
-                      alt={startup.name}
-                      class="w-8 h-8 rounded-xl object-cover bg-zinc-800 shrink-0 border border-zinc-200 dark:border-zinc-700"
-                      onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><rect width=\'32\' height=\'32\' fill=\'%2327272a\'/></svg>'"
+                      src={row.logo}
+                      alt={row.name}
+                      class="w-8 h-8 rounded-xl object-cover bg-zinc-800 border border-[#272a33] shrink-0"
                     />
                     <div class="min-w-0">
-                      <div class="font-bold text-zinc-900 dark:text-white truncate group-hover:text-emerald-500 flex items-center gap-1.5">
-                        <span>{startup.name}</span>
-                        {startup.pinned && (
-                          <span class="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">PIN</span>
+                      <div class="flex items-center gap-1.5">
+                        <span class={`font-bold text-xs sm:text-[13px] text-white ${row.isBlurred ? 'filter blur-[4px] select-none text-zinc-300' : 'group-hover:text-blue-400 transition-colors'}`}>
+                          {row.name}
+                        </span>
+                        {row.hasForSaleBadge && (
+                          <span class="px-1.5 py-0.2 rounded bg-[#33200a] text-[#f59e0b] border border-[#523310] text-[8px] font-bold tracking-wider uppercase">
+                            FOR SALE
+                          </span>
                         )}
                       </div>
-                      <div class="text-[10px] text-zinc-500 truncate max-w-xs">{startup.tagline}</div>
+                      {row.tagline && (
+                        <div class={`text-[11px] text-zinc-500 truncate max-w-xs sm:max-w-sm mt-0.5 ${row.isBlurred ? 'filter blur-[4px] select-none text-zinc-600' : ''}`}>
+                          {row.tagline}
+                        </div>
+                      )}
                     </div>
                   </a>
                 </td>
-                <td class="py-3.5 px-4 text-zinc-500">{startup.category}</td>
+
+                <!-- Founder: Avatar + Name -->
                 <td class="py-3.5 px-4">
-                  <span class="capitalize text-emerald-500 font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-[10px]">
-                    {startup.paymentProvider}
-                  </span>
+                  {row.founderName === '-' ? (
+                    <span class="text-zinc-600">-</span>
+                  ) : (
+                    <a href={row.founderHandle ? `/founder/${row.founderHandle}` : '#'} class="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                      {row.founderAvatar ? (
+                        <img
+                          src={row.founderAvatar}
+                          alt={row.founderName}
+                          class="w-6 h-6 rounded-full object-cover bg-zinc-800 border border-zinc-700/50 shrink-0 founder-avatar-img"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-zinc-500 text-[10px] shrink-0">
+                          👤
+                        </div>
+                      )}
+                      <span class="text-xs text-zinc-300 font-medium truncate max-w-[130px]">{row.founderName}</span>
+                    </a>
+                  )}
                 </td>
-                <td class="py-3.5 px-4 font-mono font-bold text-zinc-900 dark:text-white">
-                  {formatCurrency(startup.verifiedRevenue30d)}
+
+                <!-- MRR -->
+                <td class="py-3.5 px-4 text-right font-mono">
+                  <span class="font-bold text-white text-xs sm:text-[13px]">{row.mrrFormatted}</span>
+                  {row.hasVerifiedTriangle && (
+                    <svg class="w-2.5 h-2.5 text-zinc-400 inline-block ml-1 align-baseline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" title="Verified MRR">
+                      <path d="M12 4L3 20h18L12 4z"/>
+                    </svg>
+                  )}
                 </td>
-                <td class="py-3.5 px-4 font-mono text-zinc-600 dark:text-zinc-300">
-                  {formatCurrency(startup.mrr)}
-                </td>
-                <td class={`py-3.5 px-4 font-mono font-bold ${startup.revenueGrowth30d >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                  {formatGrowth(startup.revenueGrowth30d)}
-                </td>
-                <td class="py-3.5 px-4 text-right">
-                  <a
-                    href={`/startup/${startup.slug}`}
-                    class="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-500 hover:text-white text-zinc-700 dark:text-zinc-300 font-bold transition-colors text-[11px]"
-                  >
-                    Inspect &rarr;
-                  </a>
+
+                <!-- MoM Growth -->
+                <td class="py-3.5 px-4 text-right font-medium text-xs sm:text-[13px]">
+                  {row.growth === '—' ? (
+                    <span class="text-zinc-600">—</span>
+                  ) : row.growthType === 'positive' ? (
+                    <span class="text-[#22c55e] font-semibold">{row.growth}</span>
+                  ) : (
+                    <span class="text-[#ef4444] font-semibold">{row.growth}</span>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      <div class="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-center">
-        <a href="/browser" class="text-xs font-bold text-emerald-500 hover:underline">
-          View all 15,000+ startups on the directory browser &rarr;
-        </a>
-      </div>
     </div>
   </section>
 
-  <!-- Why TrustMRR / Verification Architecture Section -->
-  <section class="mb-16 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-    <div class="max-w-3xl mx-auto text-center space-y-3 mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold">
-        <span>100% Provider-Backed Data</span>
-      </div>
-      <h2 class="text-2xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-        Buyers, not browsers.
-      </h2>
-      <p class="text-xs md:text-sm text-zinc-500 max-w-xl mx-auto leading-relaxed">
-        Screenshots can be faked with inspect element. Every revenue number on TrustMRR is authenticated directly through the payment provider API.
-      </p>
-    </div>
+  <!-- Raw Data Payload for Dynamic Client-Side Filtering -->
+  <script type="application/json" id="leaderboard-raw" set:html={JSON.stringify(LEADERBOARD_ROWS)} />
 
-    <!-- Verification Providers Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-center">
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">Stripe</div>
-        <div class="text-[10px] text-zinc-500">API Key &amp; OAuth</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">Lemon Squeezy</div>
-        <div class="text-[10px] text-zinc-500">Webhook Sync</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">RevenueCat</div>
-        <div class="text-[10px] text-zinc-500">V2 Read-Only Key</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">Polar.sh</div>
-        <div class="text-[10px] text-zinc-500">Developer Token</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">Paddle</div>
-        <div class="text-[10px] text-zinc-500">Billing Connect</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-
-      <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40">
-        <div class="font-bold text-sm text-zinc-900 dark:text-white mb-1">Dodo Payments</div>
-        <div class="text-[10px] text-zinc-500">Global MoR Sync</div>
-        <div class="mt-2 text-[9px] font-bold text-emerald-500">Verified</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Categories Grid -->
-  <section class="mb-16">
-    <h2 class="text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-4 px-1">
-      Browse Startups by Category
-    </h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-      {CATEGORIES.filter(c => c !== 'All').map((category) => (
-        <a
-          href={`/browser?category=${encodeURIComponent(category)}`}
-          class="p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-emerald-500 hover:text-emerald-500 text-xs font-semibold text-zinc-700 dark:text-zinc-300 transition-all flex items-center justify-between group shadow-xs"
-        >
-          <span class="truncate">{category}</span>
-          <span class="text-zinc-400 text-[10px] group-hover:text-emerald-500">&rarr;</span>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <!-- BuiltWhileBroke Integration Section (Ensures full compliance with builtwhilebroke test suite) -->
-  <section id="builtwhilebroke-section" class="border-2 border-emerald-500/30 rounded-3xl p-6 sm:p-8 bg-zinc-950 text-white font-mono shadow-2xl mb-16 relative overflow-hidden">
-    <div class="border-b border-zinc-800 pb-4 mb-6 flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-none bg-emerald-500 animate-pulse"></span>
-        <span class="text-xs uppercase tracking-widest text-emerald-400 font-bold">
-          [BUILTWHILEBROKE.TECH // RADICAL $0 ARCHITECTURE HACKS]
-        </span>
-      </div>
-      <span class="text-[11px] text-zinc-400">Zero-Runtime Cloudflare Pages Integration</span>
-    </div>
-
-    <div class="space-y-4 mb-8 text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-3xl">
-      <p>
-        Building a startup without venture capital? <strong>builtwhilebroke.tech</strong> documents radical architecture hacks that replace expensive SaaS subscriptions with abused zero-dollar developer primitives.
-      </p>
-      <p class="text-zinc-400 text-xs">
-        Aggregate avoided cloud expenditure calculated live across verified hack blueprints:
-      </p>
-    </div>
-
-    <!-- SaaS Burn Calculator Component -->
-    <div class="mb-8">
-      <BurnCalculator hacks={hacks} />
-    </div>
-
-    <!-- Hack Catalog Component -->
-    <div class="mb-4">
-      <HackCatalog hacks={hacks} />
-    </div>
-  </section>
-
-  <!-- Interactive Scripts for Hero Modal and Tabs -->
+  <!-- Client-Side Search, Dropdown & Filter Interactions -->
   <script>
-    // Hero Add Startup Click
-    document.getElementById('hero-add-startup-btn')?.addEventListener('click', () => {
-      const modal = document.getElementById('add-startup-modal');
-      modal?.classList.remove('hidden');
-      modal?.classList.add('flex');
-    });
+    function setupInteractions() {
+      const searchInput = document.getElementById('trustmrr-search-input') as HTMLInputElement | null;
+      const metricBtn = document.getElementById('metric-dropdown-btn');
+      const metricMenu = document.getElementById('metric-menu');
+      const metricLabel = document.getElementById('metric-label');
+      const timeframeBtn = document.getElementById('timeframe-dropdown-btn');
+      const timeframeMenu = document.getElementById('timeframe-menu');
+      const timeframeLabel = document.getElementById('timeframe-label');
+      const tbody = document.getElementById('leaderboard-tbody');
+      const dataTag = document.getElementById('leaderboard-raw');
 
-    // Leaderboard Tabs Click
-    const tabBtns = document.querySelectorAll('.home-tab-btn');
-    tabBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach((b) => {
-          b.className = 'home-tab-btn px-3 py-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:hover:text-white';
-        });
-        btn.className = 'home-tab-btn px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs';
+      let originalRows: any[] = [];
+      if (dataTag && dataTag.textContent) {
+        try {
+          originalRows = JSON.parse(dataTag.textContent);
+        } catch (e) {
+          originalRows = [];
+        }
+      }
+
+      // Dropdown toggle logic
+      metricBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        metricMenu?.classList.toggle('hidden');
+        timeframeMenu?.classList.add('hidden');
       });
-    });
+
+      timeframeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        timeframeMenu?.classList.toggle('hidden');
+        metricMenu?.classList.add('hidden');
+      });
+
+      document.addEventListener('click', () => {
+        metricMenu?.classList.add('hidden');
+        timeframeMenu?.classList.add('hidden');
+      });
+
+      // Metric choice selection
+      document.querySelectorAll('.metric-choice').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLElement;
+          const metricKey = target.getAttribute('data-metric');
+          if (metricLabel) metricLabel.textContent = target.textContent?.trim() || 'MRR';
+          metricMenu?.classList.add('hidden');
+
+          let sorted = [...originalRows];
+          if (metricKey === 'mrr') {
+            sorted.sort((a, b) => b.mrr - a.mrr);
+          } else if (metricKey === 'growth') {
+            sorted.sort((a, b) => {
+              const parseGrowth = (g: string) => {
+                if (!g || g === '—') return -999;
+                return parseFloat(g.replace(/[^\d.-]/g, '')) || 0;
+              };
+              return parseGrowth(b.growth) - parseGrowth(a.growth);
+            });
+          } else if (metricKey === 'deals') {
+            sorted = sorted.filter(r => r.hasForSaleBadge);
+          }
+
+          renderRows(sorted);
+        });
+      });
+
+      // Timeframe choice selection
+      document.querySelectorAll('.timeframe-choice').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const target = e.currentTarget as HTMLElement;
+          if (timeframeLabel) timeframeLabel.textContent = target.textContent?.trim() || 'All time';
+          timeframeMenu?.classList.add('hidden');
+        });
+      });
+
+      // Real-time live search filtering
+      searchInput?.addEventListener('input', () => {
+        const query = (searchInput.value || '').toLowerCase().trim();
+        if (!query) {
+          renderRows(originalRows);
+          return;
+        }
+
+        const filtered = originalRows.filter((r) => {
+          return (
+            (r.name && r.name.toLowerCase().includes(query)) ||
+            (r.tagline && r.tagline.toLowerCase().includes(query)) ||
+            (r.founderName && r.founderName.toLowerCase().includes(query))
+          );
+        });
+
+        renderRows(filtered, query);
+      });
+
+      // Pressing Enter in search navigates to Marketplace Browser
+      searchInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const q = (searchInput.value || '').trim();
+          if (q) {
+            window.location.href = `/browser?q=${encodeURIComponent(q)}`;
+          }
+        }
+      });
+
+      function attachImageErrorHandlers() {
+        document.querySelectorAll('.founder-avatar-img').forEach((img) => {
+          img.addEventListener('error', function() {
+            (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%2327272a"/><circle cx="16" cy="12" r="5" fill="%2371717a"/><path d="M7 28c0-5 4-8 9-8s9 3 9 8z" fill="%2371717a"/></svg>';
+          });
+        });
+
+        document.querySelectorAll('.startup-card-logo').forEach((img) => {
+          img.addEventListener('error', function() {
+            (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%2327272a"/><text x="32" y="42" font-family="sans-serif" font-size="28" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
+          });
+        });
+      }
+
+      function renderRows(rows: any[], query = '') {
+        if (!tbody) return;
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="py-12 text-center text-zinc-500 text-xs">
+                No startups found matching "${query}". Try another search term.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = rows.map((row) => `
+          <tr class="hover:bg-[#181920] transition-colors group cursor-pointer startup-row">
+            <td class="py-3.5 px-4 text-center font-mono text-xs">
+              ${row.medal ? `<span class="text-base inline-block leading-none" title="Rank #${row.rank}">${row.medal}</span>` : `<span class="text-zinc-500 font-medium">${row.rank}</span>`}
+            </td>
+            <td class="py-3.5 px-4">
+              <a href="/startup/${row.slug}" class="flex items-center gap-3">
+                <img
+                  src="${row.logo}"
+                  alt="${row.name}"
+                  class="w-8 h-8 rounded-xl object-cover bg-zinc-800 border border-[#272a33] shrink-0"
+                />
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-xs sm:text-[13px] text-white ${row.isBlurred ? 'filter blur-[4px] select-none text-zinc-300' : 'group-hover:text-blue-400 transition-colors'}">
+                      ${row.name}
+                    </span>
+                    ${row.hasForSaleBadge ? `
+                      <span class="px-1.5 py-0.2 rounded bg-[#33200a] text-[#f59e0b] border border-[#523310] text-[8px] font-bold tracking-wider uppercase">
+                        FOR SALE
+                      </span>
+                    ` : ''}
+                  </div>
+                  ${row.tagline ? `
+                    <div class="text-[11px] text-zinc-500 truncate max-w-xs sm:max-w-sm mt-0.5 ${row.isBlurred ? 'filter blur-[4px] select-none text-zinc-600' : ''}">
+                      ${row.tagline}
+                    </div>
+                  ` : ''}
+                </div>
+              </a>
+            </td>
+            <td class="py-3.5 px-4">
+              ${row.founderName === '-' ? `<span class="text-zinc-600">-</span>` : `
+                <a href="${row.founderHandle ? `/founder/${row.founderHandle}` : '#'}" class="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  ${row.founderAvatar ? `
+                    <img
+                      src="${row.founderAvatar}"
+                      alt="${row.founderName}"
+                      class="w-6 h-6 rounded-full object-cover bg-zinc-800 border border-zinc-700/50 shrink-0 founder-avatar-img"
+                      loading="lazy"
+                    />
+                  ` : `
+                    <div class="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-zinc-500 text-[10px] shrink-0">
+                      👤
+                    </div>
+                  `}
+                  <span class="text-xs text-zinc-300 font-medium truncate max-w-[130px]">${row.founderName}</span>
+                </a>
+              `}
+            </td>
+            <td class="py-3.5 px-4 text-right font-mono">
+              <span class="font-bold text-white text-xs sm:text-[13px]">${row.mrrFormatted}</span>
+              ${row.hasVerifiedTriangle ? `<svg class="w-2.5 h-2.5 text-zinc-400 inline-block ml-1 align-baseline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" title="Verified MRR"><path d="M12 4L3 20h18L12 4z"/></svg>` : ''}
+            </td>
+            <td class="py-3.5 px-4 text-right font-medium text-xs sm:text-[13px]">
+              ${row.growth === '—' ? `
+                <span class="text-zinc-600">—</span>
+              ` : row.growthType === 'positive' ? `
+                <span class="text-[#22c55e] font-semibold">${row.growth}</span>
+              ` : `
+                <span class="text-[#ef4444] font-semibold">${row.growth}</span>
+              `}
+            </td>
+          </tr>
+        `).join('');
+
+        attachImageErrorHandlers();
+      }
+
+      attachImageErrorHandlers();
+    }
+
+    setupInteractions();
   </script>
 </TrustMrrLayout>

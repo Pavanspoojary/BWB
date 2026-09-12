@@ -45,8 +45,7 @@ const { startup } = Astro.props;
         <img
           src={startup.logo}
           alt={startup.name}
-          class="w-16 h-16 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shadow-md shrink-0"
-          onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 64 64\'><rect width=\'64\' height=\'64\' fill=\'%2327272a\'/><text x=\'32\' y=\'40\' font-size=\'28\' font-weight=\'bold\' fill=\'%2310b981\' text-anchor=\'middle\'>S</text></svg>'"
+          class="w-16 h-16 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 shadow-md shrink-0 startup-logo-img"
         />
         <div>
           <div class="flex items-center gap-2.5 flex-wrap mb-1">
@@ -237,8 +236,7 @@ const { startup } = Astro.props;
           <img
             src={startup.founder.avatar}
             alt={startup.founder.name}
-            class="w-12 h-12 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-200 dark:bg-zinc-800"
-            onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 48 48\'><circle cx=\'24\' cy=\'24\' r=\'24\' fill=\'%233f3f46\'/><text x=\'24\' y=\'30\' font-size=\'18\' font-weight=\'bold\' fill=\'%23a1a1aa\' text-anchor=\'middle\'>F</text></svg>'"
+            class="w-12 h-12 rounded-full object-cover border border-zinc-200 dark:border-zinc-700 bg-zinc-200 dark:bg-zinc-800 founder-avatar-img"
           />
           <div>
             <div class="font-bold text-sm text-zinc-900 dark:text-white">{startup.founder.name}</div>
@@ -259,7 +257,6 @@ const { startup } = Astro.props;
         <div class="flex items-center gap-2 text-emerald-500 font-bold text-sm">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="m9 12 2 2 4-4"/>
           </svg>
           <span>TrustMRR Verified Badge</span>
         </div>
@@ -280,4 +277,30 @@ const { startup } = Astro.props;
       </div>
     </div>
   </div>
+
+  <!-- Interactive Scripts -->
+  <script>
+    const inquiryForm = document.getElementById('acq-inquiry-form');
+    inquiryForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const btn = inquiryForm.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (btn) {
+        btn.disabled = true;
+        btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs transition-colors cursor-not-allowed';
+        btn.textContent = '✓ Inquiry Sent to Founder!';
+      }
+    });
+
+    document.querySelectorAll('.startup-logo-img').forEach((img) => {
+      img.addEventListener('error', function() {
+        (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%2327272a"/><text x="32" y="40" font-size="28" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
+      });
+    });
+
+    document.querySelectorAll('.founder-avatar-img').forEach((img) => {
+      img.addEventListener('error', function() {
+        (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="%233f3f46"/><text x="24" y="30" font-size="18" font-weight="bold" fill="%23a1a1aa" text-anchor="middle">F</text></svg>';
+      });
+    });
+  </script>
 </TrustMrrLayout>
