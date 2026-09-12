@@ -16,27 +16,27 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     id: "downtown",
     name: "DOWNTOWN",
     subtitle: "Skyscraper Canyon & Manhattan Grid",
-    spawnPoint: new THREE.Vector3(-70, 0, 20),
+    spawnPoint: new THREE.Vector3(-70, 0, 30),
     lookAt: new THREE.Vector3(-70, 0, 0),
-    bounds: { minX: -130, maxX: -10, minZ: -60, maxZ: 60 },
+    bounds: { minX: -130, maxX: -10, minZ: -40, maxZ: 80 },
     elevation: 0,
   },
   {
     id: "entertainment",
     name: "ENTERTAINMENT DISTRICT",
     subtitle: "Doodle Dome, Theaters & Pixel Palace",
-    spawnPoint: new THREE.Vector3(70, 0, 20),
+    spawnPoint: new THREE.Vector3(70, 0, 30),
     lookAt: new THREE.Vector3(70, 0, 0),
-    bounds: { minX: 10, maxX: 130, minZ: -60, maxZ: 60 },
+    bounds: { minX: 10, maxX: 130, minZ: -40, maxZ: 80 },
     elevation: 0,
   },
   {
     id: "market",
     name: "MARKET DISTRICT",
     subtitle: "Bustling Street Bazaar & Food Stalls",
-    spawnPoint: new THREE.Vector3(0, 0, -40),
+    spawnPoint: new THREE.Vector3(0, 0, -35),
     lookAt: new THREE.Vector3(0, 0, -60),
-    bounds: { minX: -40, maxX: 40, minZ: -80, maxZ: -20 },
+    bounds: { minX: -30, maxX: 30, minZ: -80, maxZ: -20 },
     elevation: 0,
   },
   {
@@ -44,8 +44,8 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     name: "OLD TOWN",
     subtitle: "Historic Clock Tower & Cobblestone Plaza",
     spawnPoint: new THREE.Vector3(-70, 0, -110),
-    lookAt: new THREE.Vector3(-70, 0, -130),
-    bounds: { minX: -130, maxX: -10, minZ: -180, maxZ: -80 },
+    lookAt: new THREE.Vector3(-70, 0, -135),
+    bounds: { minX: -130, maxX: -10, minZ: -170, maxZ: -80 },
     elevation: 0,
   },
   {
@@ -53,8 +53,8 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     name: "NEON CITY",
     subtitle: "Nexus Mega-Spire & Elevated Monorail",
     spawnPoint: new THREE.Vector3(70, 0, -110),
-    lookAt: new THREE.Vector3(70, 0, -130),
-    bounds: { minX: 10, maxX: 130, minZ: -180, maxZ: -80 },
+    lookAt: new THREE.Vector3(70, 0, -135),
+    bounds: { minX: 10, maxX: 130, minZ: -170, maxZ: -80 },
     elevation: 0,
   },
   {
@@ -63,7 +63,7 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     subtitle: "Winding Switchbacks & Hilltop Observatory",
     spawnPoint: new THREE.Vector3(0, 25, -210),
     lookAt: new THREE.Vector3(0, 25, -240),
-    bounds: { minX: -70, maxX: 70, minZ: -280, maxZ: -180 },
+    bounds: { minX: -70, maxX: 70, minZ: -280, maxZ: -170 },
     elevation: 25,
   },
   {
@@ -79,34 +79,34 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     id: "university",
     name: "UNIVERSITY / CREATIVE",
     subtitle: "Domed Library, Arts Academy & Quad",
-    spawnPoint: new THREE.Vector3(-170, 0, 50),
-    lookAt: new THREE.Vector3(-170, 0, 80),
-    bounds: { minX: -230, maxX: -110, minZ: 10, maxZ: 130 },
+    spawnPoint: new THREE.Vector3(-170, 0, 40),
+    lookAt: new THREE.Vector3(-170, 0, 70),
+    bounds: { minX: -230, maxX: -110, minZ: 0, maxZ: 120 },
     elevation: 0,
   },
   {
     id: "monaco",
     name: "DOODLE GRAND PRIX",
     subtitle: "Coastal Street Circuit & Harbor Paddock",
-    spawnPoint: new THREE.Vector3(170, 0, 50),
-    lookAt: new THREE.Vector3(170, 0, 80),
-    bounds: { minX: 110, maxX: 230, minZ: 10, maxZ: 130 },
+    spawnPoint: new THREE.Vector3(170, 0, 40),
+    lookAt: new THREE.Vector3(170, 0, 70),
+    bounds: { minX: 110, maxX: 230, minZ: 0, maxZ: 120 },
     elevation: 0,
   },
   {
     id: "industrial",
     name: "INDUSTRIAL DISTRICT",
     subtitle: "Smokestacks, Gantry Cranes & Rail Depot",
-    spawnPoint: new THREE.Vector3(-170, 0, 180),
-    lookAt: new THREE.Vector3(-170, 0, 210),
-    bounds: { minX: -230, maxX: -110, minZ: 140, maxZ: 260 },
+    spawnPoint: new THREE.Vector3(-170, 0, 170),
+    lookAt: new THREE.Vector3(-170, 0, 200),
+    bounds: { minX: -230, maxX: -110, minZ: 130, maxZ: 250 },
     elevation: 0,
   },
   {
     id: "underground",
     name: "UNDERGROUND CITY",
     subtitle: "Subterranean Subway Hub & Secret Labs",
-    spawnPoint: new THREE.Vector3(0, -16, 70),
+    spawnPoint: new THREE.Vector3(0, -16, 75),
     lookAt: new THREE.Vector3(0, -16, 100),
     bounds: { minX: -60, maxX: 60, minZ: 40, maxZ: 140 },
     elevation: -16,
@@ -115,27 +115,27 @@ export const DISTRICT_REGISTRY: DistrictInfo[] = [
     id: "waterfront",
     name: "WATERFRONT & PIER",
     subtitle: "Ocean Boardwalk, Ferris Wheel & Lighthouse",
-    spawnPoint: new THREE.Vector3(-60, 0, 270),
-    lookAt: new THREE.Vector3(-60, 0, 310),
-    bounds: { minX: -120, maxX: 0, minZ: 240, maxZ: 360 },
+    spawnPoint: new THREE.Vector3(-65, 0, 270),
+    lookAt: new THREE.Vector3(-65, 0, 300),
+    bounds: { minX: -120, maxX: -10, minZ: 240, maxZ: 350 },
     elevation: 0,
   },
   {
     id: "port",
     name: "PORT DISTRICT",
     subtitle: "Container Cargo Ships & Quay Cranes",
-    spawnPoint: new THREE.Vector3(90, 0, 270),
-    lookAt: new THREE.Vector3(90, 0, 310),
-    bounds: { minX: 30, maxX: 150, minZ: 240, maxZ: 360 },
+    spawnPoint: new THREE.Vector3(85, 0, 270),
+    lookAt: new THREE.Vector3(85, 0, 300),
+    bounds: { minX: 20, maxX: 150, minZ: 240, maxZ: 350 },
     elevation: 0,
   },
   {
     id: "airport",
     name: "AIRPORT DISTRICT",
     subtitle: "Terminal Hall, Control Tower & Runway",
-    spawnPoint: new THREE.Vector3(-60, 0, 390),
-    lookAt: new THREE.Vector3(-60, 0, 430),
-    bounds: { minX: -130, maxX: 10, minZ: 360, maxZ: 480 },
+    spawnPoint: new THREE.Vector3(0, 0, 380),
+    lookAt: new THREE.Vector3(0, 0, 420),
+    bounds: { minX: -100, maxX: 100, minZ: 360, maxZ: 480 },
     elevation: 0,
   },
   {
@@ -256,23 +256,23 @@ export class DistrictManager {
     const metropolisGroup = new THREE.Group();
     metropolisGroup.name = "DoodleMetropolis_Root";
 
-    // 1. Downtown (NYC-style skyscrapers at offset X: -70, Z: 0)
+    // 1. Downtown (NYC-style skyscrapers at offset X: -70, Z: 20)
     const downtownGroup = new THREE.Group();
-    downtownGroup.position.set(-70, 0, 0);
+    downtownGroup.position.set(-70, 0, 20);
     this.populateDowntownDetailed(city, downtownGroup);
     metropolisGroup.add(downtownGroup);
 
-    // 2. Entertainment District (X: 70, Z: 0)
-    metropolisGroup.add(this.buildEntertainment(city, new THREE.Vector3(70, 0, 0)));
+    // 2. Entertainment District (X: 70, Z: 20)
+    metropolisGroup.add(this.buildEntertainment(city, new THREE.Vector3(70, 0, 20)));
 
     // 3. Market District (X: 0, Z: -50)
     metropolisGroup.add(this.buildMarket(city, new THREE.Vector3(0, 0, -50)));
 
-    // 4. Old Town (X: -70, Z: -130)
-    metropolisGroup.add(this.buildOldTown(city, new THREE.Vector3(-70, 0, -130)));
+    // 4. Old Town (X: -70, Z: -125)
+    metropolisGroup.add(this.buildOldTown(city, new THREE.Vector3(-70, 0, -125)));
 
-    // 5. Neon City (X: 70, Z: -130)
-    metropolisGroup.add(this.buildNeon(city, new THREE.Vector3(70, 0, -130)));
+    // 5. Neon City (X: 70, Z: -125)
+    metropolisGroup.add(this.buildNeon(city, new THREE.Vector3(70, 0, -125)));
 
     // 6. Residential Hills (X: 0, Y: 25, Z: -230)
     metropolisGroup.add(this.buildResidentialHills(city, new THREE.Vector3(0, 0, -230)));
@@ -280,31 +280,31 @@ export class DistrictManager {
     // 7. Cloud District (X: 0, Y: 80, Z: -340)
     metropolisGroup.add(this.buildCloudDistrict(city, new THREE.Vector3(0, 80, -340)));
 
-    // 8. University / Creative District (X: -170, Z: 70)
-    metropolisGroup.add(this.buildUniversity(city, new THREE.Vector3(-170, 0, 70)));
+    // 8. University / Creative District (X: -170, Z: 60)
+    metropolisGroup.add(this.buildUniversity(city, new THREE.Vector3(-170, 0, 60)));
 
-    // 9. Monaco GP District (X: 170, Z: 70)
-    metropolisGroup.add(this.buildMonacoCircuitDetailed(city, new THREE.Vector3(170, 0, 70)));
+    // 9. Monaco GP District (X: 170, Z: 60)
+    metropolisGroup.add(this.buildMonacoCircuitDetailed(city, new THREE.Vector3(170, 0, 60)));
 
-    // 10. Industrial District (X: -170, Z: 200)
-    metropolisGroup.add(this.buildIndustrial(city, new THREE.Vector3(-170, 0, 200)));
+    // 10. Industrial District (X: -170, Z: 190)
+    metropolisGroup.add(this.buildIndustrial(city, new THREE.Vector3(-170, 0, 190)));
 
     // 11. Underground City (X: 0, Y: -16, Z: 90)
     metropolisGroup.add(this.buildUnderground(city, new THREE.Vector3(0, -16, 90)));
 
-    // 12. Waterfront & Pier (X: -60, Z: 300)
-    metropolisGroup.add(this.buildWaterfront(city, new THREE.Vector3(-60, 0, 300)));
+    // 12. Waterfront & Pier (X: -65, Z: 290)
+    metropolisGroup.add(this.buildWaterfront(city, new THREE.Vector3(-65, 0, 290)));
 
-    // 13. Port District (X: 90, Z: 300)
-    metropolisGroup.add(this.buildPort(city, new THREE.Vector3(90, 0, 300)));
+    // 13. Port District (X: 85, Z: 290)
+    metropolisGroup.add(this.buildPort(city, new THREE.Vector3(85, 0, 290)));
 
-    // 14. Airport District (X: -60, Z: 420)
-    metropolisGroup.add(this.buildAirport(city, new THREE.Vector3(-60, 0, 420)));
+    // 14. Airport District (X: 0, Z: 420)
+    metropolisGroup.add(this.buildAirport(city, new THREE.Vector3(0, 0, 420)));
 
     // 15. Secret / Endgame Core (X: 0, Y: -25, Z: -340)
     metropolisGroup.add(this.buildSecretDistrict(city, new THREE.Vector3(0, -25, -340)));
 
-    // 16. Transit Arteries (Highways, Intersections, Subway Portals, Skyway Tower)
+    // 16. Transit Arteries (Detailed Road Network, Curbs, Sidewalks, Intersections, Signals)
     metropolisGroup.add(this.buildConnectingArteries(city));
 
     // Attach master group to scene
@@ -507,7 +507,7 @@ export class DistrictManager {
 
     // 2. Grand Medieval Clock Tower
     const tower = new THREE.Group();
-    tower.position.set(0, 0, -32);
+    tower.position.set(0, 0, -15);
 
     const tBase = new THREE.Mesh(new THREE.BoxGeometry(14, 16, 14), mats.blue);
     tBase.position.y = 8;
@@ -2133,76 +2133,756 @@ export class DistrictManager {
     return group;
   }
 
-  // 16. Transit Arteries: Central Grand Boulevard, Expressways & Skyway Tower
+  // 16. Transit Arteries: Detailed Procedural Road Network, Curbs, Sidewalks, Signals & Furniture
   private static buildConnectingArteries(city: any): THREE.Group {
     const arteries = new THREE.Group();
     arteries.name = "Transit_Arteries";
     const mats = this.getMaterials(city);
 
-    // 1. Central North-South Grand Boulevard (spanning Z: -180 to Z: 360 along X: 0)
-    const grandAve = new THREE.Mesh(new THREE.BoxGeometry(14, 0.06, 540), mats.blue);
-    grandAve.position.set(0, 0.03, 90);
-    grandAve.userData.noCollision = true;
-    arteries.add(grandAve);
+    // -------------------------------------------------------------
+    // A. ARTERIAL CARRIAGEWAYS & CURBED SIDEWALKS
+    // -------------------------------------------------------------
 
-    // Yellow center lines along Grand Boulevard
-    for (let z = -170; z <= 350; z += 12) {
-      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 6), mats.orange);
-      stripe.position.set(0, 0.05, z);
-      stripe.userData.noCollision = true;
-      arteries.add(stripe);
+    // 1a. Central Grand Boulevard North: Z: -160 (North Parkway) to Z: -90 (Market North Gate)
+    this.addRoadwayWithSidewalks(arteries, {
+      x: 0,
+      zStart: -160,
+      zEnd: -90,
+      roadWidth: 14,
+      sidewalkWidth: 3.5,
+      isEastWest: false,
+      mats,
+      avenueName: "GRAND BLVD NORTH",
+    });
+
+    // 1b. Central Grand Boulevard South: Z: -10 (Market South Gate) to Z: 370 (Airport Forecourt)
+    this.addRoadwayWithSidewalks(arteries, {
+      x: 0,
+      zStart: -10,
+      zEnd: 370,
+      roadWidth: 14,
+      sidewalkWidth: 3.5,
+      isEastWest: false,
+      mats,
+      avenueName: "GRAND BLVD SOUTH",
+    });
+
+    // 1c. Pedestrianized Market Plaza Concourse: Z: -90 to Z: -10
+    this.addPedestrianMarketConcourse(arteries, mats);
+
+    // 2. North Parkway (East-West along Z: -160 from X: -130 to X: 130)
+    this.addRoadwayWithSidewalks(arteries, {
+      z: -160,
+      xStart: -130,
+      xEnd: 130,
+      roadWidth: 12,
+      sidewalkWidth: 3.0,
+      isEastWest: true,
+      mats,
+      avenueName: "NORTH PARKWAY",
+    });
+
+    // 3. 42nd St / Midtown Promenade (East-West along Z: -20 from X: -120 to X: 120)
+    this.addRoadwayWithSidewalks(arteries, {
+      z: -20,
+      xStart: -120,
+      xEnd: 120,
+      roadWidth: 10,
+      sidewalkWidth: 3.0,
+      isEastWest: true,
+      mats,
+      avenueName: "42ND ST PROMENADE",
+    });
+
+    // 4. Central Expressway (East-West along Z: 90 from X: -230 to X: 230)
+    this.addExpresswayWithMedian(arteries, {
+      z: 90,
+      xStart: -230,
+      xEnd: 230,
+      roadWidth: 18,
+      medianWidth: 1.6,
+      sidewalkWidth: 3.5,
+      mats,
+      name: "CENTRAL EXPRESSWAY",
+    });
+
+    // 5. Harbor Beltway (East-West along Z: 230 from X: -120 to X: 120)
+    this.addRoadwayWithSidewalks(arteries, {
+      z: 230,
+      xStart: -120,
+      xEnd: 120,
+      roadWidth: 12,
+      sidewalkWidth: 3.0,
+      isEastWest: true,
+      mats,
+      avenueName: "HARBOR BELTWAY",
+    });
+
+    // 6. Airport Terminal Departure Forecourt Loop (at Z: 370)
+    this.addAirportForecourtLoop(arteries, mats);
+
+    // -------------------------------------------------------------
+    // B. MAJOR INTERSECTIONS (Crosswalks, Stop Bars, Gantries)
+    // -------------------------------------------------------------
+    const intersections = [
+      { x: 0, z: -160, aveW: 14, crossW: 12, nameAve: "GRAND BLVD", nameCross: "NORTH PKWY" },
+      { x: 0, z: -20, aveW: 14, crossW: 10, nameAve: "GRAND BLVD", nameCross: "42ND ST" },
+      { x: 0, z: 90, aveW: 14, crossW: 18, nameAve: "GRAND BLVD", nameCross: "CENTRAL EXPRWY" },
+      { x: 0, z: 230, aveW: 14, crossW: 12, nameAve: "GRAND BLVD", nameCross: "HARBOR BELTWAY" },
+    ];
+    intersections.forEach((inter) => {
+      this.addDetailedIntersection(arteries, inter, mats);
+    });
+
+    // -------------------------------------------------------------
+    // C. STREET FURNITURE (Lampposts, Trees with Grates, Hydrants, Bus Stops)
+    // -------------------------------------------------------------
+    this.populateStreetFurniture(arteries, mats);
+
+    // -------------------------------------------------------------
+    // D. TRANSIT CONNECTIONS (Subway Kiosks, Switchback, Skyway Elevator)
+    // -------------------------------------------------------------
+    const subwayLocations = [
+      { x: -22, z: 20, rotY: Math.PI / 2, name: "Downtown Subway Entrance" },
+      { x: 22, z: -110, rotY: -Math.PI / 2, name: "Neon City Subway Entrance" },
+      { x: -18, z: -50, rotY: Math.PI / 2, name: "Central Market Subway Entrance" },
+      { x: -22, z: 260, rotY: Math.PI / 2, name: "Waterfront Boardwalk Subway" },
+    ];
+    subwayLocations.forEach((loc) => {
+      this.addSubwayEntrance(arteries, loc, mats);
+    });
+
+    // Hillside Serpentine Switchback Ramp
+    arteries.add(this.buildHillsideSwitchback(mats));
+
+    // Express Skyway Elevator Tower
+    arteries.add(this.buildSkywayElevator(mats));
+
+    return arteries;
+  }
+
+  private static addRoadwayWithSidewalks(
+    parent: THREE.Group,
+    opt: {
+      x?: number;
+      z?: number;
+      xStart?: number;
+      xEnd?: number;
+      zStart?: number;
+      zEnd?: number;
+      roadWidth: number;
+      sidewalkWidth: number;
+      isEastWest: boolean;
+      mats: any;
+      avenueName?: string;
+    }
+  ) {
+    const { roadWidth, sidewalkWidth, isEastWest, mats } = opt;
+
+    if (!isEastWest) {
+      const x = opt.x ?? 0;
+      const zStart = opt.zStart ?? 0;
+      const zEnd = opt.zEnd ?? 0;
+      const length = Math.abs(zEnd - zStart);
+      const zCenter = (zStart + zEnd) / 2;
+      const minZ = Math.min(zStart, zEnd);
+      const maxZ = Math.max(zStart, zEnd);
+
+      // Asphalt Roadbed
+      const roadbed = new THREE.Mesh(new THREE.BoxGeometry(roadWidth, 0.08, length), mats.black);
+      roadbed.position.set(x, 0.04, zCenter);
+      roadbed.userData.noCollision = true;
+      parent.add(roadbed);
+
+      // Solid Cyan Shoulder Lines
+      const leftShoulder = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.085, length), mats.cyan);
+      leftShoulder.position.set(x - roadWidth / 2 + 0.35, 0.045, zCenter);
+      leftShoulder.userData.noCollision = true;
+      const rightShoulder = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.085, length), mats.cyan);
+      rightShoulder.position.set(x + roadWidth / 2 - 0.35, 0.045, zCenter);
+      rightShoulder.userData.noCollision = true;
+      parent.add(leftShoulder, rightShoulder);
+
+      // Dual Dashed Yellow Centerlines
+      for (let cz = minZ + 3; cz <= maxZ - 3; cz += 10) {
+        const stripe1 = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.09, 5), mats.orange);
+        stripe1.position.set(x - 0.22, 0.048, cz);
+        stripe1.userData.noCollision = true;
+        const stripe2 = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.09, 5), mats.orange);
+        stripe2.position.set(x + 0.22, 0.048, cz);
+        stripe2.userData.noCollision = true;
+        parent.add(stripe1, stripe2);
+      }
+
+      // Raised Curbed Sidewalks
+      const swWest = new THREE.Mesh(new THREE.BoxGeometry(sidewalkWidth, 0.16, length), mats.blue);
+      swWest.position.set(x - roadWidth / 2 - sidewalkWidth / 2, 0.08, zCenter);
+      swWest.userData.noCollision = true;
+      const curbWest = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, length), mats.black);
+      curbWest.position.set(x - roadWidth / 2, 0.1, zCenter);
+      curbWest.userData.noCollision = true;
+
+      const swEast = new THREE.Mesh(new THREE.BoxGeometry(sidewalkWidth, 0.16, length), mats.blue);
+      swEast.position.set(x + roadWidth / 2 + sidewalkWidth / 2, 0.08, zCenter);
+      swEast.userData.noCollision = true;
+      const curbEast = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, length), mats.black);
+      curbEast.position.set(x + roadWidth / 2, 0.1, zCenter);
+      curbEast.userData.noCollision = true;
+
+      parent.add(swWest, curbWest, swEast, curbEast);
+    } else {
+      const z = opt.z ?? 0;
+      const xStart = opt.xStart ?? 0;
+      const xEnd = opt.xEnd ?? 0;
+      const length = Math.abs(xEnd - xStart);
+      const xCenter = (xStart + xEnd) / 2;
+      const minX = Math.min(xStart, xEnd);
+      const maxX = Math.max(xStart, xEnd);
+
+      // Asphalt Roadbed
+      const roadbed = new THREE.Mesh(new THREE.BoxGeometry(length, 0.08, roadWidth), mats.black);
+      roadbed.position.set(xCenter, 0.04, z);
+      roadbed.userData.noCollision = true;
+      parent.add(roadbed);
+
+      // Solid Cyan Shoulder Lines
+      const northShoulder = new THREE.Mesh(new THREE.BoxGeometry(length, 0.085, 0.2), mats.cyan);
+      northShoulder.position.set(xCenter, 0.045, z - roadWidth / 2 + 0.35);
+      northShoulder.userData.noCollision = true;
+      const southShoulder = new THREE.Mesh(new THREE.BoxGeometry(length, 0.085, 0.2), mats.cyan);
+      southShoulder.position.set(xCenter, 0.045, z + roadWidth / 2 - 0.35);
+      southShoulder.userData.noCollision = true;
+      parent.add(northShoulder, southShoulder);
+
+      // Dual Dashed Yellow Centerlines
+      for (let cx = minX + 3; cx <= maxX - 3; cx += 10) {
+        const stripe1 = new THREE.Mesh(new THREE.BoxGeometry(5, 0.09, 0.22), mats.orange);
+        stripe1.position.set(cx, 0.048, z - 0.22);
+        stripe1.userData.noCollision = true;
+        const stripe2 = new THREE.Mesh(new THREE.BoxGeometry(5, 0.09, 0.22), mats.orange);
+        stripe2.position.set(cx, 0.048, z + 0.22);
+        stripe2.userData.noCollision = true;
+        parent.add(stripe1, stripe2);
+      }
+
+      // Raised Curbed Sidewalks
+      const swNorth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.16, sidewalkWidth), mats.blue);
+      swNorth.position.set(xCenter, 0.08, z - roadWidth / 2 - sidewalkWidth / 2);
+      swNorth.userData.noCollision = true;
+      const curbNorth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.2, 0.3), mats.black);
+      curbNorth.position.set(xCenter, 0.1, z - roadWidth / 2);
+      curbNorth.userData.noCollision = true;
+
+      const swSouth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.16, sidewalkWidth), mats.blue);
+      swSouth.position.set(xCenter, 0.08, z + roadWidth / 2 + sidewalkWidth / 2);
+      swSouth.userData.noCollision = true;
+      const curbSouth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.2, 0.3), mats.black);
+      curbSouth.position.set(xCenter, 0.1, z + roadWidth / 2);
+      curbSouth.userData.noCollision = true;
+
+      parent.add(swNorth, curbNorth, swSouth, curbSouth);
+    }
+  }
+
+  private static addExpresswayWithMedian(
+    parent: THREE.Group,
+    opt: {
+      z: number;
+      xStart: number;
+      xEnd: number;
+      roadWidth: number;
+      medianWidth: number;
+      sidewalkWidth: number;
+      mats: any;
+      name?: string;
+    }
+  ) {
+    const { z, xStart, xEnd, roadWidth, medianWidth, sidewalkWidth, mats } = opt;
+    const length = Math.abs(xEnd - xStart);
+    const xCenter = (xStart + xEnd) / 2;
+    const minX = Math.min(xStart, xEnd);
+    const maxX = Math.max(xStart, xEnd);
+
+    // Dual Express Asphalt Carriageways
+    const carriageway = new THREE.Mesh(new THREE.BoxGeometry(length, 0.08, roadWidth), mats.black);
+    carriageway.position.set(xCenter, 0.04, z);
+    carriageway.userData.noCollision = true;
+    parent.add(carriageway);
+
+    // Raised Center Concrete Median
+    const median = new THREE.Mesh(new THREE.BoxGeometry(length, 0.45, medianWidth), mats.black);
+    median.position.set(xCenter, 0.225, z);
+    median.userData.noCollision = true;
+    parent.add(median);
+
+    // Median Amber Reflectors spaced every 12m
+    for (let rx = minX + 6; rx <= maxX - 6; rx += 12) {
+      const refNorth = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.1), mats.orange);
+      refNorth.position.set(rx, 0.48, z - medianWidth / 2 + 0.08);
+      refNorth.userData.noCollision = true;
+      const refSouth = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.15, 0.1), mats.orange);
+      refSouth.position.set(rx, 0.48, z + medianWidth / 2 - 0.08);
+      refSouth.userData.noCollision = true;
+      parent.add(refNorth, refSouth);
     }
 
-    // 2. East-West Central Expressway (spanning X: -220 to X: 220 along Z: 0)
-    const expressWay = new THREE.Mesh(new THREE.BoxGeometry(440, 0.06, 14), mats.blue);
-    expressWay.position.set(0, 0.03, 0);
-    expressWay.userData.noCollision = true;
-    arteries.add(expressWay);
+    // Lane Divider Striping
+    const laneOffsetZ = (roadWidth / 2 - medianWidth / 2) / 2;
+    for (let cx = minX + 3; cx <= maxX - 3; cx += 10) {
+      const stripeN = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.09, 0.2), mats.cyan);
+      stripeN.position.set(cx, 0.048, z - medianWidth / 2 - laneOffsetZ);
+      stripeN.userData.noCollision = true;
+      const stripeS = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.09, 0.2), mats.cyan);
+      stripeS.position.set(cx, 0.048, z + medianWidth / 2 + laneOffsetZ);
+      stripeS.userData.noCollision = true;
+      parent.add(stripeN, stripeS);
+    }
 
-    // 3. North Cross Expressway (spanning X: -120 to X: 120 along Z: -130)
-    const northAve = new THREE.Mesh(new THREE.BoxGeometry(240, 0.06, 12), mats.blue);
-    northAve.position.set(0, 0.03, -130);
-    northAve.userData.noCollision = true;
-    arteries.add(northAve);
+    // Solid Shoulder Lines
+    const northShoulder = new THREE.Mesh(new THREE.BoxGeometry(length, 0.085, 0.22), mats.cyan);
+    northShoulder.position.set(xCenter, 0.045, z - roadWidth / 2 + 0.35);
+    northShoulder.userData.noCollision = true;
+    const southShoulder = new THREE.Mesh(new THREE.BoxGeometry(length, 0.085, 0.22), mats.cyan);
+    southShoulder.position.set(xCenter, 0.045, z + roadWidth / 2 - 0.35);
+    southShoulder.userData.noCollision = true;
+    parent.add(northShoulder, southShoulder);
 
-    // 4. Express Skyway Elevator Shaft (Climbing from Residential Hills Y: 25 to Cloud District Y: 80)
+    // Raised Sidewalks with Curbs
+    const swNorth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.16, sidewalkWidth), mats.blue);
+    swNorth.position.set(xCenter, 0.08, z - roadWidth / 2 - sidewalkWidth / 2);
+    swNorth.userData.noCollision = true;
+    const curbNorth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.2, 0.3), mats.black);
+    curbNorth.position.set(xCenter, 0.1, z - roadWidth / 2);
+    curbNorth.userData.noCollision = true;
+
+    const swSouth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.16, sidewalkWidth), mats.blue);
+    swSouth.position.set(xCenter, 0.08, z + roadWidth / 2 + sidewalkWidth / 2);
+    swSouth.userData.noCollision = true;
+    const curbSouth = new THREE.Mesh(new THREE.BoxGeometry(length, 0.2, 0.3), mats.black);
+    curbSouth.position.set(xCenter, 0.1, z + roadWidth / 2);
+    curbSouth.userData.noCollision = true;
+
+    parent.add(swNorth, curbNorth, swSouth, curbSouth);
+  }
+
+  private static addPedestrianMarketConcourse(parent: THREE.Group, mats: any) {
+    // Cobblestone pedestrian mall along X: 0 from Z: -90 to Z: -10
+    const concourse = new THREE.Mesh(new THREE.BoxGeometry(22, 0.06, 80), mats.black);
+    concourse.position.set(0, 0.03, -50);
+    concourse.userData.noCollision = true;
+    parent.add(concourse);
+
+    // Cyan mosaic promenade runner
+    const runner = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.07, 76), mats.cyan);
+    runner.position.set(0, 0.035, -50);
+    runner.userData.noCollision = true;
+    parent.add(runner);
+
+    // Stone Bollard Rows at North (Z: -90) and South (Z: -10) portals
+    for (const bz of [-90, -10]) {
+      for (let bx = -9; bx <= 9; bx += 3) {
+        const bollard = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 1.0, 8), mats.black);
+        bollard.position.set(bx, 0.5, bz);
+        bollard.userData.noCollision = true;
+        const cap = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.3, 4), mats.orange);
+        cap.position.set(bx, 1.15, bz);
+        cap.rotation.y = Math.PI / 4;
+        cap.userData.noCollision = true;
+        parent.add(bollard, cap);
+      }
+
+      // Grand Entrance Archway ("DOODLE BAZAAR")
+      const arch = new THREE.Group();
+      arch.position.set(0, 0, bz);
+      const colL = new THREE.Mesh(new THREE.BoxGeometry(1.4, 6.0, 1.4), mats.blue);
+      colL.position.set(-8, 3.0, 0);
+      const colR = new THREE.Mesh(new THREE.BoxGeometry(1.4, 6.0, 1.4), mats.blue);
+      colR.position.set(8, 3.0, 0);
+      const lintel = new THREE.Mesh(new THREE.BoxGeometry(18.5, 1.2, 1.6), mats.orange);
+      lintel.position.set(0, 6.2, 0);
+      const signBoard = new THREE.Mesh(new THREE.BoxGeometry(13.0, 0.9, 0.3), mats.red);
+      signBoard.position.set(0, 6.2, 0.9);
+      arch.add(colL, colR, lintel, signBoard);
+      parent.add(arch);
+    }
+  }
+
+  private static addAirportForecourtLoop(parent: THREE.Group, mats: any) {
+    const loop = new THREE.Group();
+    loop.position.set(0, 0, 370);
+
+    // Terminal Forecourt Turning Plaza
+    const plaza = new THREE.Mesh(new THREE.CylinderGeometry(24, 24, 0.08, 24), mats.black);
+    plaza.position.y = 0.04;
+    plaza.userData.noCollision = true;
+    loop.add(plaza);
+
+    // Central Island with Blueprint Flagpole
+    const island = new THREE.Mesh(new THREE.CylinderGeometry(8, 8, 0.25, 20), mats.blue);
+    island.position.y = 0.125;
+    island.userData.noCollision = true;
+    const flagPole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.25, 15, 8), mats.black);
+    flagPole.position.y = 7.5;
+    const flag = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.2, 4.0), mats.orange);
+    flag.position.set(0, 13.5, 2.0);
+    loop.add(island, flagPole, flag);
+
+    parent.add(loop);
+  }
+
+  private static addDetailedIntersection(
+    parent: THREE.Group,
+    opt: {
+      x: number;
+      z: number;
+      aveW: number;
+      crossW: number;
+      nameAve: string;
+      nameCross: string;
+    },
+    mats: any
+  ) {
+    const { x, z, aveW, crossW } = opt;
+    const interGroup = new THREE.Group();
+    interGroup.position.set(x, 0, z);
+
+    // 1. Intersection Central Square Asphalt
+    const box = new THREE.Mesh(new THREE.BoxGeometry(aveW, 0.082, crossW), mats.black);
+    box.position.y = 0.041;
+    box.userData.noCollision = true;
+    interGroup.add(box);
+
+    // 2. Stop Bars on All 4 Approaches
+    const stopN = new THREE.Mesh(new THREE.BoxGeometry(aveW * 0.45, 0.085, 0.7), mats.cyan);
+    stopN.position.set(-aveW * 0.24, 0.045, -crossW / 2 - 1.0);
+    stopN.userData.noCollision = true;
+    const stopS = new THREE.Mesh(new THREE.BoxGeometry(aveW * 0.45, 0.085, 0.7), mats.cyan);
+    stopS.position.set(aveW * 0.24, 0.045, crossW / 2 + 1.0);
+    stopS.userData.noCollision = true;
+    const stopW = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.085, crossW * 0.45), mats.cyan);
+    stopW.position.set(-aveW / 2 - 1.0, 0.045, crossW * 0.24);
+    stopW.userData.noCollision = true;
+    const stopE = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.085, crossW * 0.45), mats.cyan);
+    stopE.position.set(aveW / 2 + 1.0, 0.045, -crossW * 0.24);
+    stopE.userData.noCollision = true;
+    interGroup.add(stopN, stopS, stopW, stopE);
+
+    // 3. Bold Zebra Crosswalks on All 4 Approaches
+    const numStripesAve = Math.floor(aveW / 1.5);
+    for (let i = 0; i < numStripesAve; i++) {
+      const sx = -aveW / 2 + 1.0 + i * (aveW - 2) / (numStripesAve - 1);
+      const stripeN = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.085, 3.2), mats.cyan);
+      stripeN.position.set(sx, 0.045, -crossW / 2 - 3.0);
+      stripeN.userData.noCollision = true;
+      const stripeS = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.085, 3.2), mats.cyan);
+      stripeS.position.set(sx, 0.045, crossW / 2 + 3.0);
+      stripeS.userData.noCollision = true;
+      interGroup.add(stripeN, stripeS);
+    }
+    const numStripesCross = Math.floor(crossW / 1.5);
+    for (let i = 0; i < numStripesCross; i++) {
+      const sz = -crossW / 2 + 1.0 + i * (crossW - 2) / (numStripesCross - 1);
+      const stripeW = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.085, 0.65), mats.cyan);
+      stripeW.position.set(-aveW / 2 - 3.0, 0.045, sz);
+      stripeW.userData.noCollision = true;
+      const stripeE = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.085, 0.65), mats.cyan);
+      stripeE.position.set(aveW / 2 + 3.0, 0.045, sz);
+      stripeE.userData.noCollision = true;
+      interGroup.add(stripeW, stripeE);
+    }
+
+    // 4. Overhead Cantilever Traffic Signal Gantry at NE corner
+    const gantry = new THREE.Group();
+    gantry.position.set(aveW / 2 + 1.8, 0, crossW / 2 + 1.8);
+    const col = new THREE.Mesh(new THREE.BoxGeometry(0.45, 8.0, 0.45), mats.black);
+    col.position.y = 4.0;
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(aveW * 0.7, 0.4, 0.4), mats.black);
+    arm.position.set(-aveW * 0.35, 7.8, 0);
+    const strut = new THREE.Mesh(new THREE.BoxGeometry(0.25, 3.2, 0.25), mats.black);
+    strut.position.set(-1.2, 6.6, 0);
+    strut.rotation.z = Math.PI / 4;
+
+    // Signal Heads suspended from arm
+    for (const hOffset of [-aveW * 0.2, -aveW * 0.5]) {
+      const head = new THREE.Group();
+      head.position.set(hOffset, 7.0, 0);
+      const headBox = new THREE.Mesh(new THREE.BoxGeometry(0.65, 2.2, 0.45), mats.black);
+      const lightRed = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), mats.red);
+      lightRed.position.set(0, 0.65, 0.25);
+      const lightAmber = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), mats.orange);
+      lightAmber.position.set(0, 0, 0.25);
+      const lightGreen = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), mats.green);
+      lightGreen.position.set(0, -0.65, 0.25);
+      head.add(headBox, lightRed, lightAmber, lightGreen);
+      gantry.add(head);
+    }
+
+    // Street Name Sign Blades on Mast
+    const signAve = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.65, 0.1), mats.green);
+    signAve.position.set(0, 5.2, 0.3);
+    const signCross = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.65, 3.6), mats.green);
+    signCross.position.set(-0.3, 5.8, 0);
+    gantry.add(col, arm, strut, signAve, signCross);
+    interGroup.add(gantry);
+
+    // 5. Corner Pedestrian Signal Post at SW corner
+    const pedPost = new THREE.Group();
+    pedPost.position.set(-aveW / 2 - 1.8, 0, -crossW / 2 - 1.8);
+    const pPole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 3.6, 8), mats.black);
+    pPole.position.y = 1.8;
+    const pBox = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.7, 0.35), mats.black);
+    pBox.position.set(0, 2.5, 0);
+    const pWalk = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.05), mats.cyan);
+    pWalk.position.set(0, 2.5, 0.18);
+    pedPost.add(pPole, pBox, pWalk);
+    interGroup.add(pedPost);
+
+    parent.add(interGroup);
+  }
+
+  private static populateStreetFurniture(parent: THREE.Group, mats: any) {
+    // 1. Street Lamps along Grand Boulevard (every ~25m)
+    const lampZs = [
+      -150, -125, -100,
+      10, 35, 60, 115, 140, 165, 190, 215, 245, 270, 295, 320, 345,
+    ];
+    lampZs.forEach((lz) => {
+      parent.add(this.buildStreetLamp(-9.5, lz, Math.PI / 2, mats));
+      parent.add(this.buildStreetLamp(9.5, lz, -Math.PI / 2, mats));
+    });
+
+    // Lamps along Central Expressway (every ~35m across X: -210 to 210)
+    for (let lx = -210; lx <= 210; lx += 35) {
+      if (Math.abs(lx) < 15) continue;
+      parent.add(this.buildStreetLamp(lx, 79.5, 0, mats));
+      parent.add(this.buildStreetLamp(lx, 100.5, Math.PI, mats));
+    }
+
+    // 2. Street Trees in Square Cast-Iron Grates
+    const treeZs = [
+      -138, -112,
+      22, 48, 72, 128, 152, 178, 202, 258, 282, 308, 332,
+    ];
+    treeZs.forEach((tz) => {
+      parent.add(this.buildStreetTree(-9.5, tz, mats));
+      parent.add(this.buildStreetTree(9.5, tz, mats));
+    });
+
+    // 3. Red Fire Hydrants near Intersections
+    const hydrantLocs = [
+      [-9.5, -152], [9.5, -152],
+      [-9.5, -12], [9.5, -12],
+      [-9.5, 98], [9.5, 98],
+      [-9.5, 238], [9.5, 238],
+    ];
+    hydrantLocs.forEach(([hx, hz]) => {
+      parent.add(this.buildFireHydrant(hx, hz, mats));
+    });
+
+    // 4. Transit Bus Stop Shelters
+    const busStops = [
+      { x: -10.5, z: 15, rotY: Math.PI / 2, name: "34th St / Downtown" },
+      { x: 10.5, z: 15, rotY: -Math.PI / 2, name: "Doodle Dome / Entertainment" },
+      { x: -10.5, z: 105, rotY: Math.PI / 2, name: "Central Expressway Station" },
+      { x: -10.5, z: 255, rotY: Math.PI / 2, name: "Waterfront Pier" },
+    ];
+    busStops.forEach((bs) => {
+      parent.add(this.buildBusShelter(bs.x, bs.z, bs.rotY, mats));
+    });
+  }
+
+  private static buildStreetLamp(x: number, z: number, rotY: number, mats: any): THREE.Group {
+    const lamp = new THREE.Group();
+    lamp.position.set(x, 0, z);
+    lamp.rotation.y = rotY;
+
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.45, 0.5, 8), mats.black);
+    plinth.position.y = 0.25;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 6.2, 8), mats.black);
+    pole.position.y = 3.4;
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.16, 0.16), mats.black);
+    arm.position.set(0.7, 6.4, 0);
+    const fixture = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.24, 0.6, 8), mats.black);
+    fixture.position.set(1.4, 6.2, 0);
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), mats.cyan);
+    globe.position.set(1.4, 5.8, 0);
+    globe.userData.noCollision = true;
+
+    lamp.add(plinth, pole, arm, fixture, globe);
+    return lamp;
+  }
+
+  private static buildStreetTree(x: number, z: number, mats: any): THREE.Group {
+    const tree = new THREE.Group();
+    tree.position.set(x, 0, z);
+
+    const grate = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.04, 1.8), mats.black);
+    grate.position.y = 0.16;
+    grate.userData.noCollision = true;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 4.2, 8), mats.black);
+    trunk.position.y = 2.1;
+    const crown1 = new THREE.Mesh(new THREE.ConeGeometry(2.2, 3.2, 6), mats.green);
+    crown1.position.y = 4.6;
+    const crown2 = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.6, 6), mats.green);
+    crown2.position.y = 6.2;
+    crown2.rotation.y = Math.PI / 6;
+
+    tree.add(grate, trunk, crown1, crown2);
+    return tree;
+  }
+
+  private static buildFireHydrant(x: number, z: number, mats: any): THREE.Group {
+    const hydrant = new THREE.Group();
+    hydrant.position.set(x, 0, z);
+
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.38, 0.35, 8), mats.red);
+    base.position.y = 0.175;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.8, 8), mats.red);
+    body.position.y = 0.7;
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(0.26, 8, 8, 0, Math.PI * 2, 0, Math.PI / 2), mats.red);
+    dome.position.y = 1.1;
+    const nut = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.2, 6), mats.orange);
+    nut.position.y = 1.35;
+    const nozzle1 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 8), mats.black);
+    nozzle1.rotation.z = Math.PI / 2;
+    nozzle1.position.set(0.3, 0.75, 0);
+    const nozzle2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 8), mats.black);
+    nozzle2.rotation.z = -Math.PI / 2;
+    nozzle2.position.set(-0.3, 0.75, 0);
+
+    hydrant.add(base, body, dome, nut, nozzle1, nozzle2);
+    return hydrant;
+  }
+
+  private static buildBusShelter(x: number, z: number, rotY: number, mats: any): THREE.Group {
+    const shelter = new THREE.Group();
+    shelter.position.set(x, 0, z);
+    shelter.rotation.y = rotY;
+
+    for (const px of [-1.8, 1.8]) {
+      for (const pz of [-0.9, 0.9]) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.8, 0.12), mats.black);
+        post.position.set(px, 1.4, pz);
+        shelter.add(post);
+      }
+    }
+    const glassRear = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.2, 0.06), mats.cyan);
+    glassRear.position.set(0, 1.5, -0.9);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.25, 2.4), mats.blue);
+    roof.position.set(0, 2.9, 0);
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.45, 0.6), mats.orange);
+    bench.position.set(0, 0.45, -0.45);
+    const totem = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.2, 0.15), mats.black);
+    totem.position.set(2.2, 1.1, 0);
+    const display = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.2, 0.04), mats.orange);
+    display.position.set(2.2, 1.4, 0.09);
+
+    shelter.add(glassRear, roof, bench, totem, display);
+    return shelter;
+  }
+
+  private static addSubwayEntrance(
+    parent: THREE.Group,
+    loc: { x: number; z: number; rotY: number; name: string },
+    mats: any
+  ) {
+    const entrance = new THREE.Group();
+    entrance.position.set(loc.x, 0, loc.z);
+    entrance.rotation.y = loc.rotY;
+
+    const kiosk = new THREE.Mesh(new THREE.BoxGeometry(5.5, 2.4, 7.5), mats.black);
+    kiosk.position.y = 1.2;
+    const canopy = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.0, 8.0, 12, 1, false, 0, Math.PI), mats.green);
+    canopy.rotation.z = Math.PI / 2;
+    canopy.position.set(0, 2.6, 0);
+    const stairs = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.15, 5.5), mats.cyan);
+    stairs.position.set(0, 0.1, 0.6);
+    stairs.userData.noCollision = true;
+
+    const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.6, 8), mats.black);
+    postL.position.set(-2.4, 1.3, -3.5);
+    const globeL = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), mats.cyan);
+    globeL.position.set(-2.4, 2.7, -3.5);
+    globeL.userData.noCollision = true;
+
+    const postR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.6, 8), mats.black);
+    postR.position.set(2.4, 1.3, -3.5);
+    const globeR = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), mats.cyan);
+    globeR.position.set(2.4, 2.7, -3.5);
+    globeR.userData.noCollision = true;
+
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.6, 0.2), mats.blue);
+    sign.position.set(0, 3.2, -3.6);
+
+    entrance.add(kiosk, canopy, stairs, postL, globeL, postR, globeR, sign);
+    parent.add(entrance);
+  }
+
+  private static buildHillsideSwitchback(mats: any): THREE.Group {
+    const switchback = new THREE.Group();
+    switchback.name = "Hillside_Switchback_Road";
+
+    const seg1 = new THREE.Mesh(new THREE.BoxGeometry(10, 1.2, 26), mats.blue);
+    seg1.position.set(9, 4, -171);
+    seg1.rotation.x = -Math.atan2(8, 22);
+    seg1.rotation.y = Math.atan2(18, 22);
+
+    const turn1 = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 1.2, 16), mats.black);
+    turn1.position.set(18, 8, -182);
+
+    const seg2 = new THREE.Mesh(new THREE.BoxGeometry(10, 1.2, 42), mats.blue);
+    seg2.position.set(0, 12.5, -190);
+    seg2.rotation.x = -Math.atan2(9, 36);
+    seg2.rotation.y = -Math.atan2(36, 16);
+
+    const turn2 = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 1.2, 16), mats.black);
+    turn2.position.set(-18, 17, -198);
+
+    const seg3 = new THREE.Mesh(new THREE.BoxGeometry(10, 1.2, 26), mats.blue);
+    seg3.position.set(-9, 21, -204);
+    seg3.rotation.x = -Math.atan2(8, 22);
+    seg3.rotation.y = -Math.atan2(18, 22);
+
+    const rail1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 26), mats.orange);
+    rail1.position.set(14, 4.8, -171);
+    rail1.rotation.x = seg1.rotation.x;
+    const rail2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 42), mats.orange);
+    rail2.position.set(0, 13.3, -195);
+    rail2.rotation.x = seg2.rotation.x;
+    const rail3 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 26), mats.orange);
+    rail3.position.set(-14, 21.8, -204);
+    rail3.rotation.x = seg3.rotation.x;
+
+    switchback.add(seg1, turn1, seg2, turn2, seg3, rail1, rail2, rail3);
+    return switchback;
+  }
+
+  private static buildSkywayElevator(mats: any): THREE.Group {
     const elevatorTower = new THREE.Group();
     elevatorTower.position.set(0, 0, -280);
 
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(6, 80, 6), mats.black);
-    shaft.position.y = 40;
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(6.4, 8, 6.4), mats.orange);
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(7, 82, 7), mats.black);
+    shaft.position.y = 41;
+    for (const px of [-3.5, 3.5]) {
+      for (const pz of [-3.5, 3.5]) {
+        const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.8, 82, 0.8), mats.blue);
+        pylon.position.set(px, 41, pz);
+        elevatorTower.add(pylon);
+      }
+    }
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(6.6, 8.5, 6.6), mats.orange);
     cabin.position.y = 52;
-    elevatorTower.add(shaft, cabin);
-    arteries.add(elevatorTower);
+    const cabGlass = new THREE.Mesh(new THREE.BoxGeometry(6.8, 4.5, 6.8), mats.cyan);
+    cabGlass.position.y = 52;
+    cabGlass.userData.noCollision = true;
 
-    // 5. Hillside Switchback Ramp (climbing from Z: -180, Y: 0 to Z: -220, Y: 25)
-    const ramp = new THREE.Mesh(new THREE.BoxGeometry(12, 1.2, 50), mats.blue);
-    ramp.position.set(0, 12.5, -200);
-    ramp.rotation.x = -Math.atan2(25, 50);
-    arteries.add(ramp);
+    const machineRoom = new THREE.Mesh(new THREE.BoxGeometry(9, 4, 9), mats.red);
+    machineRoom.position.y = 84;
 
-    // 6. Subway Entrance Portals in Downtown, Neon, Market, and Waterfront
-    const subwayLocations = [
-      { x: -50, z: -10, name: "Downtown Subway Entrance" },
-      { x: 50, z: -110, name: "Neon City Subway Entrance" },
-      { x: 0, z: -35, name: "Central Market Subway Entrance" },
-      { x: -40, z: 260, name: "Waterfront Boardwalk Subway" },
-    ];
-    subwayLocations.forEach((loc) => {
-      const entrance = new THREE.Group();
-      entrance.position.set(loc.x, 0, loc.z);
-      const kiosk = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 8), mats.black);
-      kiosk.position.y = 2;
-      const canopy = new THREE.Mesh(new THREE.BoxGeometry(7, 0.8, 9), mats.green);
-      canopy.position.y = 4.4;
-      const stairs = new THREE.Mesh(new THREE.BoxGeometry(4, 0.1, 6), mats.cyan);
-      stairs.position.set(0, 0.1, 0);
-      stairs.userData.noCollision = true;
-      entrance.add(kiosk, canopy, stairs);
-      arteries.add(entrance);
-    });
+    const skybridge = new THREE.Mesh(new THREE.BoxGeometry(5, 3.5, 45), mats.blue);
+    skybridge.position.set(0, 80, -25);
 
-    return arteries;
+    elevatorTower.add(shaft, cabin, cabGlass, machineRoom, skybridge);
+    return elevatorTower;
   }
 }

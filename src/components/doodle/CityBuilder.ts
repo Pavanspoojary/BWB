@@ -3246,47 +3246,47 @@ export class CityBuilder {
 
     const allSecretDefs: { id: string; district: string; name: string; pos: [number, number, number] }[] = [
       // 1. Downtown
-      { id: "downtown_vault", district: "downtown", name: "🗝️ 34th St Rooftop Vault Key", pos: [-70, 10.0, 18] },
-      { id: "downtown_bull", district: "downtown", name: "🐂 Golden Bull of Wall Street", pos: [-72, 1.2, -10] },
+      { id: "downtown_vault", district: "downtown", name: "🗝️ 34th St Rooftop Vault Key", pos: [-70, 18.0, 20] },
+      { id: "downtown_bull", district: "downtown", name: "🐂 Golden Bull of Wall Street", pos: [-85, 1.6, 5] },
       // 2. Entertainment
-      { id: "ent_pass", district: "entertainment", name: "🎟️ Golden VIP Backstage Pass", pos: [70, 1.5, 10] },
-      { id: "ent_arcade", district: "entertainment", name: "🕹️ Pixel Palace High-Score Cartridge", pos: [106, 1.5, 24] },
+      { id: "ent_pass", district: "entertainment", name: "🎟️ Golden VIP Backstage Pass", pos: [34, 1.5, 44] },
+      { id: "ent_arcade", district: "entertainment", name: "🕹️ Pixel Palace High-Score Cartridge", pos: [106, 1.5, 44] },
       // 3. Market
-      { id: "market_spoon", district: "market", name: "🍜 Golden Ramen Spoon of Fortune", pos: [0, 1.5, -40] },
+      { id: "market_spoon", district: "market", name: "🍜 Golden Ramen Spoon of Fortune", pos: [0, 1.5, -78] },
       { id: "market_compass", district: "market", name: "🧭 Merchant's Antique Brass Compass", pos: [-18, 1.5, -50] },
       // 4. Old Town
-      { id: "oldtown_gear", district: "oldtown", name: "🕰️ Master Belfry Clockwork Gear", pos: [-70, 1.8, -158] },
-      { id: "oldtown_coin", district: "oldtown", name: "⛲ Renaissance Fountain Wish Coin", pos: [-70, 2.0, -118] },
+      { id: "oldtown_gear", district: "oldtown", name: "🕰️ Master Belfry Clockwork Gear", pos: [-70, 1.8, -140] },
+      { id: "oldtown_coin", district: "oldtown", name: "⛲ Renaissance Fountain Wish Coin", pos: [-70, 2.0, -109] },
       // 5. Neon City
-      { id: "neon_deck", district: "neon", name: "💾 Cyberpunk Zero-Day Cyberdeck", pos: [52, 1.5, -152] },
-      { id: "neon_core", district: "neon", name: "⚡ Nexus Holo-Spire Data Core", pos: [70, 1.8, -130] },
+      { id: "neon_deck", district: "neon", name: "💾 Cyberpunk Zero-Day Cyberdeck", pos: [22, 1.5, -110] },
+      { id: "neon_core", district: "neon", name: "⚡ Nexus Holo-Spire Data Core", pos: [70, 1.8, -125] },
       // 6. Residential Hills
       { id: "hills_astrolabe", district: "hills", name: "🔭 Hilltop Observatory Brass Astrolabe", pos: [0, 26.8, -285] },
-      { id: "hills_rose", district: "hills", name: "🌹 Secret Villa Garden Golden Rose", pos: [30, 15.5, -225] },
+      { id: "hills_rose", district: "hills", name: "🌹 Secret Villa Garden Golden Rose", pos: [-42, 7.5, -210] },
       // 7. Cloud District
       { id: "cloud_feather", district: "cloud", name: "🪶 Stratospheric Nimbus Golden Feather", pos: [0, 81.8, -340] },
       { id: "cloud_token", district: "cloud", name: "🚁 Skyway Helipad Master Token", pos: [45, 126.8, -340] },
       // 8. University
-      { id: "uni_scroll", district: "university", name: "📜 Grand Library Ancient Blueprint Scroll", pos: [-170, 1.8, 40] },
-      { id: "uni_medal", district: "university", name: "🎨 Creative Arts Academy Gold Medal", pos: [-170, 5.0, 82] },
+      { id: "uni_scroll", district: "university", name: "📜 Grand Library Ancient Blueprint Scroll", pos: [-170, 1.8, 60] },
+      { id: "uni_medal", district: "university", name: "🎨 Creative Arts Academy Gold Medal", pos: [-134, 5.0, 70] },
       // 9. Monaco GP
-      { id: "monaco_trophy", district: "monaco", name: "🏆 Grand Prix Winner's Golden Trophy", pos: [170, 1.8, 108] },
-      { id: "monaco_flag", district: "monaco", name: "🏁 Coastal Paddock Checkered Flag", pos: [145, 1.8, 50] },
+      { id: "monaco_trophy", district: "monaco", name: "🏆 Grand Prix Winner's Golden Trophy", pos: [170, 1.8, 98] },
+      { id: "monaco_flag", district: "monaco", name: "🏁 Coastal Paddock Checkered Flag", pos: [170, 1.8, 112] },
       // 10. Industrial
-      { id: "ind_wrench", district: "industrial", name: "🔧 Titanium Gantry Crane Wrench", pos: [-180, 1.8, 225] },
+      { id: "ind_wrench", district: "industrial", name: "🔧 Titanium Gantry Crane Wrench", pos: [-180, 1.8, 220] },
       { id: "ind_valve", district: "industrial", name: "⚙️ High-Pressure Steam Boiler Valve", pos: [-145, 1.8, 190] },
       // 11. Underground
-      { id: "und_keycard", district: "underground", name: "💳 Subterranean Transit Master Keycard", pos: [0, -14.5, 75] },
-      { id: "und_crystal", district: "underground", name: "💎 Forgotten Metro Tunnel Crystal", pos: [-35, -14.5, 115] },
+      { id: "und_keycard", district: "underground", name: "💳 Subterranean Transit Master Keycard", pos: [0, -14.5, 90] },
+      { id: "und_crystal", district: "underground", name: "💎 Forgotten Metro Tunnel Crystal", pos: [-35, -14.5, 90] },
       // 12. Waterfront
-      { id: "water_pearl", district: "waterfront", name: "🦪 Ocean Boardwalk Golden Pearl Shell", pos: [-60, 2.0, 325] },
-      { id: "water_lens", district: "waterfront", name: "💡 Lighthouse Keeper's Prismatic Lens", pos: [-22, 1.8, 275] },
+      { id: "water_pearl", district: "waterfront", name: "🦪 Ocean Boardwalk Golden Pearl Shell", pos: [-65, 2.0, 310] },
+      { id: "water_lens", district: "waterfront", name: "💡 Lighthouse Keeper's Prismatic Lens", pos: [-25, 1.8, 290] },
       // 13. Port
-      { id: "port_manifest", district: "port", name: "📋 Golden Shipping Container Manifest", pos: [125, 1.8, 300] },
-      { id: "port_anchor", district: "port", name: "⚓ Dockside Anchor of Prosperity", pos: [55, 1.8, 300] },
+      { id: "port_manifest", district: "port", name: "📋 Golden Shipping Container Manifest", pos: [120, 1.8, 290] },
+      { id: "port_anchor", district: "port", name: "⚓ Dockside Anchor of Prosperity", pos: [55, 1.8, 290] },
       // 14. Airport
-      { id: "air_wings", district: "airport", name: "✈️ Supersonic Aviator's Golden Wings", pos: [-85, 3.5, 415] },
-      { id: "air_badge", district: "airport", name: "📡 Air Traffic Radar Operator's Badge", pos: [-12, 1.8, 395] },
+      { id: "air_wings", district: "airport", name: "✈️ Supersonic Aviator's Golden Wings", pos: [-25, 3.5, 423] },
+      { id: "air_badge", district: "airport", name: "📡 Air Traffic Radar Operator's Badge", pos: [55, 1.8, 395] },
       // 15. Secret Core
       { id: "secret_fountain_pen", district: "secret", name: "🖋️ The Creator's Colossal Fountain Pen", pos: [0, -23.5, -340] },
       { id: "secret_seed", district: "secret", name: "✨ Infinite Blueprint Drafting Seed", pos: [24, -20.0, -316] },
