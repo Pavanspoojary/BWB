@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BurnCalculator from '../components/BurnCalculator.astro';
+import HackCatalog from '../components/HackCatalog.astro';
+import StickyPrCallout from '../components/StickyPrCallout.astro';
+import { SEED_HACKS } from '../components/seedData';
+
+let collectionEntries: any[] = [];
+try {
+  collectionEntries = await getCollection('hacks');
+} catch (e) {
+  collectionEntries = [];
+}
+
+const hacks = collectionEntries && collectionEntries.length > 0
+  ? collectionEntries
+  : SEED_HACKS;
+---
+
+<BaseLayout title="builtwhilebroke.tech // Radical $0 Architecture Hacks">
+  <!-- Hero Section with ASCII Masthead -->
+  <header class="pt-4 pb-8 border-b-2 border-terminal-border font-mono">
+    <!-- ASCII Banner -->
+    <pre class="overflow-x-auto text-[8px] sm:text-[10px] md:text-xs text-phosphor-green font-mono leading-none tracking-tight select-none mb-6 border border-zinc-800 bg-black p-4 shadow-brutal">
++----------------------------------------------------------------------------------------------------+
+|  ___ _   _ ___ _   _____ _ _ _ _   _ ___ _     ___ ___  ___  _  _____   _____ ___ ___ _  _         |
+| | _ ) | | |_ _| | |_   _| | | | | | |_ _| |   | _ ) _ \/ _ \| |/ / __| |_   _| __/ __| || |        |
+| | _ \ |_| || || |___| | | | | | |_| || || |__ | _ \   / (_) | ' &lt;| _|    | | | _| (__| __ |        |
+| |___/\___/|___|_____|_| |_|_|_|\___/|___|____|___/_|_\\___/|_|\_\___|   |_| |___\___|_||_|        |
++----------------------------------------------------------------------------------------------------+
+    </pre>
+
+    <div class="flex flex-wrap items-center gap-2 text-xs font-bold mb-4">
+      <span class="px-2.5 py-1 bg-black border border-phosphor-green text-phosphor-green">
+        [ARSENAL: {hacks.length} VERIFIED HACKS]
+      </span>
+      <span class="px-2.5 py-1 bg-black border border-warning-amber text-warning-amber">
+        [CLOUD EGRESS TAX: $0.00]
+      </span>
+      <span class="px-2.5 py-1 bg-black border border-zinc-700 text-zinc-400">
+        [HOSTING: CLOUDFLARE PAGES]
+      </span>
+      <span class="px-2.5 py-1 bg-black border border-zinc-700 text-zinc-400">
+        [LICENSE: UNLICENSED / MIT]
+      </span>
+    </div>
+
+    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none mb-4">
+      Stop paying the SaaS tax.<br />
+      <span class="text-phosphor-green">Abuse zero-dollar developer primitives.</span>
+    </h1>
+
+    <p class="text-sm sm:text-base text-zinc-300 max-w-3xl leading-relaxed mb-6">
+      An irreverent, open-source engineering almanac documenting radical architecture hacks
+      used by cash-strapped developers to replace expensive enterprise SaaS tools with
+      unmetered, zero-cost developer tiers.
+    </p>
+
+    <!-- Quick Action CTA Group -->
+    <div class="flex flex-wrap items-center gap-3 text-xs font-bold">
+      <a
+        href="#catalog"
+        class="px-5 py-2.5 bg-phosphor-green text-black hover:bg-emerald-400 transition-colors uppercase font-black shadow-brutal-dark select-none active:translate-y-0.5"
+      >
+        [EXPLORE HACK BLUEPRINTS &darr;]
+      </a>
+      <a
+        href="#calculator"
+        class="px-5 py-2.5 bg-black text-zinc-200 border-2 border-zinc-700 hover:border-phosphor-green hover:text-white transition-colors uppercase select-none active:translate-y-0.5"
+      >
+        [VIEW BURN CALCULATOR]
+      </a>
+      <a
+        href="https://github.com/Pavanspoojary/builtwhilebroke"
+        target="_blank"
+        rel="noreferrer"
+        class="px-5 py-2.5 bg-black text-phosphor-green border-2 border-phosphor-green/60 hover:border-phosphor-green hover:bg-phosphor-green/10 transition-colors uppercase select-none active:translate-y-0.5"
+      >
+        [STAR ON GITHUB &nearr;]
+      </a>
+    </div>
+  </header>
+
+  <!-- SaaS Burn Calculator Section -->
+  <BurnCalculator hacks={hacks} />
+
+  <!-- Filterable Catalog Section -->
+  <HackCatalog hacks={hacks} />
+
+  <!-- Architectural Manifesto / FAQ Section -->
+  <section id="manifesto" class="my-16 border-2 border-terminal-border bg-panel-black p-6 sm:p-8 font-mono text-zinc-300 shadow-brutal">
+    <div class="border-b border-terminal-border pb-3 mb-6 flex items-center justify-between">
+      <span class="text-xs uppercase tracking-widest text-phosphor-green font-bold">
+        &gt; ARCHITECTURAL MANIFESTO: RUNWAY PRESERVATION
+      </span>
+      <span class="text-xs text-zinc-500 font-bold hidden sm:inline">[DOC_REF: BW-001]</span>
+    </div>
+
+    <div class="space-y-6 text-xs sm:text-sm leading-relaxed">
+      <div>
+        <h3 class="text-base sm:text-lg font-black text-white mb-2 uppercase tracking-wide">
+          The 3 Laws of Zero-Dollar Guerrilla Architecture
+        </h3>
+        <ol class="space-y-3 list-decimal list-inside text-zinc-300">
+          <li>
+            <strong class="text-white">The Law of Blob Inevitability:</strong> If an unmetered API or attachment endpoint exists, an engineer will inevitably construct a chunked object storage proxy on top of it.
+          </li>
+          <li>
+            <strong class="text-white">The Law of Sovereign Runway:</strong> Paying $25/mo per service before product-market fit is financial negligence. Cloud egress fees are an artificial tax on software innovation.
+          </li>
+          <li>
+            <strong class="text-white">The Law of Edge Efficiency:</strong> A boring $0 stack (Cloudflare Workers + Turso + Resend) running sub-10ms edge compute will outperform your $350/mo Kubernetes cluster until you hit 50,000 DAU.
+          </li>
+        </ol>
+      </div>
+
+      <div class="p-4 bg-black border border-zinc-800">
+        <h4 class="text-xs font-black text-warning-amber uppercase tracking-wider mb-1">
+          [!] RESPONSIBLE USE COVENANT:
+        </h4>
+        <p class="text-zinc-400 text-xs">
+          We do not advocate crashing third-party infrastructure. We advocate understanding system boundaries,
+          questioning artificial SaaS markup, and preserving founder runway until revenue arrives.
+          When you graduate to paying customers, pay for real infrastructure. Until then: stay broke, stay building.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sticky PR Floating Callout -->
+  <StickyPrCallout />
+</BaseLayout>

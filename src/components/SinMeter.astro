@@ -1,0 +1,104 @@
+---
+interface Props {
+  level?: string;
+  risk_level?: string;
+  variant?: 'badge' | 'detailed' | 'compact';
+  class?: string;
+}
+
+const {
+  level,
+  risk_level,
+  variant = 'detailed',
+  class: className = '',
+} = Astro.props;
+
+const rawRisk = level || risk_level || 'Unknown';
+
+function getSinMeterData(risk: string) {
+  switch (risk) {
+    case 'Low':
+      return {
+        score: '2/10',
+        color: 'green',
+        label: 'LAW-ABIDING CITIZEN (TOS Compliant)',
+        bar: '■■□□□□□□□□',
+        cssBorder: 'border-phosphor-green',
+        textColor: 'text-phosphor-green',
+        bgColor: 'bg-phosphor-green/10',
+        badgeText: '[SIN: 1/10 LOW]',
+      };
+    case 'TOS Gray Area':
+      return {
+        score: '6/10',
+        color: 'amber',
+        label: 'PROCEED WITH BURNER ACCOUNT (Egress/Bandwidth Exploitation)',
+        bar: '■■■■■■□□□□',
+        cssBorder: 'border-warning-amber',
+        textColor: 'text-warning-amber',
+        bgColor: 'bg-warning-amber/10',
+        badgeText: '[SIN: 6/10 GRAY]',
+      };
+    case 'Nuclear':
+      return {
+        score: '10/10',
+        color: 'red',
+        label: 'BANHAMMER IMMINENT (Direct Platform Terms Violation)',
+        bar: '■■■■■■■■■■',
+        cssBorder: 'border-nuclear-red',
+        textColor: 'text-nuclear-red',
+        bgColor: 'bg-nuclear-red/10',
+        badgeText: '[SIN: 10/10 NUCLEAR]',
+      };
+    default:
+      return {
+        score: '0/10',
+        color: 'gray',
+        label: 'UNRATED / UNKNOWN RISK',
+        bar: '□□□□□□□□□□',
+        cssBorder: 'border-zinc-600',
+        textColor: 'text-zinc-400',
+        bgColor: 'bg-zinc-800/50',
+        badgeText: '[SIN: UNRATED]',
+      };
+  }
+}
+
+const data = getSinMeterData(rawRisk);
+---
+
+{variant === 'badge' || variant === 'compact' ? (
+  <span
+    class={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-mono font-bold tracking-wide border uppercase ${data.cssBorder} ${data.textColor} ${data.bgColor} ${className}`}
+    title={`Risk Level: ${rawRisk} (${data.score}) - ${data.label}`}
+  >
+    {rawRisk === 'Nuclear' && <span class="w-1.5 h-1.5 bg-nuclear-red animate-ping inline-block"></span>}
+    <span>{data.badgeText}</span>
+  </span>
+) : (
+  <div class={`border-2 ${data.cssBorder} ${data.bgColor} p-4 font-mono ${className}`}>
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xs uppercase tracking-widest text-zinc-400 font-bold">
+          [SIN METER: RISK ASSESSMENT]
+        </span>
+        <span class={`text-xs font-black uppercase px-2 py-0.5 border ${data.cssBorder} ${data.textColor}`}>
+          {data.badgeText}
+        </span>
+      </div>
+      <span class={`text-sm font-black tracking-widest ${data.textColor}`}>
+        {data.score}
+      </span>
+    </div>
+
+    <!-- ASCII Visual Gauge Bar -->
+    <div class="space-y-1.5">
+      <div class={`text-base sm:text-lg tracking-widest font-black ${data.textColor} select-none overflow-x-auto`}>
+        {data.bar}
+      </div>
+      <div class="text-xs text-zinc-300 font-semibold tracking-wide">
+        &gt; <span class={data.textColor}>{rawRisk.toUpperCase()}</span>: {data.label}
+      </div>
+    </div>
+  </div>
+)}

@@ -1,0 +1,102 @@
+---
+interface Props {
+  code: string;
+  lang?: string;
+  title?: string;
+  class?: string;
+}
+
+const {
+  code,
+  lang = 'typescript',
+  title = 'blueprint.ts',
+  class: className = '',
+} = Astro.props;
+
+const blockId = `code-block-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<div class={`my-6 border-2 border-terminal-border bg-black shadow-brutal font-mono ${className}`}>
+  <!-- Terminal Code Header Bar -->
+  <div class="flex items-center justify-between px-4 py-2 border-b border-terminal-border bg-panel-black text-xs">
+    <div class="flex items-center gap-2 text-zinc-300">
+      <span class="w-2.5 h-2.5 bg-zinc-600 inline-block"></span>
+      <span class="text-zinc-500 font-bold uppercase">FILE:</span>
+      <span class="text-white font-bold tracking-wide">{title}</span>
+      <span class="text-[10px] text-phosphor-green border border-zinc-700 px-1.5 py-0.2 bg-black uppercase">
+        {lang}
+      </span>
+    </div>
+
+    <!-- Copy to Clipboard Button -->
+    <button
+      type="button"
+      class="copy-code-btn px-2.5 py-1 text-[11px] font-bold tracking-wider text-zinc-300 border border-zinc-700 hover:border-phosphor-green hover:text-phosphor-green bg-black transition-all cursor-pointer select-none active:translate-y-0.5"
+      data-target={blockId}
+      aria-label={`Copy ${title} code to clipboard`}
+    >
+      [COPY CODE]
+    </button>
+  </div>
+
+  <!-- Code Body -->
+  <pre class="p-4 overflow-x-auto text-xs sm:text-sm leading-relaxed text-zinc-200 bg-black/95 font-mono select-text"><code id={blockId} class={`language-${lang}`}>{code.trim()}</code></pre>
+</div>
+
+<script>
+  function setupCopyButtons() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.copy-code-btn');
+    buttons.forEach((btn) => {
+      // Avoid duplicate listener bindings
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
+
+      btn.addEventListener('click', async () => {
+        const targetId = btn.getAttribute('data-target');
+        if (!targetId) return;
+        const codeElement = document.getElementById(targetId);
+        if (!codeElement) return;
+
+        const textToCopy = codeElement.textContent || '';
+
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy);
+          } else {
+            // Fallback for non-secure / permission-restricted environments
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+          }
+
+          const originalText = btn.textContent;
+          btn.textContent = '[COPIED!]';
+          btn.classList.add('border-phosphor-green', 'text-phosphor-green', 'bg-phosphor-green/10');
+
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('border-phosphor-green', 'text-phosphor-green', 'bg-phosphor-green/10');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy code:', err);
+          btn.textContent = '[COPY FAILED]';
+          setTimeout(() => {
+            btn.textContent = '[COPY CODE]';
+          }, 2000);
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupCopyButtons);
+  } else {
+    setupCopyButtons();
+  }
+</script>

@@ -1,0 +1,162 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "builtwhilebroke.tech // Radical $0 Architecture Hacks",
+  description = "An irreverent open-source library documenting radical architecture hacks that replace expensive SaaS tools with abused zero-dollar developer primitives.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='monospace' fill='%2322c55e'>&gt;_</text></svg>" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#050505" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://builtwhilebroke.tech/" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Google Fonts for High-Contrast Monospace Font Stack -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-pitch-black text-zinc-200 font-mono flex flex-col selection:bg-phosphor-green selection:text-black relative antialiased">
+    <!-- Subtle CRT scanline overlay -->
+    <div class="pointer-events-none fixed inset-0 z-50 crt-scanlines opacity-15" aria-hidden="true"></div>
+
+    <!-- Terminal Top Header -->
+    <header class="border-b-2 border-terminal-border bg-panel-black/95 backdrop-blur sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+        <!-- Logo & System Status -->
+        <div class="flex items-center gap-3">
+          <a href="/" class="text-base sm:text-lg font-black tracking-wider text-white hover:text-phosphor-green transition-colors flex items-center gap-1 group">
+            <span class="text-phosphor-green">&gt;</span>
+            <span>builtwhilebroke</span>
+            <span class="text-phosphor-green">.tech</span>
+            <span class="animate-pulse text-phosphor-green">_</span>
+          </a>
+
+          <div class="hidden md:flex items-center gap-2 px-2 py-0.5 border border-terminal-border bg-black text-[11px] text-phosphor-green">
+            <span class="w-2 h-2 rounded-none bg-phosphor-green animate-pulse inline-block"></span>
+            <span>[SYSTEM: ONLINE]</span>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex items-center gap-2 sm:gap-4 text-xs font-bold">
+          <a href="/#catalog" class="px-2.5 py-1 text-zinc-300 hover:text-white hover:bg-terminal-border border border-transparent hover:border-terminal-border transition-all">
+            [CATALOG]
+          </a>
+          <a href="/#calculator" class="px-2.5 py-1 text-zinc-300 hover:text-white hover:bg-terminal-border border border-transparent hover:border-terminal-border transition-all">
+            [BURN CALCULATOR]
+          </a>
+          <a href="/#manifesto" class="hidden sm:inline-block px-2.5 py-1 text-zinc-300 hover:text-white hover:bg-terminal-border border border-transparent hover:border-terminal-border transition-all">
+            [MANIFESTO]
+          </a>
+          <a
+            href="https://github.com/Pavanspoojary/builtwhilebroke"
+            target="_blank"
+            rel="noreferrer"
+            class="px-2.5 py-1 text-phosphor-green border border-phosphor-green/40 hover:border-phosphor-green hover:bg-phosphor-green/10 transition-all flex items-center gap-1"
+          >
+            <span>[GITHUB]</span>
+            <span class="text-[10px]">&nearr;</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <slot />
+    </main>
+
+    <!-- Terminal Footer -->
+    <footer class="border-t-2 border-terminal-border bg-panel-black py-10 px-4 sm:px-8 mt-16 text-xs text-zinc-400">
+      <div class="max-w-7xl mx-auto space-y-6">
+        <div class="border border-terminal-border bg-black p-4 space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-zinc-300 font-bold">
+            <span class="text-phosphor-green">&gt; builtwhilebroke.tech // OPEN SOURCE ARCHITECTURAL HERESY</span>
+            <span class="text-zinc-500">HOSTED ON CLOUDFLARE PAGES [$0/MO FOREVER]</span>
+          </div>
+          <p class="text-zinc-500 text-[11px] leading-relaxed">
+            CRITICAL DISCLAIMER: All blueprints documented herein are for educational, forensic, and architectural research purposes.
+            Abusing unmetered free tiers may violate third-party Terms of Service, triggering banhammers, revoked tokens, and existential dread.
+            Always use burner accounts, know your rate limits, and never present these hacks in an SOC2 audit.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-terminal-border/60 text-[11px] text-zinc-500">
+          <div>
+            &copy; {new Date().getFullYear()} builtwhilebroke.tech. Released under Unlicense / MIT.
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="https://github.com/Pavanspoojary/builtwhilebroke" target="_blank" rel="noreferrer" class="hover:text-phosphor-green transition-colors">
+              [SOURCE CODE]
+            </a>
+            <a href="https://github.com/Pavanspoojary/builtwhilebroke/blob/master/CONTRIBUTING.md" target="_blank" rel="noreferrer" class="hover:text-phosphor-green transition-colors">
+              [CONTRIBUTE A HACK]
+            </a>
+            <a href="#top" class="hover:text-white transition-colors">
+              [&uarr; TOP]
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <style is:global>
+      /* CRT scanline repeating linear gradient */
+      .crt-scanlines {
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+        background-size: 100% 4px;
+      }
+
+      /* Monospace brutalist typography */
+      body, button, input, select, textarea {
+        font-family: 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', ui-monospace, monospace;
+      }
+
+      /* Strict zero-radius corners for brutalist aesthetic */
+      * {
+        border-radius: 0px !important;
+      }
+
+      /* Custom terminal scrollbars */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #050505;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #262626;
+        border: 1px solid #3f3f46;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #22c55e;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+---
+// Progressive client-side enhancement for Mermaid diagrams
+---
+
+<script>
+  async function initMermaid() {
+    const mermaidElements = document.querySelectorAll<HTMLElement>('.mermaid, pre code.language-mermaid');
+    if (mermaidElements.length === 0) return;
+
+    try {
+      // Dynamically load Mermaid from fast ESM CDN only if diagrams are present
+      // @ts-ignore
+      const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: {
+          darkMode: true,
+          background: '#0d0d0d',
+          primaryColor: '#22c55e',
+          lineColor: '#22c55e',
+          textColor: '#f4f4f5',
+          edgeLabelBackground: '#18181b',
+        },
+      });
+
+      mermaidElements.forEach(async (el, idx) => {
+        const code = (el.textContent || '').trim();
+        if (!code) return;
+
+        const container = document.createElement('div');
+        container.className = 'my-6 p-4 bg-black border-2 border-terminal-border shadow-brutal flex justify-center overflow-x-auto';
+        const id = `mermaid-svg-${idx}-${Date.now()}`;
+        try {
+          const { svg } = await mermaid.render(id, code);
+          container.innerHTML = svg;
+          const preParent = el.closest('pre');
+          if (preParent && preParent.parentNode) {
+            preParent.parentNode.replaceChild(container, preParent);
+          } else if (el.parentNode) {
+            el.parentNode.replaceChild(container, el);
+          }
+        } catch (e) {
+          console.error('Mermaid render failure:', e);
+        }
+      });
+    } catch (err) {
+      // Offline fallback: graceful degradation leaves the raw code intact
+      console.info('Mermaid dynamic enhancement skipped (offline or unreached).');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMermaid);
+  } else {
+    initMermaid();
+  }
+</script>

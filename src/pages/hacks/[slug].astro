@@ -1,0 +1,348 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SinMeter from '../../components/SinMeter.astro';
+import BrutalRealityCheck from '../../components/BrutalRealityCheck.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import MermaidRenderer from '../../components/MermaidRenderer.astro';
+import StickyPrCallout from '../../components/StickyPrCallout.astro';
+import { SEED_HACKS } from '../../components/seedData';
+
+export async function getStaticPaths() {
+  let collectionEntries: any[] = [];
+  try {
+    collectionEntries = await getCollection('hacks');
+  } catch (e) {
+    collectionEntries = [];
+  }
+
+  const paths: any[] = [];
+
+  // If Astro content collection has entries, prioritize them
+  if (collectionEntries && collectionEntries.length > 0) {
+    for (const entry of collectionEntries) {
+      const slug = entry.id.replace(/\.(md|mdx)$/, '');
+      const matchingSeed = SEED_HACKS.find(
+        (s) => s.slug === slug || s.alt_slug === slug
+      );
+
+      paths.push({
+        params: { slug },
+        props: { hack: entry, seed: matchingSeed, isFromCollection: true },
+      });
+
+      // Also map canonical/alt slug aliases
+      if (matchingSeed) {
+        if (matchingSeed.slug && matchingSeed.slug !== slug) {
+          paths.push({
+            params: { slug: matchingSeed.slug },
+            props: { hack: entry, seed: matchingSeed, isFromCollection: true },
+          });
+        }
+        if (matchingSeed.alt_slug && matchingSeed.alt_slug !== slug) {
+          paths.push({
+            params: { slug: matchingSeed.alt_slug },
+            props: { hack: entry, seed: matchingSeed, isFromCollection: true },
+          });
+        }
+      }
+    }
+  }
+
+  // Ensure all authoritative seed slugs exist in static paths
+  for (const seed of SEED_HACKS) {
+    const existing = paths.find((p) => p.params.slug === seed.slug);
+    if (!existing) {
+      paths.push({
+        params: { slug: seed.slug },
+        props: { hack: seed, seed, isFromCollection: false },
+      });
+    }
+    if (seed.alt_slug && seed.alt_slug !== seed.slug) {
+      const existingAlt = paths.find((p) => p.params.slug === seed.alt_slug);
+      if (!existingAlt) {
+        paths.push({
+          params: { slug: seed.alt_slug },
+          props: { hack: seed, seed, isFromCollection: false },
+        });
+      }
+    }
+  }
+
+  // De-duplicate unique slugs
+  const uniqueMap = new Map();
+  for (const p of paths) {
+    if (!uniqueMap.has(p.params.slug)) {
+      uniqueMap.set(p.params.slug, p);
+    }
+  }
+
+  return Array.from(uniqueMap.values());
+}
+
+const { hack, seed, isFromCollection } = Astro.props;
+const { slug } = Astro.params;
+
+// Extract frontmatter / data fields
+const data = hack.data || hack || {};
+const title = data.title || seed?.title || 'Unknown Hack Blueprint';
+const description = data.description || seed?.description || '';
+const replaces_saas = data.replaces_saas || seed?.replaces_saas || 'SaaS Alternative';
+const saas_target = data.saas_target || seed?.saas_target || 'Storage';
+const estimated_monthly_savings = Number(data.estimated_monthly_savings ?? seed?.estimated_monthly_savings ?? 0);
+const category = data.category || seed?.category || 'Active Sacrilege';
+const risk_level = data.risk_level || seed?.risk_level || 'Nuclear';
+const primitives_abused: string[] = data.primitives_abused || seed?.primitives_abused || [];
+const author_github = data.author_github || seed?.author_github || 'builtwhilebroke';
+const date_added = data.date_added || seed?.date_added || '2026-09-12';
+const warning_banner = data.warning_banner || seed?.warning_banner;
+const is_deprecated = Boolean(data.is_deprecated ?? seed?.is_deprecated ?? false);
+
+// Render markdown content if entry is from Astro collection
+let Content: any = null;
+if (isFromCollection && hack) {
+  try {
+    const rendered = await render(hack);
+    Content = rendered.Content;
+  } catch (err) {
+    console.error(`Failed to render collection entry for ${slug}:`, err);
+  }
+}
+
+// Fallback diagram and snippet data from seed
+const asciiDiagram = seed?.ascii_diagram;
+const mermaidDiagram = seed?.mermaid_diagram;
+const codeSnippets: Array<{ title: string; lang: string; code: string }> = seed?.code_snippets || [];
+const realityWarnings = seed?.reality_check?.warnings || [
+  'RATE LIMITING & THROTTLING: Zero-dollar APIs enforce unadvertised burst caps that trigger HTTP 429 errors.',
+  'TERMS OF SERVICE REVOCATION: Hijacking consumer platforms for enterprise workloads risks permanent suspension.',
+  'NO DATA SLA OR MULTI-REGION BACKUPS: You are responsible for chunk reconciliation and cold backups.',
+];
+
+// Cyclic Navigation (Prev / Next)
+const currentIndex = SEED_HACKS.findIndex(
+  (s) => s.slug === slug || s.alt_slug === slug
+);
+const prevSeed = currentIndex > 0
+  ? SEED_HACKS[currentIndex - 1]
+  : SEED_HACKS[SEED_HACKS.length - 1];
+const nextSeed = currentIndex >= 0 && currentIndex < SEED_HACKS.length - 1
+  ? SEED_HACKS[currentIndex + 1]
+  : SEED_HACKS[0];
+---
+
+<BaseLayout title={`${title} | builtwhilebroke.tech`} description={description}>
+  <article class="max-w-4xl mx-auto font-mono">
+    <!-- Breadcrumb Header -->
+    <nav class="flex items-center gap-2 text-xs text-zinc-500 mb-6 pb-2 border-b border-zinc-800" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-phosphor-green transition-colors">[INDEX]</a>
+      <span>/</span>
+      <a href="/#catalog" class="hover:text-phosphor-green transition-colors">[HACKS]</a>
+      <span>/</span>
+      <span class="text-zinc-400 font-bold uppercase">{category}</span>
+      <span>/</span>
+      <span class="text-phosphor-green truncate">{slug}.md</span>
+    </nav>
+
+    <!-- Header Box with Metadata & Sin Meter -->
+    <header class="border-2 border-terminal-border bg-panel-black p-6 sm:p-8 shadow-brutal mb-8 space-y-6">
+      <!-- Top Status Row -->
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 bg-black border border-zinc-700 text-zinc-300 font-bold uppercase">
+            REPLACES: <strong class="text-white">{replaces_saas}</strong>
+          </span>
+          <span class="px-2.5 py-1 bg-black border border-zinc-700 text-zinc-400 font-bold uppercase hidden sm:inline-block">
+            TARGET: <strong class="text-zinc-200">{saas_target}</strong>
+          </span>
+        </div>
+
+        <span
+          class={`px-2.5 py-1 font-black uppercase text-xs border ${
+            category === 'Active Sacrilege'
+              ? 'border-nuclear-red text-nuclear-red bg-nuclear-red/10'
+              : category === 'Clean Loophole'
+                ? 'border-phosphor-green text-phosphor-green bg-phosphor-green/10'
+                : 'border-zinc-600 text-zinc-400 bg-zinc-800/40'
+          }`}
+        >
+          {category}
+        </span>
+      </div>
+
+      <!-- Title & Description -->
+      <div class="space-y-3">
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+          {title}
+        </h1>
+        <p class="text-sm sm:text-base text-zinc-300 leading-relaxed font-sans">
+          {description}
+        </p>
+      </div>
+
+      <!-- Sin Meter Risk Assessment Bar -->
+      <SinMeter risk_level={risk_level} variant="detailed" />
+
+      <!-- Metadata Telemetry Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs border-t border-terminal-border pt-4 text-zinc-400">
+        <div>
+          <span class="block text-zinc-500 font-bold uppercase text-[10px]">MONTHLY SAVINGS</span>
+          <span class="text-phosphor-green font-black text-base">${estimated_monthly_savings}/mo</span>
+        </div>
+        <div>
+          <span class="block text-zinc-500 font-bold uppercase text-[10px]">ANNUAL AVOIDED</span>
+          <span class="text-white font-black text-base">${estimated_monthly_savings * 12}/yr</span>
+        </div>
+        <div>
+          <span class="block text-zinc-500 font-bold uppercase text-[10px]">AUTHOR</span>
+          <a
+            href={`https://github.com/${author_github}`}
+            target="_blank"
+            rel="noreferrer"
+            class="text-phosphor-green hover:underline font-bold"
+          >
+            @{author_github} &nearr;
+          </a>
+        </div>
+        <div>
+          <span class="block text-zinc-500 font-bold uppercase text-[10px]">ADDED ON</span>
+          <span class="text-zinc-300 font-bold">{date_added}</span>
+        </div>
+      </div>
+
+      <!-- Abused Primitives List -->
+      <div class="pt-2 border-t border-zinc-800/80">
+        <div class="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 font-bold">
+          PRIMITIVES ABUSED IN THIS ARCHITECTURE:
+        </div>
+        <div class="flex flex-wrap gap-2">
+          {primitives_abused.map((primitive) => (
+            <span class="text-xs bg-black border border-zinc-700 text-zinc-200 px-2 py-1 font-bold">
+              [{primitive}]
+            </span>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <!-- High-visibility Warning Banner for Nuclear or Graveyard Hacks -->
+    {warning_banner && (
+      <aside class="my-8 p-4 border-2 border-warning-amber bg-black shadow-brutal-amber font-mono" role="alert">
+        <div class="flex items-start gap-3">
+          <span class="text-warning-amber text-lg font-black" aria-hidden="true">[!]</span>
+          <div class="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+            <strong class="text-warning-amber font-black uppercase tracking-wider block mb-1">
+              ARCHITECTURAL WARNING NOTICE:
+            </strong>
+            {warning_banner}
+          </div>
+        </div>
+      </aside>
+    )}
+
+    <!-- Dynamic Architecture Diagram Section -->
+    {(asciiDiagram || mermaidDiagram) && (
+      <section class="my-10 border-2 border-terminal-border bg-panel-black p-6 shadow-brutal">
+        <div class="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
+          <div class="flex items-center gap-2 text-xs font-bold text-phosphor-green">
+            <span class="w-2 h-2 bg-phosphor-green inline-block"></span>
+            <span class="uppercase">ARCHITECTURE DATA FLOW BLUEPRINT</span>
+          </div>
+          <span class="text-[10px] text-zinc-500 uppercase font-bold">[ASCII / MERMAID TOPOLOGY]</span>
+        </div>
+
+        {asciiDiagram && (
+          <div class="space-y-2 mb-6">
+            <div class="text-[11px] text-zinc-400 font-bold uppercase">&gt; UTF-8 ASCII TOPOLOGY:</div>
+            <pre class="p-4 bg-black border border-zinc-800 text-zinc-200 text-xs sm:text-sm overflow-x-auto leading-tight font-mono select-all">
+<code>{asciiDiagram}</code>
+            </pre>
+          </div>
+        )}
+
+        {mermaidDiagram && (
+          <div class="space-y-2">
+            <div class="text-[11px] text-zinc-400 font-bold uppercase">&gt; SEQUENCE FLOW (MERMAID):</div>
+            <pre class="mermaid p-4 bg-black border border-zinc-800 text-xs overflow-x-auto font-mono text-phosphor-green">
+<code>{mermaidDiagram}</code>
+            </pre>
+          </div>
+        )}
+      </section>
+    )}
+
+    <!-- Markdown Article Prose Body if rendered from collection -->
+    {Content ? (
+      <div class="prose prose-invert max-w-none prose-pre:border-2 prose-pre:border-zinc-800 prose-pre:bg-black prose-pre:shadow-brutal my-10 font-mono text-zinc-200">
+        <Content />
+      </div>
+    ) : (
+      <!-- Fallback Comprehensive Technical Content when rendering seed entry -->
+      <section class="my-10 space-y-8 font-mono text-zinc-200">
+        <div class="border-2 border-zinc-800 bg-panel-black p-6 space-y-4">
+          <h2 class="text-xl font-black text-white uppercase tracking-wide border-b border-zinc-800 pb-2">
+            1. Operational Concept & Primitive Exploitation
+          </h2>
+          <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+            This blueprint bypasses standard cloud rent-seeking by utilizing unmetered APIs.
+            Traditional cloud providers like AWS charge exorbitant rates for cross-AZ data egress and object requests.
+            By routing chunks through unmetered bot channels or serverless edge runtimes, we obtain an effective $0/month cost profile.
+          </p>
+        </div>
+
+        {codeSnippets.length > 0 && (
+          <div class="space-y-6">
+            <h2 class="text-xl font-black text-white uppercase tracking-wide border-b border-zinc-800 pb-2">
+              2. Production-Ready Implementation Code
+            </h2>
+            {codeSnippets.map((snippet) => (
+              <CodeBlock code={snippet.code} lang={snippet.lang} title={snippet.title} />
+            ))}
+          </div>
+        )}
+      </section>
+    )}
+
+    <!-- Brutal Reality Check Component -->
+    <BrutalRealityCheck
+      warning_banner={warning_banner}
+      is_deprecated={is_deprecated}
+      tradeoffs={realityWarnings}
+      title={seed?.reality_check?.title}
+    />
+
+    <!-- Bottom Navigation Controls -->
+    <nav class="my-12 pt-6 border-t-2 border-terminal-border flex flex-wrap items-center justify-between gap-4 text-xs font-bold" aria-label="Article navigation">
+      {prevSeed && (
+        <a
+          href={`/hacks/${prevSeed.slug}`}
+          class="px-4 py-2 border border-zinc-700 bg-black text-zinc-300 hover:text-white hover:border-phosphor-green transition-all"
+        >
+          &larr; [PREV: {prevSeed.title.slice(0, 24)}...]
+        </a>
+      )}
+
+      <a
+        href="/#catalog"
+        class="px-4 py-2 border border-phosphor-green bg-black text-phosphor-green hover:bg-phosphor-green hover:text-black transition-all uppercase"
+      >
+        [RETURN TO CATALOG]
+      </a>
+
+      {nextSeed && (
+        <a
+          href={`/hacks/${nextSeed.slug}`}
+          class="px-4 py-2 border border-zinc-700 bg-black text-zinc-300 hover:text-white hover:border-phosphor-green transition-all"
+        >
+          [NEXT: {nextSeed.title.slice(0, 24)}...] &rarr;
+        </a>
+      )}
+    </nav>
+  </article>
+
+  <!-- Progressive Mermaid Enhancement -->
+  <MermaidRenderer />
+
+  <!-- Floating Sticky PR Callout -->
+  <StickyPrCallout />
+</BaseLayout>

@@ -1,23 +1,25 @@
 {
-  "name": "toolarena",
-  "private": true,
-  "version": "2.0.0",
+  "name": "builtwhilebroke",
   "type": "module",
-  "description": "TOOL//ARENA — a live dev-tool deathmatch directory. Vite + TypeScript, Supabase realtime.",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview --port 8000",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node tests/e2e/runner.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.112.4"
+    "@astrojs/tailwind": "^6.0.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "@tailwindcss/typography": "^0.5.16",
+    "astro": "^5.4.2",
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
-    "@types/node": "^22.10.7",
-    "typescript": "^5.7.3",
-    "vite": "^6.0.7",
-    "vitest": "^2.1.8"
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^5.8.2"
   }
 }

@@ -1,0 +1,113 @@
+{
+  "$ref": "#/definitions/hacks",
+  "definitions": {
+    "hacks": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "Active Sacrilege",
+            "Clean Loophole",
+            "The Graveyard"
+          ]
+        },
+        "risk_level": {
+          "type": "string",
+          "enum": [
+            "Low",
+            "TOS Gray Area",
+            "Nuclear"
+          ]
+        },
+        "saas_target": {
+          "type": "string",
+          "enum": [
+            "Auth",
+            "Storage",
+            "Database",
+            "Logging",
+            "Email"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "errorMessage": {
+            "minLength": "Title is required"
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "errorMessage": {
+            "minLength": "Description is required"
+          }
+        },
+        "replaces_saas": {
+          "type": "string",
+          "minLength": 1,
+          "errorMessage": {
+            "minLength": "replaces_saas is required"
+          }
+        },
+        "estimated_monthly_savings": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "errorMessage": {
+            "exclusiveMinimum": "Savings must be a positive integer"
+          }
+        },
+        "primitives_abused": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "errorMessage": {
+            "minItems": "At least one abused primitive must be listed"
+          }
+        },
+        "author_github": {
+          "type": "string",
+          "minLength": 1,
+          "errorMessage": {
+            "minLength": "author_github is required"
+          }
+        },
+        "date_added": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "errorMessage": {
+            "pattern": "date_added must be formatted as YYYY-MM-DD"
+          }
+        },
+        "warning_banner": {
+          "type": "string"
+        },
+        "is_deprecated": {
+          "type": "boolean",
+          "default": false
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "risk_level",
+        "saas_target",
+        "title",
+        "description",
+        "replaces_saas",
+        "estimated_monthly_savings",
+        "primitives_abused",
+        "author_github",
+        "date_added"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

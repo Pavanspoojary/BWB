@@ -1,0 +1,142 @@
+---
+import { SEED_HACKS } from './seedData';
+
+interface Props {
+  hacks?: any[];
+  class?: string;
+}
+
+const { hacks: propHacks, class: className = '' } = Astro.props;
+
+// Determine input items, falling back to seed hacks if prop is empty
+const items = propHacks && propHacks.length > 0
+  ? propHacks.map((h: any) => h.data || h)
+  : SEED_HACKS;
+
+// Authoritative calculation logic matching catalog_engine.mjs
+let activeTotal = 0;
+let graveyardTotal = 0;
+const categoryBreakdown: Record<string, number> = {
+  'Active Sacrilege': 0,
+  'Clean Loophole': 0,
+  'The Graveyard': 0,
+};
+
+for (const hack of items) {
+  const savings = Number(hack.estimated_monthly_savings) || 0;
+  if (savings <= 0) continue;
+
+  if (hack.category in categoryBreakdown) {
+    categoryBreakdown[hack.category] += savings;
+  }
+
+  if (hack.category === 'The Graveyard' || hack.is_deprecated) {
+    graveyardTotal += savings;
+  } else {
+    activeTotal += savings;
+  }
+}
+
+const annualAvoided = activeTotal * 12;
+
+function formatCurrency(amount: number): string {
+  return amount.toLocaleString('en-US');
+}
+---
+
+<section
+  id="calculator"
+  class={`my-8 border-2 border-phosphor-green bg-panel-black shadow-brutal-green p-6 sm:p-8 font-mono text-white ${className}`}
+  aria-label="SaaS Burn Calculator"
+>
+  <!-- Top Readout Header -->
+  <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-terminal-border text-xs">
+    <div class="flex items-center gap-2 text-phosphor-green font-bold">
+      <span class="w-2.5 h-2.5 bg-phosphor-green inline-block"></span>
+      <span class="tracking-wider uppercase">[TELEMETRY: RUNWAY PRESERVATION ENGINE]</span>
+    </div>
+    <div class="text-zinc-400">
+      TRACKING <span class="text-white font-bold" id="calc-hack-count">{items.length}</span> BLUEPRINTS
+    </div>
+  </div>
+
+  <!-- Primary Metric Box -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+    <div class="lg:col-span-2 space-y-2">
+      <div class="text-xs uppercase tracking-widest text-zinc-400 font-bold">
+        AGGREGATED SAAS AVOIDANCE ODOSCOPE
+      </div>
+      <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-none">
+        Total Monthly SaaS Burn Saved:
+        <span class="text-phosphor-green block sm:inline mt-1 sm:mt-0 font-mono" id="calc-active-monthly">
+          ${formatCurrency(activeTotal)}/mo
+        </span>
+      </h2>
+      <p class="text-sm sm:text-base text-zinc-400 font-bold">
+        (<span class="text-phosphor-green" id="calc-annual-avoided">${formatCurrency(annualAvoided)}/yr</span> avoided spend)
+      </p>
+    </div>
+
+    <!-- Right Side Quick Tally Box -->
+    <div class="border border-terminal-border bg-black p-4 space-y-3 text-xs">
+      <div class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-800 pb-1.5 flex justify-between">
+        <span>SECTOR BREAKDOWN</span>
+        <span class="text-phosphor-green">MONTHLY SAVINGS</span>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-zinc-300 flex items-center gap-1.5">
+          <span class="w-2 h-2 bg-nuclear-red inline-block"></span>
+          Active Sacrilege:
+        </span>
+        <span class="text-white font-bold" id="calc-sacrilege">
+          ${formatCurrency(categoryBreakdown['Active Sacrilege'] || 0)}/mo
+        </span>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-zinc-300 flex items-center gap-1.5">
+          <span class="w-2 h-2 bg-phosphor-green inline-block"></span>
+          Clean Loophole:
+        </span>
+        <span class="text-white font-bold" id="calc-loophole">
+          ${formatCurrency(categoryBreakdown['Clean Loophole'] || 0)}/mo
+        </span>
+      </div>
+
+      <div class="flex items-center justify-between pt-1 border-t border-zinc-800/80 text-zinc-500">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 bg-zinc-600 inline-block"></span>
+          The Graveyard (Memorialized):
+        </span>
+        <span class="font-bold" id="calc-graveyard">
+          ${formatCurrency(graveyardTotal)}/mo
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Comparison Ticker -->
+  <div class="mt-6 pt-4 border-t border-terminal-border/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] text-zinc-400">
+    <div class="border border-zinc-900 bg-black/60 p-2.5">
+      <div class="text-zinc-500">AWS S3 + CLOUDFRONT</div>
+      <div class="text-white font-bold text-xs">$45/mo &rarr; $0/mo</div>
+      <div class="text-phosphor-green text-[10px]">SAVED VIA TELEGRAM</div>
+    </div>
+    <div class="border border-zinc-900 bg-black/60 p-2.5">
+      <div class="text-zinc-500">PLANETSCALE / RDS</div>
+      <div class="text-white font-bold text-xs">$29/mo &rarr; $0/mo</div>
+      <div class="text-phosphor-green text-[10px]">SAVED VIA TURSO</div>
+    </div>
+    <div class="border border-zinc-900 bg-black/60 p-2.5">
+      <div class="text-zinc-500">CLERK PRO AUTH</div>
+      <div class="text-white font-bold text-xs">$25/mo &rarr; $0/mo</div>
+      <div class="text-phosphor-green text-[10px]">SAVED VIA BETTER AUTH</div>
+    </div>
+    <div class="border border-zinc-900 bg-black/60 p-2.5">
+      <div class="text-zinc-500">SENDGRID PRO</div>
+      <div class="text-white font-bold text-xs">$19/mo &rarr; $0/mo</div>
+      <div class="text-phosphor-green text-[10px]">SAVED VIA RESEND</div>
+    </div>
+  </div>
+</section>

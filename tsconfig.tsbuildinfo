@@ -1,1 +1,0 @@
-{"root":["./src/config.ts","./src/main.ts","./src/types.ts","./src/api/arena.ts","./src/audio/sfx.ts","./src/data/seed.ts","./src/sim/ambient.ts","./src/state/store.ts","./src/ui/board.ts","./src/ui/chrome.ts","./src/ui/dom.ts","./tests/arena.test.ts","./tests/store.test.ts","./vite.config.ts"],"version":"5.9.3"}

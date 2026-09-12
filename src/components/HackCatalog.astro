@@ -1,0 +1,432 @@
+---
+import { SEED_HACKS } from './seedData';
+import SinMeter from './SinMeter.astro';
+
+interface Props {
+  hacks?: any[];
+  class?: string;
+}
+
+const { hacks: propHacks, class: className = '' } = Astro.props;
+
+// Use provided collection entries or fallback to SEED_HACKS
+const rawItems = propHacks && propHacks.length > 0 ? propHacks : SEED_HACKS;
+
+const items = rawItems.map((entry: any) => {
+  const data = entry.data || entry;
+  const slug = entry.id
+    ? entry.id.replace(/\.(md|mdx)$/, '')
+    : entry.slug || 'unknown';
+
+  return {
+    ...data,
+    slug,
+  };
+});
+
+const CATEGORIES = ['ALL', 'Active Sacrilege', 'Clean Loophole', 'The Graveyard'];
+const SAAS_TARGETS = ['ALL', 'Auth', 'Storage', 'Database', 'Logging', 'Email'];
+---
+
+<section id="catalog" class={`my-12 font-mono ${className}`} aria-label="Hack Blueprint Catalog">
+  <!-- Section Title & Status Line -->
+  <div class="border-b-2 border-terminal-border pb-4 mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <div class="text-xs uppercase tracking-widest text-phosphor-green font-bold flex items-center gap-2 mb-1">
+        <span class="w-2 h-2 bg-phosphor-green inline-block"></span>
+        <span>INDEXED ARCHITECTURAL HERESY</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        Zero-Dollar Exploits & Blueprints
+      </h2>
+    </div>
+
+    <!-- Active Count Telemetry -->
+    <div class="px-3 py-1 bg-black border border-terminal-border text-xs text-zinc-300 font-bold">
+      <span id="catalog-count-label">DISPLAYING [ <span class="text-phosphor-green font-mono" id="catalog-visible-count">{items.length}</span> / {items.length} ] HACK BLUEPRINTS</span>
+    </div>
+  </div>
+
+  <!-- Real-time Filter Controls Panel -->
+  <div class="border-2 border-terminal-border bg-panel-black p-4 sm:p-6 mb-8 space-y-5 shadow-brutal">
+    <!-- Search Query Input -->
+    <div>
+      <label for="hack-search-input" class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+        &gt; LIVE SEARCH DISPATCH:
+      </label>
+      <div class="relative">
+        <input
+          type="text"
+          id="hack-search-input"
+          placeholder="Search hacks, tools, primitives (e.g. telegram, cloudflare, turso, bot api)..."
+          class="w-full bg-black border-2 border-zinc-700 focus:border-phosphor-green text-white placeholder-zinc-500 px-4 py-2.5 text-xs sm:text-sm font-mono outline-none transition-colors"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button
+          type="button"
+          id="clear-search-btn"
+          class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white px-2 py-0.5 text-xs bg-zinc-900 border border-zinc-700"
+          aria-label="Clear search input"
+        >
+          CLEAR
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Filter Pill Buttons -->
+    <div>
+      <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+        &gt; FILTER BY CATEGORY:
+      </span>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Category Filters">
+        {CATEGORIES.map((cat) => (
+          <button
+            type="button"
+            class={`category-filter-btn px-3 py-1.5 text-xs font-bold uppercase border transition-all cursor-pointer select-none active:translate-y-0.5 ${
+              cat === 'ALL'
+                ? 'bg-phosphor-green text-black border-phosphor-green active-filter'
+                : 'bg-black text-zinc-300 border-zinc-700 hover:border-zinc-400 hover:text-white'
+            }`}
+            data-category={cat}
+          >
+            [{cat === 'ALL' ? 'ALL CATEGORIES' : cat.toUpperCase()}]
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- SaaS Target Filter Pill Buttons -->
+    <div>
+      <span class="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+        &gt; FILTER BY REPLACED SAAS TARGET:
+      </span>
+      <div class="flex flex-wrap gap-2" role="group" aria-label="SaaS Target Filters">
+        {SAAS_TARGETS.map((target) => (
+          <button
+            type="button"
+            class={`target-filter-btn px-3 py-1.5 text-xs font-bold uppercase border transition-all cursor-pointer select-none active:translate-y-0.5 ${
+              target === 'ALL'
+                ? 'bg-zinc-200 text-black border-zinc-200 active-filter'
+                : 'bg-black text-zinc-300 border-zinc-700 hover:border-zinc-400 hover:text-white'
+            }`}
+            data-target={target}
+          >
+            [{target === 'ALL' ? 'ALL TARGETS' : target.toUpperCase()}]
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Responsive Hack Cards Grid -->
+  <div id="hack-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {items.map((hack) => {
+      const isGraveyard = hack.category === 'The Graveyard' || hack.is_deprecated;
+      const borderClass = isGraveyard
+        ? 'border-zinc-700 hover:border-zinc-500'
+        : hack.category === 'Active Sacrilege'
+          ? 'border-zinc-800 hover:border-nuclear-red'
+          : 'border-zinc-800 hover:border-phosphor-green';
+
+      return (
+        <article
+          class={`hack-card border-2 ${borderClass} bg-panel-black p-5 flex flex-col justify-between transition-all duration-150 shadow-brutal hover:shadow-brutal-dark group`}
+          data-slug={hack.slug}
+          data-category={hack.category}
+          data-target={hack.saas_target}
+          data-title={(hack.title || '').toLowerCase()}
+          data-description={(hack.description || '').toLowerCase()}
+          data-replaces={(hack.replaces_saas || '').toLowerCase()}
+          data-primitives={JSON.stringify(hack.primitives_abused || []).toLowerCase()}
+          data-savings={hack.estimated_monthly_savings}
+          data-deprecated={isGraveyard ? 'true' : 'false'}
+        >
+          <div class="space-y-3">
+            <!-- Card Top Status Bar -->
+            <div class="flex items-center justify-between gap-2 text-[11px] border-b border-zinc-800 pb-2 text-zinc-400">
+              <span class="font-bold text-zinc-500 truncate">
+                FILE: /hacks/{hack.slug}.md
+              </span>
+              <span
+                class={`px-2 py-0.5 font-bold uppercase tracking-wider text-[10px] border ${
+                  hack.category === 'Active Sacrilege'
+                    ? 'border-nuclear-red/60 text-nuclear-red bg-nuclear-red/10'
+                    : hack.category === 'Clean Loophole'
+                      ? 'border-phosphor-green/60 text-phosphor-green bg-phosphor-green/10'
+                      : 'border-zinc-600 text-zinc-400 bg-zinc-800/40'
+                }`}
+              >
+                {hack.category}
+              </span>
+            </div>
+
+            <!-- Replaced SaaS Badge -->
+            <div class="text-[11px] text-zinc-400">
+              <span class="text-zinc-500 font-bold uppercase">REPLACES:</span>{' '}
+              <span class="text-zinc-200 font-bold">{hack.replaces_saas}</span>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-lg font-black text-white tracking-tight leading-snug group-hover:text-phosphor-green transition-colors">
+              <a href={`/hacks/${hack.slug}`} class="focus:outline-none">
+                {hack.title}
+              </a>
+            </h3>
+
+            <!-- Description -->
+            <p class="text-xs text-zinc-400 leading-relaxed line-clamp-3">
+              {hack.description}
+            </p>
+
+            <!-- Metrics Row: Savings + Sin Meter Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-800/80">
+              <span class="inline-flex items-center gap-1 text-xs font-black text-phosphor-green bg-black border border-phosphor-green/40 px-2.5 py-1">
+                +${hack.estimated_monthly_savings}/MO SAVED
+              </span>
+
+              <SinMeter level={hack.risk_level} variant="badge" />
+            </div>
+
+            <!-- Abused Primitives List -->
+            <div class="pt-2">
+              <div class="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5 font-bold">
+                PRIMITIVES ABUSED:
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                {(hack.primitives_abused || []).map((primitive: string) => (
+                  <span class="text-[10px] bg-black border border-zinc-800 text-zinc-300 px-1.5 py-0.5">
+                    [{primitive}]
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer Row -->
+          <div class="mt-5 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+            <a
+              href={`https://github.com/${hack.author_github}`}
+              target="_blank"
+              rel="noreferrer"
+              class="text-[11px] text-zinc-500 hover:text-phosphor-green transition-colors"
+            >
+              @{hack.author_github}
+            </a>
+
+            <a
+              href={`/hacks/${hack.slug}`}
+              class="px-2.5 py-1 text-xs font-bold text-black bg-white hover:bg-phosphor-green transition-colors uppercase select-none"
+            >
+              [VIEW BLUEPRINT &rarr;]
+            </a>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <!-- Empty State Message Container -->
+  <div
+    id="catalog-empty-state"
+    class="hidden my-12 border-2 border-nuclear-red bg-panel-black shadow-brutal-red p-8 text-center font-mono space-y-4"
+  >
+    <div class="text-nuclear-red text-sm sm:text-base font-black tracking-widest uppercase">
+      [!] 404: NO SACRILEGE FOUND MATCHING QUERY
+    </div>
+    <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
+      No developer primitives have been abused in this specific sector yet.
+      Don't pay the SaaS tax. Submit a pull request and teach the world how to exploit it.
+    </p>
+    <div class="pt-2 flex flex-wrap items-center justify-center gap-4">
+      <button
+        type="button"
+        id="reset-filters-btn"
+        class="px-4 py-2 text-xs font-bold tracking-wider text-white border border-zinc-600 hover:border-white bg-black uppercase cursor-pointer"
+      >
+        [RESET FILTERS]
+      </button>
+      <a
+        href="https://github.com/Pavanspoojary/builtwhilebroke/blob/master/CONTRIBUTING.md"
+        target="_blank"
+        rel="noreferrer"
+        class="px-4 py-2 text-xs font-black tracking-wider text-black bg-phosphor-green hover:bg-emerald-400 uppercase"
+      >
+        [ SUBMIT A HACK VIA GITHUB PULL REQUEST ]
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  function setupCatalogFiltering() {
+    const searchInput = document.getElementById('hack-search-input') as HTMLInputElement | null;
+    const clearBtn = document.getElementById('clear-search-btn') as HTMLButtonElement | null;
+    const categoryButtons = document.querySelectorAll<HTMLButtonElement>('.category-filter-btn');
+    const targetButtons = document.querySelectorAll<HTMLButtonElement>('.target-filter-btn');
+    const cards = document.querySelectorAll<HTMLElement>('.hack-card');
+    const emptyState = document.getElementById('catalog-empty-state');
+    const visibleCountEl = document.getElementById('catalog-visible-count');
+    const resetBtn = document.getElementById('reset-filters-btn');
+
+    let currentCategory = 'ALL';
+    let currentTarget = 'ALL';
+    let currentQuery = '';
+
+    function applyFilters() {
+      const normalizedQuery = currentQuery.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const cardCategory = card.getAttribute('data-category') || '';
+        const cardTarget = card.getAttribute('data-target') || '';
+        const cardTitle = card.getAttribute('data-title') || '';
+        const cardDesc = card.getAttribute('data-description') || '';
+        const cardReplaces = card.getAttribute('data-replaces') || '';
+        const cardPrimitives = card.getAttribute('data-primitives') || '';
+
+        // Check Category Match
+        const matchCategory = currentCategory === 'ALL' || cardCategory === currentCategory;
+
+        // Check SaaS Target Match
+        const matchTarget = currentTarget === 'ALL' || cardTarget === currentTarget;
+
+        // Check Text Query Match across title, description, replaces_saas, primitives
+        let matchQuery = true;
+        if (normalizedQuery) {
+          matchQuery =
+            cardTitle.includes(normalizedQuery) ||
+            cardDesc.includes(normalizedQuery) ||
+            cardReplaces.includes(normalizedQuery) ||
+            cardPrimitives.includes(normalizedQuery);
+        }
+
+        const isVisible = matchCategory && matchTarget && matchQuery;
+
+        if (isVisible) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      // Update telemetry display count
+      if (visibleCountEl) {
+        visibleCountEl.textContent = visibleCount.toString();
+      }
+
+      // Toggle Empty State Box
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.classList.remove('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+        }
+      }
+
+      // Toggle clear button on search input
+      if (clearBtn) {
+        if (currentQuery.length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    // Category button click handling
+    categoryButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selected = btn.getAttribute('data-category') || 'ALL';
+        currentCategory = selected;
+
+        categoryButtons.forEach((b) => {
+          b.classList.remove('bg-phosphor-green', 'text-black', 'border-phosphor-green', 'active-filter');
+          b.classList.add('bg-black', 'text-zinc-300', 'border-zinc-700');
+        });
+
+        btn.classList.remove('bg-black', 'text-zinc-300', 'border-zinc-700');
+        btn.classList.add('bg-phosphor-green', 'text-black', 'border-phosphor-green', 'active-filter');
+
+        applyFilters();
+      });
+    });
+
+    // SaaS Target button click handling
+    targetButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selected = btn.getAttribute('data-target') || 'ALL';
+        currentTarget = selected;
+
+        targetButtons.forEach((b) => {
+          b.classList.remove('bg-zinc-200', 'text-black', 'border-zinc-200', 'active-filter');
+          b.classList.add('bg-black', 'text-zinc-300', 'border-zinc-700');
+        });
+
+        btn.classList.remove('bg-black', 'text-zinc-300', 'border-zinc-700');
+        btn.classList.add('bg-zinc-200', 'text-black', 'border-zinc-200', 'active-filter');
+
+        applyFilters();
+      });
+    });
+
+    // Real-time search input handling
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        currentQuery = (e.target as HTMLInputElement).value;
+        applyFilters();
+      });
+    }
+
+    // Clear search button
+    if (clearBtn && searchInput) {
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentQuery = '';
+        applyFilters();
+        searchInput.focus();
+      });
+    }
+
+    // Reset filters button inside empty state
+    if (resetBtn && searchInput) {
+      resetBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentQuery = '';
+        currentCategory = 'ALL';
+        currentTarget = 'ALL';
+
+        categoryButtons.forEach((b) => {
+          const cat = b.getAttribute('data-category');
+          if (cat === 'ALL') {
+            b.classList.add('bg-phosphor-green', 'text-black', 'border-phosphor-green', 'active-filter');
+            b.classList.remove('bg-black', 'text-zinc-300', 'border-zinc-700');
+          } else {
+            b.classList.remove('bg-phosphor-green', 'text-black', 'border-phosphor-green', 'active-filter');
+            b.classList.add('bg-black', 'text-zinc-300', 'border-zinc-700');
+          }
+        });
+
+        targetButtons.forEach((b) => {
+          const tgt = b.getAttribute('data-target');
+          if (tgt === 'ALL') {
+            b.classList.add('bg-zinc-200', 'text-black', 'border-zinc-200', 'active-filter');
+            b.classList.remove('bg-black', 'text-zinc-300', 'border-zinc-700');
+          } else {
+            b.classList.remove('bg-zinc-200', 'text-black', 'border-zinc-200', 'active-filter');
+            b.classList.add('bg-black', 'text-zinc-300', 'border-zinc-700');
+          }
+        });
+
+        applyFilters();
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupCatalogFiltering);
+  } else {
+    setupCatalogFiltering();
+  }
+</script>

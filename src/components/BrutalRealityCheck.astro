@@ -1,0 +1,87 @@
+---
+interface Props {
+  title?: string;
+  warning_banner?: string;
+  is_deprecated?: boolean;
+  tradeoffs?: string[];
+  class?: string;
+}
+
+const {
+  title,
+  warning_banner,
+  is_deprecated = false,
+  tradeoffs = [],
+  class: className = '',
+} = Astro.props;
+
+const defaultTitle = is_deprecated
+  ? 'AUTOPSY VERDICT: WHAT THE GRAVEYARD TEACHES US'
+  : 'CRITICAL ALERT: BRUTAL REALITY CHECK — WHY YOU WILL EVENTUALLY REGRET THIS';
+
+const displayTitle = title || defaultTitle;
+---
+
+<aside
+  class={`my-8 border-2 ${
+    is_deprecated
+      ? 'border-zinc-600 bg-zinc-950/80 shadow-brutal-border'
+      : 'border-nuclear-red bg-panel-black shadow-brutal-red'
+  } p-6 font-mono ${className}`}
+  role="alert"
+>
+  <!-- Header Bar -->
+  <div class="flex items-center gap-2.5 pb-4 mb-4 border-b border-zinc-800">
+    <span
+      class={`text-xs px-2 py-0.5 font-black uppercase tracking-wider ${
+        is_deprecated
+          ? 'bg-zinc-800 text-zinc-300 border border-zinc-600'
+          : 'bg-nuclear-red text-black font-extrabold animate-pulse'
+      }`}
+    >
+      {is_deprecated ? '[MEMORIAL]' : '[HAZARD]'}
+    </span>
+    <h3
+      class={`text-sm sm:text-base font-black tracking-wider uppercase ${
+        is_deprecated ? 'text-zinc-200' : 'text-nuclear-red'
+      }`}
+    >
+      {displayTitle}
+    </h3>
+  </div>
+
+  <!-- High-visibility Warning Banner if present -->
+  {warning_banner && (
+    <div class="mb-5 p-3.5 bg-black border border-warning-amber text-warning-amber text-xs leading-relaxed flex items-start gap-2">
+      <span class="text-base select-none font-bold" aria-hidden="true">&gt;</span>
+      <div>
+        <strong class="font-black tracking-wide uppercase">[WARNING NOTICE]:</strong> {warning_banner}
+      </div>
+    </div>
+  )}
+
+  <!-- Tradeoffs list if provided -->
+  {tradeoffs && tradeoffs.length > 0 && (
+    <ul class="space-y-3 text-xs leading-relaxed text-zinc-300 mb-4">
+      {tradeoffs.map((item, index) => (
+        <li class="flex items-start gap-2">
+          <span class="text-nuclear-red font-bold select-none">{index + 1}.</span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <!-- Custom slot content -->
+  <div class="text-xs text-zinc-300 leading-relaxed space-y-3">
+    <slot />
+  </div>
+
+  <!-- Brutalist Reality Bottom Guard -->
+  <div class="mt-5 pt-3 border-t border-zinc-800 flex items-center justify-between text-[11px] text-zinc-500 font-bold uppercase tracking-wider">
+    <span>[BOUNDARY: TESTED UNDER COMBAT CONDITIONS]</span>
+    <span class={is_deprecated ? 'text-zinc-500' : 'text-nuclear-red'}>
+      {is_deprecated ? 'PATCHED IN PRODUCTION' : 'DO NOT PITCH TO ENTERPRISE'}
+    </span>
+  </div>
+</aside>
