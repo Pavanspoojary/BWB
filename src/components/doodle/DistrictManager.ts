@@ -256,59 +256,8 @@ export class DistrictManager {
     const metropolisGroup = new THREE.Group();
     metropolisGroup.name = "DoodleMetropolis_Root";
 
-    // 0. The Central Multi-Level Courtyard Arena (~75m x 75m reference layout from doodleshooter)
+    // 0. The Complete Unified 5-Quarter Doodle Metropolis & Architectural Perimeter (~120m x 120m)
     metropolisGroup.add(this.buildCompactCourtyardArena(city));
-
-    // 1. Downtown (NYC-style skyscrapers at offset X: -70, Z: 20)
-    const downtownGroup = new THREE.Group();
-    downtownGroup.position.set(-70, 0, 20);
-    this.populateDowntownDetailed(city, downtownGroup);
-    metropolisGroup.add(downtownGroup);
-
-    // 2. Entertainment District (X: 70, Z: 20)
-    metropolisGroup.add(this.buildEntertainment(city, new THREE.Vector3(70, 0, 20)));
-
-    // 3. Market District (X: 0, Z: -50)
-    metropolisGroup.add(this.buildMarket(city, new THREE.Vector3(0, 0, -50)));
-
-    // 4. Old Town (X: -70, Z: -125)
-    metropolisGroup.add(this.buildOldTown(city, new THREE.Vector3(-70, 0, -125)));
-
-    // 5. Neon City (X: 70, Z: -125)
-    metropolisGroup.add(this.buildNeon(city, new THREE.Vector3(70, 0, -125)));
-
-    // 6. Residential Hills (X: 0, Y: 25, Z: -230)
-    metropolisGroup.add(this.buildResidentialHills(city, new THREE.Vector3(0, 0, -230)));
-
-    // 7. Cloud District (X: 0, Y: 80, Z: -340)
-    metropolisGroup.add(this.buildCloudDistrict(city, new THREE.Vector3(0, 80, -340)));
-
-    // 8. University / Creative District (X: -170, Z: 60)
-    metropolisGroup.add(this.buildUniversity(city, new THREE.Vector3(-170, 0, 60)));
-
-    // 9. Monaco GP District (X: 170, Z: 60)
-    metropolisGroup.add(this.buildMonacoCircuitDetailed(city, new THREE.Vector3(170, 0, 60)));
-
-    // 10. Industrial District (X: -170, Z: 190)
-    metropolisGroup.add(this.buildIndustrial(city, new THREE.Vector3(-170, 0, 190)));
-
-    // 11. Underground City (X: 0, Y: -16, Z: 90)
-    metropolisGroup.add(this.buildUnderground(city, new THREE.Vector3(0, -16, 90)));
-
-    // 12. Waterfront & Pier (X: -65, Z: 290)
-    metropolisGroup.add(this.buildWaterfront(city, new THREE.Vector3(-65, 0, 290)));
-
-    // 13. Port District (X: 85, Z: 290)
-    metropolisGroup.add(this.buildPort(city, new THREE.Vector3(85, 0, 290)));
-
-    // 14. Airport District (X: 0, Z: 420)
-    metropolisGroup.add(this.buildAirport(city, new THREE.Vector3(0, 0, 420)));
-
-    // 15. Secret / Endgame Core (X: 0, Y: -25, Z: -340)
-    metropolisGroup.add(this.buildSecretDistrict(city, new THREE.Vector3(0, -25, -340)));
-
-    // 16. Transit Arteries (Detailed Road Network, Curbs, Sidewalks, Intersections, Signals)
-    metropolisGroup.add(this.buildConnectingArteries(city));
 
     // Attach master group to scene
     if (city.engine && city.engine.scene) {
@@ -320,7 +269,7 @@ export class DistrictManager {
 
     city.currentDistrict = "downtown";
 
-    // Spawn secrets across all 15 districts
+    // Spawn secrets across Doodle Metropolis
     if (typeof city.spawnAllSecrets === "function") {
       city.spawnAllSecrets();
     }
@@ -336,15 +285,15 @@ export class DistrictManager {
   }
 
   /**
-   * Compact Multi-Level Architectural Courtyard Arena (~75m x 75m)
+   * Unified High-Density Hand-Drawn Doodle Metropolis (~120m x 120m)
    * Inspired by doodleshooter.vercel.app reference:
-   * - Central 3-story concrete/steel frame with internal walkable stairs
-   * - Articulated rooftop tower crane with boom, cable & hanging hook
-   * - Overhead suspended skybridge connecting Central Building to West Wing
-   * - Flanking 2-3 story East & West buildings with exterior stairs, balconies & railings
-   * - North archway colonnade & South plaza entrance (spawn)
-   * - Ground notebook ruled lines with red margin crease
-   * - Parkour crates, street furniture, and 7 high-visibility ad billboards
+   * - Quarter 1 (Center [0, 0, -6]): 3-story concrete frame with 3 internal staircases & Summit Tower Crane
+   * - Quarter 2 (West [-36, 0, -6]): 3-story tech lofts, exterior stairs, fire escapes, & suspended skybridge
+   * - Quarter 3 (East [+36, 0, -6]): 3-story blueprint arcade with cross-hatch facade, ramen bar, cafe, water tank & AC
+   * - Quarter 4 (North [0, 0, -32]): Civic colonnade, 8 grand stone pillars, terrace, & 38m Master Clocktower
+   * - Quarter 5 (South [0, 0, +28]): Boulevard, raised curbs, crosswalks, traffic lights, 3 cabs, 2 kiosks & crates
+   * - Urban Perimeter: 16 authentic 3-story Brownstones, 16 street trees, 8 fire hydrants & 8 mailboxes
+   * - 8 High-Visibility 3D Ad Billboards with real image textures
    */
   public static buildCompactCourtyardArena(city?: any): THREE.Group {
     const arena = new THREE.Group();
@@ -372,150 +321,166 @@ export class DistrictManager {
     redMargin.userData.noCollision = true;
     arena.add(redMargin);
 
-    // 2. Center 3-Story Construction Frame (18m x 16m x 18m tall)
+    // 2. Quarter 1: Center 3-Story Construction Frame (18m x 16m x 18m tall at [0, 0, -6])
     const centerBldg = new THREE.Group();
     centerBldg.position.set(0, 0, -6);
 
-    // 4 Walkable Floor Slabs (Ground y=0.3, Level 2 y=6, Level 3 y=12, Roof y=18)
-    const floorHeights = [0.3, 6, 12, 18];
+    // 4 Walkable Floor Slabs (Ground y=0.4, Level 2 y=6, Level 3 y=12, Roof y=18)
+    const floorHeights = [0.4, 6, 12, 18];
     floorHeights.forEach((fy) => {
-      const slab = new THREE.Mesh(new THREE.BoxGeometry(18, 0.5, 16), mats.blue);
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(18, 0.8, 16), mats.blue);
       slab.position.y = fy;
       centerBldg.add(slab);
     });
 
-    // Concrete/Steel Columns Grid (8 vertical pillars holding up the structure)
+    // Concrete/Steel Columns Grid (8 vertical pillars holding up the structure, 3 tiers each)
     const colX = [-8, 0, 8];
     const colZ = [-7, 7];
     colX.forEach((cx) => {
       colZ.forEach((cz) => {
-        const col = new THREE.Mesh(new THREE.BoxGeometry(0.8, 18, 0.8), mats.black);
-        col.position.set(cx, 9, cz);
-        centerBldg.add(col);
+        [3.0, 9.0, 15.0].forEach((cy) => {
+          const col = new THREE.Mesh(new THREE.BoxGeometry(0.9, 6.0, 0.9), mats.black);
+          col.position.set(cx, cy, cz);
+          centerBldg.add(col);
+        });
       });
     });
 
     // Floor Safety Handrails (Level 2, Level 3, and Roof)
     [6, 12, 18].forEach((fy) => {
-      // Front rail (z = 7.9) with opening for stairs
-      const railFrontL = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.2), mats.orange);
+      const railFrontL = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.3), mats.orange);
       railFrontL.position.set(-5, fy + 0.8, 7.9);
-      const railFrontR = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.2), mats.orange);
+      const railFrontR = new THREE.Mesh(new THREE.BoxGeometry(6, 1.2, 0.3), mats.orange);
       railFrontR.position.set(5, fy + 0.8, 7.9);
-      // Back rail
-      const railBack = new THREE.Mesh(new THREE.BoxGeometry(17.6, 1.2, 0.2), mats.orange);
+      const railBack = new THREE.Mesh(new THREE.BoxGeometry(17.6, 1.2, 0.3), mats.orange);
       railBack.position.set(0, fy + 0.8, -7.9);
-      // Right side rail
-      const railR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 15.6), mats.orange);
+      const railR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 15.6), mats.orange);
       railR.position.set(8.9, fy + 0.8, 0);
       centerBldg.add(railFrontL, railFrontR, railBack, railR);
       if (fy !== 6) {
-        // Left rail (except on Level 2 where skybridge connects!)
-        const railL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 15.6), mats.orange);
+        const railL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 15.6), mats.orange);
         railL.position.set(-8.9, fy + 0.8, 0);
         centerBldg.add(railL);
       }
     });
 
-    // Internal Walkable Staircase 1: Ground (y=0) -> Level 2 (y=6)
-    // 12 solid steps: each 0.5m rise, 0.9m run, 3.2m wide
+    // Internal Walkable Staircases (each step: 0.75m height, 0.5m rise, size 3.4 x 0.75 x 0.95)
+    // Stair 1: Ground -> Level 2
     for (let st = 0; st < 12; st++) {
-      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.5, 0.95), mats.black);
-      step.position.set(-4.5, 0.25 + st * 0.5, -5 + st * 1.0);
+      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
+      step.position.set(-4.5, 0.375 + st * 0.5, -5 + st * 1.0);
+      centerBldg.add(step);
+    }
+    // Stair 2: Level 2 -> Level 3
+    for (let st = 0; st < 12; st++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
+      step.position.set(4.5, 6.375 + st * 0.5, 6 - st * 1.0);
+      centerBldg.add(step);
+    }
+    // Stair 3: Level 3 -> Roof
+    for (let st = 0; st < 12; st++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.75, 0.95), mats.black);
+      step.position.set(-4.5, 12.375 + st * 0.5, -5 + st * 1.0);
       centerBldg.add(step);
     }
 
-    // Internal Walkable Staircase 2: Level 2 (y=6) -> Level 3 (y=12)
-    for (let st = 0; st < 12; st++) {
-      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.5, 0.95), mats.black);
-      step.position.set(4.5, 6.25 + st * 0.5, 6 - st * 1.0);
-      centerBldg.add(step);
-    }
-
-    // Internal Walkable Staircase 3: Level 3 (y=12) -> Roof (y=18)
-    for (let st = 0; st < 12; st++) {
-      const step = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.5, 0.95), mats.black);
-      step.position.set(-4.5, 12.25 + st * 0.5, -5 + st * 1.0);
-      centerBldg.add(step);
-    }
-
-    // 3. Articulated Rooftop Tower Crane (mounted on Roof at y=18)
+    // Articulated Rooftop Tower Crane (mounted on Roof at y=18)
     const crane = new THREE.Group();
     crane.position.set(0, 18, 0);
-
-    // Vertical lattice mast (reaches y = 32)
-    const mast = new THREE.Mesh(new THREE.BoxGeometry(2.2, 14, 2.2), mats.blue);
+    const mast = new THREE.Mesh(new THREE.BoxGeometry(2.4, 14, 2.4), mats.blue);
     mast.position.set(0, 7, 0);
-    // Crane operator cab
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(3.0, 3.0, 3.2), mats.orange);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(3.2, 3.0, 3.2), mats.orange);
     cab.position.set(2.4, 13.5, 0);
     const cabWindow = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 0.3), mats.cyan);
     cabWindow.position.set(2.4, 14, 1.65);
     cabWindow.userData.noCollision = true;
 
-    // Horizontal Crane Boom (walkable lattice girder reaching forward z: +16)
     const boom = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.6, 32), mats.blue);
     boom.position.set(0, 14.8, 6);
-    // Counter-jib extending backwards with counterweights
     const counterJib = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.6, 12), mats.blue);
     counterJib.position.set(0, 14.8, -14);
     const counterWeights = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.8, 3.2), mats.black);
     counterWeights.position.set(0, 14.8, -18);
 
-    // Crane trolley on boom
     const trolley = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.8, 2.2), mats.red);
     trolley.position.set(0, 15.2, 8);
-    // Wire hoist cable
     const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 14, 6), mats.black);
     cable.position.set(0, 8.5, 8);
     cable.userData.noCollision = true;
-    // Hanging hook
-    const hook = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.22, 6, 12), mats.orange);
+    const hook = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.6), mats.orange);
     hook.position.set(0, 1.6, 8);
 
     crane.add(mast, cab, cabWindow, boom, counterJib, counterWeights, trolley, cable, hook);
     centerBldg.add(crane);
     arena.add(centerBldg);
 
-    // 4. Overhead Suspended Skybridge (Truss Walkway connecting Central to West)
-    const skybridge = new THREE.Group();
-    skybridge.position.set(-19, 6, -6);
-    // Walkable deck (size 20m x 3.6m x 0.4m)
-    const bridgeDeck = new THREE.Mesh(new THREE.BoxGeometry(20, 0.4, 3.6), mats.orange);
-    // Truss safety railings along North and South edges
-    const bridgeRailN = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.2), mats.red);
-    bridgeRailN.position.set(0, 0.9, -1.7);
-    const bridgeRailS = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.2), mats.red);
-    bridgeRailS.position.set(0, 0.9, 1.7);
-    skybridge.add(bridgeDeck, bridgeRailN, bridgeRailS);
-    arena.add(skybridge);
-
-    // 5. West Building Complex (2-3 Stories with Exterior Stairs)
+    // 3. Quarter 2: West Tech Loft & Skybridge ([-36, 0, -6])
     const westBldg = new THREE.Group();
-    westBldg.position.set(-35, 0, -6);
-    // Main lower body
-    const wBase = new THREE.Mesh(new THREE.BoxGeometry(18, 14, 24), mats.blue);
-    wBase.position.y = 7;
-    // 2nd floor balcony terrace at y=6
-    const wBalcony = new THREE.Mesh(new THREE.BoxGeometry(6, 0.4, 18), mats.cyan);
+    westBldg.position.set(-36, 0, -6);
+    const wBase = new THREE.Mesh(new THREE.BoxGeometry(20, 16, 24), mats.blue);
+    wBase.position.y = 8;
+    const wBalcony = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 18), mats.cyan);
     wBalcony.position.set(11, 6, 0);
-    // Rooftop perimeter handrails
-    const wRoofRail = new THREE.Mesh(new THREE.BoxGeometry(17.6, 1.2, 23.6), mats.orange);
-    wRoofRail.position.y = 14.6;
-    // Exterior concrete stairs (Ground to 2nd floor balcony)
+    const wRoofRailN = new THREE.Mesh(new THREE.BoxGeometry(20, 1.2, 0.3), mats.orange);
+    wRoofRailN.position.set(0, 16.6, -11.8);
+    const wRoofRailS = new THREE.Mesh(new THREE.BoxGeometry(20, 1.2, 0.3), mats.orange);
+    wRoofRailS.position.set(0, 16.6, 11.8);
+    const wRoofRailW = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 24), mats.orange);
+    wRoofRailW.position.set(-9.8, 16.6, 0);
+    const wEntrance = new THREE.Mesh(new THREE.BoxGeometry(6, 0.8, 3), mats.black);
+    wEntrance.position.set(0, 3.5, 12.2);
+
+    // Exterior stairs (Ground to 2nd floor balcony)
     for (let st = 0; st < 12; st++) {
-      const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.5, 0.95), mats.black);
-      step.position.set(11, 0.25 + st * 0.5, 9 - st * 0.8);
+      const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.95), mats.black);
+      step.position.set(11, 0.375 + st * 0.5, 9 - st * 0.8);
       westBldg.add(step);
     }
-    westBldg.add(wBase, wBalcony, wRoofRail);
+    // Fire escape platforms and ladders
+    const fe1 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.75, 2.5), mats.black);
+    fe1.position.set(-10.2, 10, 4);
+    const fe2 = new THREE.Mesh(new THREE.BoxGeometry(3, 0.75, 2.5), mats.black);
+    fe2.position.set(-10.2, 14, 4);
+    const feLadder1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.0, 0.4), mats.orange);
+    feLadder1.position.set(-10.2, 8, 5);
+    const feLadder2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.0, 0.4), mats.orange);
+    feLadder2.position.set(-10.2, 12, 5);
+
+    // Architectural window relief frames
+    for (let wy of [6, 11]) {
+      for (let wz of [-6, 0, 6]) {
+        const sill = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.5), mats.cyan);
+        sill.position.set(wz, wy, 12.2);
+        westBldg.add(sill);
+      }
+    }
+    westBldg.add(wBase, wBalcony, wRoofRailN, wRoofRailS, wRoofRailW, wEntrance, fe1, fe2, feLadder1, feLadder2);
     arena.add(westBldg);
 
-    // 6. East Building Complex (Cross-Hatch Blueprint Facade)
+    // Overhead Suspended Skybridge (Truss Walkway connecting Central to West)
+    const skybridge = new THREE.Group();
+    skybridge.position.set(-19, 6, -6);
+    const bridgeDeck = new THREE.Mesh(new THREE.BoxGeometry(20, 0.8, 3.6), mats.orange);
+    const bridgeRailN = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.3), mats.red);
+    bridgeRailN.position.set(0, 1.0, -1.7);
+    const bridgeRailS = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 0.3), mats.red);
+    bridgeRailS.position.set(0, 1.0, 1.7);
+    const bridgePillar1 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 6.0, 1.0), mats.black);
+    bridgePillar1.position.set(-6, -3, 0);
+    const bridgePillar2 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 6.0, 1.0), mats.black);
+    bridgePillar2.position.set(6, -3, 0);
+    skybridge.add(bridgeDeck, bridgeRailN, bridgeRailS, bridgePillar1, bridgePillar2);
+    arena.add(skybridge);
+
+    // 4. Quarter 3: East Blueprint Arcade & Market ([+36, 0, -6])
     const eastBldg = new THREE.Group();
-    eastBldg.position.set(35, 0, -6);
-    const eBase = new THREE.Mesh(new THREE.BoxGeometry(18, 14, 24), mats.blue);
-    eBase.position.y = 7;
+    eastBldg.position.set(36, 0, -6);
+    const eBase = new THREE.Mesh(new THREE.BoxGeometry(20, 16, 24), mats.blue);
+    eBase.position.y = 8;
+    const eMezz = new THREE.Mesh(new THREE.BoxGeometry(8, 0.8, 18), mats.cyan);
+    eMezz.position.set(-11, 6, 0);
+    const eMezzRail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 18), mats.orange);
+    eMezzRail.position.set(-14.8, 6.8, 0);
 
     // Cross-hatch blueprint ribs across the facade (matching reference screenshot!)
     for (let y = 3; y <= 13; y += 3) {
@@ -531,71 +496,335 @@ export class DistrictManager {
       eastBldg.add(vStripe);
     }
 
-    // Exterior staircase to 2nd floor
+    // Exterior switchback stairs
     for (let st = 0; st < 12; st++) {
-      const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.5, 0.95), mats.black);
-      step.position.set(-10.5, 0.25 + st * 0.5, 9 - st * 0.8);
+      const step = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 0.95), mats.black);
+      step.position.set(-11, 0.375 + st * 0.5, 9 - st * 0.8);
       eastBldg.add(step);
     }
 
-    // Rooftop water tank on stilt legs
-    const wtLegs = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 3), mats.black);
-    wtLegs.position.set(0, 16, 0);
-    const wtTank = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 4.5, 12), mats.orange);
-    wtTank.position.set(0, 20.2, 0);
-    eastBldg.add(eBase, wtLegs, wtTank);
+    // Storefront shop stalls: Ramen counter, cyber cafe counter, workshop
+    const ramenCounter = new THREE.Mesh(new THREE.BoxGeometry(6, 1.1, 1.8), mats.orange);
+    ramenCounter.position.set(0, 0.55, 12.8);
+    const cafeCounter = new THREE.Mesh(new THREE.BoxGeometry(6, 1.1, 1.8), mats.black);
+    cafeCounter.position.set(0, 0.55, -12.8);
+    const techCounter = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.1, 6), mats.cyan);
+    techCounter.position.set(10.5, 0.55, 0);
+    const shopDivider1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4), mats.black);
+    shopDivider1.position.set(-3.5, 1.75, 13.5);
+    const shopDivider2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3.5, 4), mats.black);
+    shopDivider2.position.set(3.5, 1.75, 13.5);
+
+    // Rooftop water tank on 4 timber stilt legs
+    const wtLeg1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
+    wtLeg1.position.set(-1.5, 18, -1.5);
+    const wtLeg2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
+    wtLeg2.position.set(1.5, 18, -1.5);
+    const wtLeg3 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
+    wtLeg3.position.set(-1.5, 18, 1.5);
+    const wtLeg4 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4, 0.8), mats.black);
+    wtLeg4.position.set(1.5, 18, 1.5);
+    const wtTank = new THREE.Mesh(new THREE.BoxGeometry(4.5, 4.5, 4.5), mats.orange);
+    wtTank.position.set(0, 22.2, 0);
+
+    // Rooftop AC chiller units
+    for (let ac = 0; ac < 3; ac++) {
+      const unit = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.8, 2.0), mats.black);
+      unit.position.set(ac * 3.5 - 3.5, 17, 6);
+      eastBldg.add(unit);
+    }
+
+    eastBldg.add(eBase, eMezz, eMezzRail, ramenCounter, cafeCounter, techCounter, shopDivider1, shopDivider2, wtLeg1, wtLeg2, wtLeg3, wtLeg4, wtTank);
     arena.add(eastBldg);
 
-    // 7. North Building Enclosure (Back wall with arched colonnade)
+    // 5. Quarter 4: North Civic Colonnade & Clocktower ([0, 0, -32])
     const northBldg = new THREE.Group();
-    northBldg.position.set(0, 0, -28);
-    const nWall = new THREE.Mesh(new THREE.BoxGeometry(76, 16, 10), mats.black);
+    northBldg.position.set(0, 0, -32);
+    const nWall = new THREE.Mesh(new THREE.BoxGeometry(76, 16, 6), mats.blue);
     nWall.position.y = 8;
-    // Ground level archway columns
-    for (let x = -28; x <= 28; x += 14) {
-      const archOpening = new THREE.Mesh(new THREE.BoxGeometry(8, 7, 10.4), mats.blue);
-      archOpening.position.set(x, 3.5, 0);
-      northBldg.add(archOpening);
+    const nWingL = new THREE.Mesh(new THREE.BoxGeometry(8, 16, 12), mats.blue);
+    nWingL.position.set(-36, 8, 4);
+    const nWingR = new THREE.Mesh(new THREE.BoxGeometry(8, 16, 12), mats.blue);
+    nWingR.position.set(36, 8, 4);
+
+    // 8 Grand Colonnade Pillars
+    const pillarX = [-30, -21, -12, -3, 3, 12, 21, 30];
+    pillarX.forEach((px) => {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.4, 7.0, 1.4), mats.black);
+      pillar.position.set(px, 3.5, 4.5);
+      northBldg.add(pillar);
+    });
+    // 7 Arch lintel beams
+    for (let i = 0; i < pillarX.length - 1; i++) {
+      const lx = (pillarX[i] + pillarX[i + 1]) / 2;
+      const lintel = new THREE.Mesh(new THREE.BoxGeometry(7.5, 1.2, 1.4), mats.orange);
+      lintel.position.set(lx, 6.5, 4.5);
+      northBldg.add(lintel);
     }
-    northBldg.add(nWall);
+    // 2nd-floor terrace slab and balustrade
+    const nTerrace = new THREE.Mesh(new THREE.BoxGeometry(76, 0.8, 8), mats.orange);
+    nTerrace.position.set(0, 7.0, 2);
+    const nBalustradeL = new THREE.Mesh(new THREE.BoxGeometry(32, 1.2, 0.4), mats.orange);
+    nBalustradeL.position.set(-18, 8.0, 6);
+    const nBalustradeR = new THREE.Mesh(new THREE.BoxGeometry(32, 1.2, 0.4), mats.orange);
+    nBalustradeR.position.set(18, 8.0, 6);
+
+    // Grand entrance stairs
+    for (let st = 0; st < 12; st++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.75, 0.95), mats.black);
+      step.position.set(0, 0.375 + st * 0.5, 6 + st * 0.8);
+      northBldg.add(step);
+    }
+
+    // Master Clocktower (Y=38m)
+    const ctBase = new THREE.Mesh(new THREE.BoxGeometry(8, 10, 8), mats.blue);
+    ctBase.position.set(0, 5, 0);
+    const ctShaft1 = new THREE.Mesh(new THREE.BoxGeometry(6.4, 10, 6.4), mats.blue);
+    ctShaft1.position.set(0, 15, 0);
+    const ctShaft2 = new THREE.Mesh(new THREE.BoxGeometry(5.6, 10, 5.6), mats.blue);
+    ctShaft2.position.set(0, 25, 0);
+    // Belfry corner piers
+    for (let bx of [-2.2, 2.2]) {
+      for (let bz of [-2.2, 2.2]) {
+        const pier = new THREE.Mesh(new THREE.BoxGeometry(1.2, 5.0, 1.2), mats.black);
+        pier.position.set(bx, 32.5, bz);
+        northBldg.add(pier);
+      }
+    }
+    // Clock dial frames
+    for (let fz of [-2.9, 2.9]) {
+      const dial = new THREE.Mesh(new THREE.BoxGeometry(4.2, 4.2, 0.5), mats.orange);
+      dial.position.set(0, 32, fz);
+      northBldg.add(dial);
+    }
+    for (let fx of [-2.9, 2.9]) {
+      const dial = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.2, 4.2), mats.orange);
+      dial.position.set(fx, 32, 0);
+      northBldg.add(dial);
+    }
+    const ctSpire = new THREE.Mesh(new THREE.BoxGeometry(4.5, 6.0, 4.5), mats.orange);
+    ctSpire.position.set(0, 37.5, 0);
+
+    northBldg.add(nWall, nWingL, nWingR, nTerrace, nBalustradeL, nBalustradeR, ctBase, ctShaft1, ctShaft2, ctSpire);
     arena.add(northBldg);
 
-    // 8. Ground Props: Parkour Crates, Concrete Barriers & Street Furniture
-    const crateConfigs = [
-      { x: -14, y: 0.7, z: 6, w: 2.2, h: 1.4, d: 2.2, c: mats.orange },
-      { x: -14, y: 2.1, z: 6, w: 1.6, h: 1.4, d: 1.6, c: mats.orange },
-      { x: 14, y: 0.9, z: 8, w: 2.4, h: 1.8, d: 2.4, c: mats.orange },
-      { x: 14, y: 2.7, z: 8, w: 1.8, h: 1.8, d: 1.8, c: mats.orange },
-      { x: -8, y: 0.6, z: 12, w: 2.0, h: 1.2, d: 2.0, c: mats.orange },
-      { x: 8, y: 0.6, z: 12, w: 2.0, h: 1.2, d: 2.0, c: mats.orange },
-      { x: -22, y: 0.5, z: 2, w: 1.6, h: 1.0, d: 1.6, c: mats.orange },
-      { x: 22, y: 0.5, z: 2, w: 1.6, h: 1.0, d: 1.6, c: mats.orange },
+    // 6. Quarter 5: South Boulevard Entrance & Street Plaza ([0, 0, +28])
+    const southBldg = new THREE.Group();
+    southBldg.position.set(0, 0, 28);
+
+    // Raised sidewalk curb blocks along North and South edges (20 blocks each)
+    for (let ci = 0; ci < 20; ci++) {
+      const cx = -57 + ci * 6.0;
+      const curbN = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.75, 0.6), mats.black);
+      curbN.position.set(cx, 0.375, -8.2);
+      const curbS = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.75, 0.6), mats.black);
+      curbS.position.set(cx, 0.375, 8.2);
+      southBldg.add(curbN, curbS);
+    }
+
+    // Street furniture: jersey barriers, streetlamps, benches, waste bins
+    for (let bi = 0; bi < 8; bi++) {
+      const bx = -42 + bi * 12.0;
+      const barrier = new THREE.Mesh(new THREE.BoxGeometry(4.0, 1.0, 0.8), mats.black);
+      barrier.position.set(bx, 0.5, -9.0);
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6.5, 0.4), mats.black);
+      lamp.position.set(bx, 3.25, 9.2);
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.8, 1.0), mats.orange);
+      bench.position.set(bx + 3, 0.4, 9.5);
+      southBldg.add(barrier, lamp, bench);
+    }
+
+    for (let wi = 0; wi < 6; wi++) {
+      const wx = -30 + wi * 12.0;
+      const bin = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.9, 0.6), mats.black);
+      bin.position.set(wx, 0.45, 9.5);
+      southBldg.add(bin);
+    }
+
+    // Traffic signal poles
+    for (let tx of [-24, 24]) {
+      const sigPole = new THREE.Mesh(new THREE.BoxGeometry(0.5, 6.0, 0.5), mats.black);
+      sigPole.position.set(tx, 3.0, -8.5);
+      const sigHead = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.8), mats.orange);
+      sigHead.position.set(tx, 5.5, -7.5);
+      southBldg.add(sigPole, sigHead);
+    }
+
+    // 2 Street Kiosks
+    // West Newsstand
+    const k1Base = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 3.2), mats.black);
+    k1Base.position.set(-16, 0.5, 12);
+    const k1WallN = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
+    k1WallN.position.set(-16, 2.1, 10.4);
+    const k1WallS = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
+    k1WallS.position.set(-16, 2.1, 13.6);
+    const k1WallW = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.2, 3.2), mats.orange);
+    k1WallW.position.set(-17.6, 2.1, 12);
+    const k1Roof = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.75, 3.8), mats.black);
+    k1Roof.position.set(-16, 3.5, 12);
+    southBldg.add(k1Base, k1WallN, k1WallS, k1WallW, k1Roof);
+
+    // East Info Booth
+    const k2Base = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.0, 3.2), mats.black);
+    k2Base.position.set(16, 0.5, 12);
+    const k2WallN = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
+    k2WallN.position.set(16, 2.1, 10.4);
+    const k2WallS = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2.2, 0.4), mats.orange);
+    k2WallS.position.set(16, 2.1, 13.6);
+    const k2WallE = new THREE.Mesh(new THREE.BoxGeometry(0.4, 2.2, 3.2), mats.orange);
+    k2WallE.position.set(17.6, 2.1, 12);
+    const k2Roof = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.75, 3.8), mats.black);
+    k2Roof.position.set(16, 3.5, 12);
+    southBldg.add(k2Base, k2WallN, k2WallS, k2WallE, k2Roof);
+
+    // 3 NYC Cabs
+    const cabPos = [
+      { x: -28, z: -4 },
+      { x: 4, z: 4 },
+      { x: 28, z: -4 },
     ];
-    crateConfigs.forEach((cr) => {
-      const box = new THREE.Mesh(new THREE.BoxGeometry(cr.w, cr.h, cr.d), cr.c);
-      box.position.set(cr.x, cr.y, cr.z);
-      arena.add(box);
+    cabPos.forEach((cp) => {
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.75, 2.2), mats.orange);
+      chassis.position.set(cp.x, 0.375, cp.z);
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.9, 2.0), mats.orange);
+      cabin.position.set(cp.x - 0.3, 1.2, cp.z);
+      const hood = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.75, 2.0), mats.orange);
+      hood.position.set(cp.x + 1.5, 0.6, cp.z);
+      const sign = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.75, 0.4), mats.black);
+      sign.position.set(cp.x - 0.3, 1.8, cp.z);
+      southBldg.add(chassis, cabin, hood, sign);
     });
 
-    // Concrete Jersey Barriers
-    for (let bx of [-18, 18]) {
-      const barrier = new THREE.Mesh(new THREE.BoxGeometry(8, 1.2, 0.8), mats.black);
-      barrier.position.set(bx, 0.6, 18);
-      arena.add(barrier);
+    // 16 Parkour Crates
+    const crateConfigs = [
+      { x: -14, y: 0.5, z: -10, w: 2.2, h: 1.0, d: 2.2 },
+      { x: -14, y: 1.5, z: -10, w: 1.6, h: 1.0, d: 1.6 },
+      { x: 14, y: 0.6, z: -10, w: 2.4, h: 1.2, d: 2.4 },
+      { x: 14, y: 1.8, z: -10, w: 1.8, h: 1.2, d: 1.8 },
+      { x: -24, y: 0.45, z: -14, w: 2.0, h: 0.9, d: 2.0 },
+      { x: -24, y: 1.35, z: -14, w: 1.6, h: 0.9, d: 1.6 },
+      { x: 24, y: 0.45, z: -14, w: 2.0, h: 0.9, d: 2.0 },
+      { x: 24, y: 1.35, z: -14, w: 1.6, h: 0.9, d: 1.6 },
+      { x: -8, y: 0.5, z: -12, w: 1.8, h: 1.0, d: 1.8 },
+      { x: 8, y: 0.5, z: -12, w: 1.8, h: 1.0, d: 1.8 },
+      { x: -4, y: 0.4, z: -6, w: 1.5, h: 0.8, d: 1.5 },
+      { x: 4, y: 0.4, z: -6, w: 1.5, h: 0.8, d: 1.5 },
+      { x: -20, y: 0.4, z: 2, w: 1.5, h: 0.8, d: 1.5 },
+      { x: 20, y: 0.4, z: 2, w: 1.5, h: 0.8, d: 1.5 },
+      { x: -10, y: 0.4, z: 6, w: 1.5, h: 0.8, d: 1.5 },
+      { x: 10, y: 0.4, z: 6, w: 1.5, h: 0.8, d: 1.5 },
+    ];
+    crateConfigs.forEach((cr) => {
+      const crate = new THREE.Mesh(new THREE.BoxGeometry(cr.w, cr.h, cr.d), mats.orange);
+      crate.position.set(cr.x, cr.y, cr.z);
+      southBldg.add(crate);
+    });
+
+    arena.add(southBldg);
+
+    // 7. Urban Perimeter Townhouses & Enclosure (16 Brownstones)
+    const perimeter = new THREE.Group();
+    perimeter.name = "UrbanPerimeter";
+
+    const brownstoneCoords = [
+      // West row (X = -54)
+      { x: -54, z: -36, rot: Math.PI / 2 },
+      { x: -54, z: -18, rot: Math.PI / 2 },
+      { x: -54, z: 0, rot: Math.PI / 2 },
+      { x: -54, z: 18, rot: Math.PI / 2 },
+      // East row (X = +54)
+      { x: 54, z: -36, rot: -Math.PI / 2 },
+      { x: 54, z: -18, rot: -Math.PI / 2 },
+      { x: 54, z: 0, rot: -Math.PI / 2 },
+      { x: 54, z: 18, rot: -Math.PI / 2 },
+      // North row (Z = -54)
+      { x: -36, z: -54, rot: 0 },
+      { x: -18, z: -54, rot: 0 },
+      { x: 18, z: -54, rot: 0 },
+      { x: 36, z: -54, rot: 0 },
+      // South row (Z = +54)
+      { x: -36, z: 54, rot: Math.PI },
+      { x: -18, z: 54, rot: Math.PI },
+      { x: 18, z: 54, rot: Math.PI },
+      { x: 36, z: 54, rot: Math.PI },
+    ];
+
+    brownstoneCoords.forEach((bc) => {
+      const bs = new THREE.Group();
+      bs.position.set(bc.x, 0, bc.z);
+      bs.rotation.y = bc.rot;
+
+      const body = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 12), mats.blue);
+      body.position.y = 7;
+      // Stoop steps
+      const stoop1 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 1.5), mats.black);
+      stoop1.position.set(0, 0.375, 6.75);
+      const stoop2 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.75, 1.5), mats.black);
+      stoop2.position.set(0, 0.875, 5.25);
+      // Stoop sidewalls
+      const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 3.0), mats.orange);
+      wallL.position.set(-1.7, 0.8, 6.0);
+      const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 3.0), mats.orange);
+      wallR.position.set(1.7, 0.8, 6.0);
+      // Portico canopy
+      const portico = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.75, 1.8), mats.black);
+      portico.position.set(0, 3.8, 6.2);
+      // Cornice
+      const cornice1 = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.8, 0.8), mats.orange);
+      cornice1.position.set(0, 14.2, 5.8);
+      const cornice2 = new THREE.Mesh(new THREE.BoxGeometry(10.4, 0.8, 0.8), mats.orange);
+      cornice2.position.set(0, 14.2, -5.8);
+      // Chimney
+      const chimney = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.5, 1.4), mats.black);
+      chimney.position.set(3.5, 15.0, 0);
+      // Window sills
+      for (let wy of [5, 9]) {
+        for (let wx of [-2.5, 2.5]) {
+          const sill = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.75, 0.5), mats.cyan);
+          sill.position.set(wx, wy, 6.2);
+          bs.add(sill);
+        }
+      }
+
+      bs.add(body, stoop1, stoop2, wallL, wallR, portico, cornice1, cornice2, chimney);
+      perimeter.add(bs);
+    });
+
+    // Street Trees (16 trees)
+    for (let ti = 0; ti < 8; ti++) {
+      const tz = -40 + ti * 12;
+      const trunkW = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.0, 0.6), mats.black);
+      trunkW.position.set(-45, 2.0, tz);
+      const crownW = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 2.6), mats.green);
+      crownW.position.set(-45, 4.5, tz);
+      const trunkE = new THREE.Mesh(new THREE.BoxGeometry(0.6, 4.0, 0.6), mats.black);
+      trunkE.position.set(45, 2.0, tz);
+      const crownE = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 2.6), mats.green);
+      crownE.position.set(45, 4.5, tz);
+      perimeter.add(trunkW, crownW, trunkE, crownE);
     }
 
-    // Street Furniture: Dual Gooseneck Lamps & Benches
-    for (let lx of [-10, 10]) {
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 7, 8), mats.black);
-      pole.position.set(lx, 3.5, 20);
-      const lampHead = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 0.6), mats.orange);
-      lampHead.position.set(lx, 7.2, 19.5);
-      const bench = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 1.2), mats.black);
-      bench.position.set(lx + (lx > 0 ? 4 : -4), 0.4, 20);
-      arena.add(pole, lampHead, bench);
+    // Fire Hydrants (8 hydrants)
+    for (let hi = 0; hi < 4; hi++) {
+      const hyd1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), mats.red);
+      hyd1.position.set(-42, 0.4, -30 + hi * 20);
+      const hyd2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), mats.red);
+      hyd2.position.set(42, 0.4, -30 + hi * 20);
+      perimeter.add(hyd1, hyd2);
     }
 
-    // 9. Attach 7 High-Visibility 3D Ad Billboards with Real Images
+    // Postal Mailboxes (8 mailboxes)
+    for (let mi = 0; mi < 4; mi++) {
+      const mb1 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), mats.cyan);
+      mb1.position.set(-42, 0.6, -20 + mi * 20);
+      const mb2 = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), mats.cyan);
+      mb2.position.set(42, 0.6, -20 + mi * 20);
+      perimeter.add(mb1, mb2);
+    }
+
+    arena.add(perimeter);
+
+    // 8. Attach 8 High-Visibility 3D Ad Billboards with Real Images
     if (city && typeof city.createAdBillboardMesh === "function") {
       // 1. Centerpiece Megaboard (on Central Building Level 3 facade)
       const bCenter = city.createAdBillboardMesh(
@@ -704,7 +933,28 @@ export class DistrictManager {
       bEast.rotation.y = -Math.PI / 2;
       eastBldg.add(bEast);
 
-      // 6. South Plaza Entrance Kiosk 1 (West side)
+      // 6. North Colonnade Monumental Billboard
+      const bNorth = city.createAdBillboardMesh(
+        {
+          title: "North Colonnade Monumental Board",
+          category: "Wall Banner" as const,
+          viewsMonthly: 240000,
+          priceMonthly: 2100,
+          sponsorName: "VERCEL",
+          sponsorTagline: "Develop. Preview. Ship.",
+          accentColor: "#000000",
+          isAvailable: false,
+          imageUrl: "https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png",
+          linkUrl: "https://vercel.com",
+        },
+        12.0,
+        5.0,
+        northBldg
+      );
+      bNorth.position.set(0, 12, 6.2);
+      northBldg.add(bNorth);
+
+      // 7. South Plaza Entrance Kiosk 1 (West side)
       const bKiosk1 = city.createAdBillboardMesh(
         {
           title: "Plaza Spawn Kiosk (West)",
@@ -718,12 +968,12 @@ export class DistrictManager {
         },
         5.0,
         3.2,
-        arena
+        southBldg
       );
-      bKiosk1.position.set(-16, 2.0, 18);
-      arena.add(bKiosk1);
+      bKiosk1.position.set(-16, 2.0, 10);
+      southBldg.add(bKiosk1);
 
-      // 7. South Plaza Entrance Kiosk 2 (East side)
+      // 8. South Plaza Entrance Kiosk 2 (East side)
       const bKiosk2 = city.createAdBillboardMesh(
         {
           title: "Plaza Spawn Kiosk (East)",
@@ -739,10 +989,10 @@ export class DistrictManager {
         },
         5.0,
         3.2,
-        arena
+        southBldg
       );
-      bKiosk2.position.set(16, 2.0, 18);
-      arena.add(bKiosk2);
+      bKiosk2.position.set(16, 2.0, 10);
+      southBldg.add(bKiosk2);
     }
 
     return arena;
