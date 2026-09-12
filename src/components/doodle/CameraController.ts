@@ -7,6 +7,7 @@ export class CameraController {
   public camera: THREE.PerspectiveCamera;
   public domElement: HTMLElement;
   public autoRotate: boolean = true;
+  public getColliders?: () => THREE.Box3[];
 
   // Orbit controls state
   private target = new THREE.Vector3(0, 6, 0);
@@ -19,20 +20,25 @@ export class CameraController {
   private walkPos = new THREE.Vector3(0, 2.0, 35);
   private walkYaw = Math.PI;
   private walkPitch = 0;
+  private walkStepTimer = 0;
   private moveForward = false;
   private moveBackward = false;
   private moveLeft = false;
   private moveRight = false;
   private isSprinting = false;
   private isCrouching = false;
-  private walkStepTimer = 0;
-
   // Jump physics
   private verticalVelocity = 0;
   private isGrounded = true;
   private jumpsRemaining = 2;
   private groundHeight = 2.0;
 
+  // Walk bounds for comfortable district exploration
+  private readonly walkClamp = new THREE.Vector3(320, 0, 320);
+
+  // Zoom limits for orbit mode (distance from target)
+  private readonly minOrbitRadius = 15;
+  private readonly maxOrbitRadius = 550;
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
     this.domElement = domElement;
@@ -121,7 +127,7 @@ export class CameraController {
   private onWheel = (e: WheelEvent) => {
     e.preventDefault();
     if (this.mode === "orbit") {
-      this.spherical.radius = Math.max(15, Math.min(550, this.spherical.radius + e.deltaY * 0.08));
+      this.spherical.radius = Math.max(this.minOrbitRadius, Math.min(this.maxOrbitRadius, this.spherical.radius + e.deltaY * 0.08));
       this.updateOrbitCamera();
     }
   };
@@ -209,10 +215,40 @@ export class CameraController {
     this.camera.position.set(this.walkPos.x, this.walkPos.y + bob + (eyeTarget - this.groundHeight), this.walkPos.z);
   }
 
+  public getPosition(): THREE.Vector3 {
+    return this.mode === "walk" ? this.walkPos : this.camera.position;
+  }
+
+  private checkCollision(testPos: THREE.Vector3): boolean {
+    if (!this.getColliders) return false;
+    const colliders = this.getColliders();
+    if (!colliders || colliders.length === 0) return false;
+
+    const radius = 0.8;
+    const pMinX = testPos.x - radius;
+    const pMaxX = testPos.x + radius;
+    const pMinZ = testPos.z - radius;
+    const pMaxZ = testPos.z + radius;
+    const pMinY = testPos.y - 0.8;
+    const pMaxY = testPos.y + 0.8;
+
+    for (let i = 0; i < colliders.length; i++) {
+      const b = colliders[i];
+      if (pMinY < b.max.y && pMaxY > b.min.y) {
+        if (pMinX < b.max.x && pMaxX > b.min.x && pMinZ < b.max.z && pMaxZ > b.min.z) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   public update(delta: number) {
     if (this.mode === "orbit") {
       if (this.autoRotate && !this.isOrbitDragging && !this.isPanning) {
         this.spherical.theta += 0.04 * delta;
+        // Clamp orbit radius within limits
+        this.spherical.radius = Math.max(this.minOrbitRadius, Math.min(this.maxOrbitRadius, this.spherical.radius));
         this.updateOrbitCamera();
       }
     } else if (this.mode === "walk") {
@@ -233,10 +269,24 @@ export class CameraController {
 
         if (moveDir.lengthSq() > 0) {
           moveDir.normalize();
-          this.walkPos.addScaledVector(moveDir, speed * delta);
-          // Clamp inside expanded real-scale city boundary
-          this.walkPos.x = Math.max(-280, Math.min(280, this.walkPos.x));
-          this.walkPos.z = Math.max(-280, Math.min(280, this.walkPos.z));
+          const deltaMove = moveDir.clone().multiplyScalar(speed * delta);
+
+          // Wall collision with smooth sliding along axes
+          const testX = this.walkPos.clone();
+          testX.x += deltaMove.x;
+          if (!this.checkCollision(testX)) {
+            this.walkPos.x = testX.x;
+          }
+
+          const testZ = this.walkPos.clone();
+          testZ.z += deltaMove.z;
+          if (!this.checkCollision(testZ)) {
+            this.walkPos.z = testZ.z;
+          }
+
+          // Clamp inside district boundary
+          this.walkPos.x = Math.max(-this.walkClamp.x, Math.min(this.walkClamp.x, this.walkPos.x));
+          this.walkPos.z = Math.max(-this.walkClamp.z, Math.min(this.walkClamp.z, this.walkPos.z));
         }
       }
 

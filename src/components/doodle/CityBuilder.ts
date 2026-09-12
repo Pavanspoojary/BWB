@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { DoodleEngine, INK_COLORS } from "./DoodleEngine";
 import { doodleAudio } from "./DoodleAudio";
-
+import { DistrictManager } from "./DistrictManager";
 export type BuildingType =
   | "skyscraper"
   | "indie-loft"
@@ -39,13 +39,24 @@ interface TrafficVehicle {
   wheels: THREE.Mesh[];
 }
 
+export interface DoodleSecret {
+  id: string;
+  district: string;
+  name: string;
+  position: THREE.Vector3;
+  mesh?: THREE.Group;
+  collected: boolean;
+}
+
 export class CityBuilder {
   public engine: DoodleEngine;
   public adSpaces: Map<string, AdSpace> = new Map();
   public buildings: THREE.Group[] = [];
   public selectedAdSpace: AdSpace | null = null;
   public buildTool: BuildingType | "select" | "demolish" = "select";
-  public currentDistrict: "tech" | "indie" | "nyc" | "monaco" = "nyc";
+  public currentDistrict: "tech" | "indie" | "nyc" | "monaco" | "neon" | "oldtown" | "waterfront" = "nyc";
+  public secrets: DoodleSecret[] = [];
+  public collectedSecrets: Set<string> = new Set();
 
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
@@ -282,7 +293,7 @@ export class CityBuilder {
       cyan: engine.createDoodleMaterial({ ink: INK_COLORS.CYAN, fill: false }),
     };
 
-    // Ground Plane with Notebook Grid - Scaled to expansive real-map dimensions
+    // Ground Plane with Notebook Grid - Hand-drawn blueprint aesthetic
     const groundGeo = new THREE.PlaneGeometry(650, 650, 64, 64);
     groundGeo.rotateX(-Math.PI / 2);
     const groundMat = engine.createDoodleMaterial({ ink: INK_COLORS.BLACK, fill: false, shadeBias: 0.18 });
@@ -293,7 +304,24 @@ export class CityBuilder {
     this.buildNewYorkCity();
   }
 
-  // Master method: Builds the authentic, fully detailed New York City at real map scale
+  // Returns bounding boxes for solid structures to prevent walking through walls
+  public getColliders(): THREE.Box3[] {
+    const boxes: THREE.Box3[] = [];
+    for (const b of this.buildings) {
+      if (b.userData && b.userData.noCollision) continue;
+      const box = new THREE.Box3().setFromObject(b);
+      const sizeX = box.max.x - box.min.x;
+      const sizeY = box.max.y - box.min.y;
+      const sizeZ = box.max.z - box.min.z;
+      // Filter out flat planes, particles, or oversized district boundaries
+      if (sizeY > 1.2 && sizeX < 250 && sizeZ < 250 && sizeX > 0.4 && sizeZ > 0.4) {
+        boxes.push(box);
+      }
+    }
+    return boxes;
+  }
+
+  // Master method: Builds the authentic, fully detailed New York City at blueprint scale
   public buildNewYorkCity() {
     this.createManhattanStreetGrid();
     this.createEmpireStateBuilding(40, 18);
@@ -312,6 +340,7 @@ export class CityBuilder {
     this.createNYCPedestrians();
     this.createStreetFurniture();
     this.createAtmosphere();
+    this.spawnDistrictSecrets("nyc");
   }
 
   // 1. Authentic Manhattan Grid: 9th, 8th, Broadway, 6th, 5th, Madison & Park Avenues with Cross Streets
@@ -706,6 +735,7 @@ export class CityBuilder {
     // Tower 1: One Times Square (Curved multi-screen facade)
     const t1 = new THREE.Mesh(new THREE.BoxGeometry(12, 28, 12), this.defaultMats.blue);
     t1.position.set(0, 14, 0);
+    group.add(t1);
     // Running Ticker Tape Ribbon (Electronic News/Stock Ticker)
     const ticker = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.85, 12.4), this.defaultMats.orange);
     ticker.position.set(0, 7.5, 0);
@@ -1132,7 +1162,7 @@ export class CityBuilder {
     });
 
     // Central Park Hand-Drawn Trees (20+ Trees across the park grounds)
-    const parkTrees = [
+    const parkTrees: [number, number, boolean][] = [
       [-30, -35, false], [-18, -40, true], [-6, -38, false], [8, -38, false], [24, -40, false], [34, -32, true],
       [-32, -18, true], [-6, -20, false], [28, -8, false], [32, 6, true],
       [-34, 10, false], [-6, 2, false], [24, 20, false], [32, 28, false],
@@ -1145,6 +1175,7 @@ export class CityBuilder {
     });
 
     this.engine.scene.add(parkGroup);
+    parkGroup.userData.noCollision = true;
     this.buildings.push(parkGroup);
     return parkGroup;
   }
@@ -1852,20 +1883,17 @@ export class CityBuilder {
   }
 
   // District switcher
-  // District switcher: Map 1 (New York City) vs Map 2 (F1 Track Monaco)
-  public switchDistrict(district: "tech" | "indie" | "nyc" | "monaco") {
-    const target = district === "indie" || district === "monaco" ? "monaco" : "nyc";
-    this.currentDistrict = target;
-    this.clearDistrict();
-    if (target === "nyc") {
-      this.buildNewYorkCity();
-    } else {
-      this.buildMonacoCircuit();
-    }
-    doodleAudio.scribble();
+  // Updated to support core districts: "neon", "oldtown", "waterfront"
+  public switchDistrict(district: "tech" | "indie" | "nyc" | "monaco" | "neon" | "oldtown" | "waterfront") {
+    // Map "tech" and "indie" to Monaco district; other identifiers are used directly.
+    const target = (district === "indie" || district === "tech") ? "monaco" : district;
+    DistrictManager.buildDistrict(target as any, this);
   }
 
-  private clearDistrict() {
+
+
+
+  public clearDistrict() {
     this.buildings.forEach((b) => this.engine.scene.remove(b));
     this.buildings = [];
     this.adSpaces.clear();
@@ -1890,6 +1918,10 @@ export class CityBuilder {
     this.subwayTrain = null;
     this.steamPuffs = [];
     this.f1TrackCurve = null;
+    this.secrets.forEach((s) => {
+      if (s.mesh) this.engine.scene.remove(s.mesh);
+    });
+    this.secrets = [];
   }
 
   // ==========================================
@@ -1905,6 +1937,7 @@ export class CityBuilder {
     this.createF1Grandstands();
     this.createF1Cars();
     this.createMonacoAtmosphere();
+    this.spawnDistrictSecrets("monaco");
   }
 
   // 1. Monaco F1 Track Layout with Kerbs, Armco, Starting Grid & Gantry
@@ -2164,6 +2197,7 @@ export class CityBuilder {
 
     trackGroup.add(gantry);
     this.engine.scene.add(trackGroup);
+    trackGroup.userData.noCollision = true;
     this.buildings.push(trackGroup);
   }
 
@@ -2406,6 +2440,7 @@ export class CityBuilder {
 
     harborGroup.add(poolGroup);
     this.engine.scene.add(harborGroup);
+    harborGroup.userData.noCollision = true;
     this.buildings.push(harborGroup);
   }
 
@@ -2859,6 +2894,15 @@ export class CityBuilder {
 
   // Animation Update Loop: Vehicles, F1 cars, Subway train, Yachts, Clouds, Paper airplane, Steaming manholes
   public update(delta: number) {
+    // 0. Animate Secret Collectibles (Spinning & Floating)
+    const nowSecTime = performance.now() / 1000;
+    this.secrets.forEach((s) => {
+      if (!s.collected && s.mesh) {
+        s.mesh.rotation.y += delta * 2.5;
+        s.mesh.position.y = s.position.y + Math.sin(nowSecTime * 3 + s.position.x) * 0.22;
+      }
+    });
+
     // 1. Move Yellow Cabs along streets (in NYC)
     this.trafficCars.forEach((car) => {
       const moveStep = car.direction * car.speed * delta;
@@ -3011,7 +3055,7 @@ export class CityBuilder {
     }
 
     // 9. Animate steaming manholes
-    this.steamPuffs.forEach((puff, idx) => {
+    this.steamPuffs.forEach((puff) => {
       const t = performance.now() / 1000 + puff.timeOffset;
       puff.mesh.position.y = puff.basePos.y + (t % 1.6) * 1.2;
       const s = 1.0 + (t % 1.6) * 0.8;
@@ -3077,6 +3121,83 @@ export class CityBuilder {
     return true;
   }
 
+  public spawnDistrictSecrets(district: string) {
+    // Clear existing secret meshes
+    this.secrets.forEach((s) => {
+      if (s.mesh) this.engine.scene.remove(s.mesh);
+    });
+    this.secrets = [];
+
+    const secretDefs: Record<string, { id: string; name: string; pos: [number, number, number] }[]> = {
+      nyc: [
+        { id: "nyc_vault", name: "🗝️ 34th St Rooftop Vault Key", pos: [12, 10.0, 18] },
+        { id: "nyc_metro", name: "🚇 Wall St Golden Metrocard", pos: [14, 1.2, 206] },
+        { id: "nyc_capsule", name: "🌲 Central Park Time Capsule", pos: [-6, 1.5, -140] },
+      ],
+      monaco: [
+        { id: "monaco_chip", name: "👑 Casino Royale Diamond Chip", pos: [-45, 1.8, 0] },
+        { id: "monaco_trophy", name: "🏆 Grand Prix Winner's Trophy", pos: [0, 1.8, 58] },
+        { id: "monaco_anchor", name: "⚓ Port Hercule Golden Anchor", pos: [-95, 1.5, 40] },
+      ],
+      neon: [
+        { id: "neon_deck", name: "💾 Cyberpunk Zero-Day Deck", pos: [-18, 1.5, -22] },
+        { id: "neon_core", name: "⚡ Nexus Holo-Core", pos: [0, 1.8, 0] },
+      ],
+      oldtown: [
+        { id: "oldtown_gear", name: "🕰️ Master Clockwork Gear", pos: [0, 1.8, -32] },
+        { id: "oldtown_coin", name: "⛲ Renaissance Wish Coin", pos: [0, 2.0, 16] },
+      ],
+      waterfront: [
+        { id: "waterfront_sextant", name: "🌊 Captain's Brass Sextant", pos: [-20, 2.0, 25] },
+        { id: "waterfront_lens", name: "💡 Lighthouse Keeper's Lens", pos: [50, 1.8, -30] },
+      ],
+    };
+
+    const defs = secretDefs[district] || [];
+    defs.forEach((def) => {
+      const isCollected = this.collectedSecrets.has(def.id);
+      const secret: DoodleSecret = {
+        id: def.id,
+        district,
+        name: def.name,
+        position: new THREE.Vector3(...def.pos),
+        collected: isCollected,
+      };
+
+      if (!isCollected) {
+        const sGroup = new THREE.Group();
+        sGroup.position.copy(secret.position);
+        const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.7, 0), this.defaultMats.orange);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.08, 8, 16), this.defaultMats.cyan);
+        ring.rotation.x = Math.PI / 3;
+        sGroup.add(core, ring);
+        sGroup.userData.noCollision = true;
+        this.engine.scene.add(sGroup);
+        secret.mesh = sGroup;
+      }
+      this.secrets.push(secret);
+    });
+  }
+
+  public checkSecretsProximity(playerPos: THREE.Vector3, onDiscover?: (secret: DoodleSecret) => void): void {
+    for (let i = 0; i < this.secrets.length; i++) {
+      const s = this.secrets[i];
+      if (s.collected) continue;
+      const dist = s.position.distanceTo(playerPos);
+      if (dist < 3.2) {
+        s.collected = true;
+        this.collectedSecrets.add(s.id);
+        if (s.mesh) {
+          this.engine.scene.remove(s.mesh);
+        }
+        doodleAudio.discoveryChime();
+        if (onDiscover) {
+          onDiscover(s);
+        }
+      }
+    }
+  }
+
   public getCityMetrics() {
     let totalRevenue = 0;
     let totalViews = 0;
@@ -3097,6 +3218,8 @@ export class CityBuilder {
       totalSpaces,
       rentedSpaces,
       occupancyPct: totalSpaces > 0 ? Math.round((rentedSpaces / totalSpaces) * 100) : 0,
+      secretsFound: this.collectedSecrets.size,
+      totalSecrets: 12,
     };
   }
 }

@@ -257,7 +257,7 @@ export class DoodleEngine {
 
     // Main 3D Scene - Expanded far plane for real-scale city & circuit maps
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 1200);
+    this.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 20000);
     this.camera.position.set(0, 16, 42);
 
     // WebGL Renderer

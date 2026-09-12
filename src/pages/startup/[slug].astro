@@ -292,14 +292,14 @@ const { startup } = Astro.props;
     });
 
     document.querySelectorAll('.startup-logo-img').forEach((img) => {
-      img.addEventListener('error', function() {
-        (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%2327272a"/><text x="32" y="40" font-size="28" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
+      img.addEventListener('error', function(this: HTMLImageElement) {
+        this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="%2327272a"/><text x="32" y="40" font-size="28" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
       });
     });
 
     document.querySelectorAll('.founder-avatar-img').forEach((img) => {
-      img.addEventListener('error', function() {
-        (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="%233f3f46"/><text x="24" y="30" font-size="18" font-weight="bold" fill="%23a1a1aa" text-anchor="middle">F</text></svg>';
+      img.addEventListener('error', function(this: HTMLImageElement) {
+        this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="%233f3f46"/><text x="24" y="30" font-size="18" font-weight="bold" fill="%23a1a1aa" text-anchor="middle">F</text></svg>';
       });
     });
   </script>

@@ -635,8 +635,8 @@ import { STARTUPS, CATEGORIES, PAYMENT_PROVIDERS, formatCurrency, formatExactCur
 
     // Image error fallback listener
     document.querySelectorAll('.startup-logo-img').forEach((img) => {
-      img.addEventListener('error', function() {
-        (this as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="%2327272a"/><text x="20" y="26" font-size="18" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
+      img.addEventListener('error', function(this: HTMLImageElement) {
+        this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="%2327272a"/><text x="20" y="26" font-size="18" font-weight="bold" fill="%2310b981" text-anchor="middle">S</text></svg>';
       });
     });
 

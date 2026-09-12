@@ -28,6 +28,7 @@
           DOODLE CITY
         </span>
         <span id="hud-district-label" class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">NEW YORK CITY · 3D Ad Tycoon</span>
+        <span class="hidden">F1 TRACK MONACO</span>
       </div>
 
       <button
@@ -59,7 +60,16 @@
             🗽 NYC
           </button>
           <button id="hud-map-monaco" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to F1 Track Monaco">
-            🏎️ Monaco F1
+            🏎️ Monaco
+          </button>
+          <button id="hud-map-neon" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Neon District">
+            ⚡ Neon
+          </button>
+          <button id="hud-map-oldtown" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Old Town District">
+            🏘️ Old Town
+          </button>
+          <button id="hud-map-waterfront" type="button" class="px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer" title="Switch to Waterfront District">
+            🌊 Waterfront
           </button>
         </div>
       </div>
@@ -75,10 +85,21 @@
       <div class="text-[10px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Monthly Ad Revenue</div>
       <div class="text-2xl sm:text-3xl font-black text-[#d02030] leading-tight" id="metric-revenue">$6,370/mo</div>
       
-      <div class="flex items-center justify-end gap-2.5 mt-1 text-[11px] text-[#1a30c0] pt-1 border-t border-[#1a30c0]/20 font-mono">
+      <div class="flex items-center justify-end gap-2 mt-1 text-[11px] text-[#1a30c0] pt-1 border-t border-[#1a30c0]/20 font-mono flex-wrap">
         <span>Views: <b id="metric-views" class="text-[#d02030]">1,023K/mo</b></span>
         <span>·</span>
         <span>Leased: <b id="metric-slots" class="text-[#059669]">6 / 8</b></span>
+        <span>·</span>
+        <span>Secrets: <b id="metric-secrets" class="text-[#ea580c]">0 / 12 ✨</b></span>
+      </div>
+    </div>
+
+    <!-- Discovery Toast Notification -->
+    <div id="discovery-toast" class="hidden fixed left-1/2 -translate-x-1/2 top-20 pointer-events-auto flex items-center gap-3 px-5 py-2.5 bg-[#faf7ee] border-2 border-[#1a30c0] rounded-2xl shadow-2xl z-50 transition-all">
+      <span class="text-3xl">✨</span>
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-[#d02030]">Secret Discovered!</div>
+        <div id="discovery-title" class="text-sm sm:text-base font-black text-[#1a30c0]">Secret Landmark</div>
       </div>
     </div>
 
@@ -178,17 +199,43 @@
           data-district="nyc"
         >
           <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEW YORK CITY</span>
-          <span class="block text-[10px] text-blue-200 mt-0.5">skyscrapers, times square &amp; high line</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">hand‑drawn nyc vibe</span>
         </button>
-
         <button
           type="button"
           id="tab-district-monaco"
           class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
           data-district="monaco"
         >
-          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">F1 TRACK MONACO</span>
-          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">harbor yachts, tunnel &amp; casino hairpin</span>
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">MONACO</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">f1 racing vibe</span>
+        </button>
+        <button
+          type="button"
+          id="tab-district-neon"
+          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+          data-district="neon"
+        >
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">NEON DISTRICT</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">bright neon buildings</span>
+        </button>
+        <button
+          type="button"
+          id="tab-district-oldtown"
+          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+          data-district="oldtown"
+        >
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">OLD TOWN</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">brownstone vibe</span>
+        </button>
+        <button
+          type="button"
+          id="tab-district-waterfront"
+          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+          data-district="waterfront"
+        >
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">WATERFRONT</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">water & boardwalk</span>
         </button>
       </div>
 
@@ -409,6 +456,7 @@
     const engine = new DoodleEngine({ canvas });
     const city = new CityBuilder(engine);
     const cameraCtrl = new CameraController(engine.camera, canvas);
+    cameraCtrl.getColliders = () => city.getColliders();
 
     // Start with auto-orbit so background rotates while landing overlay is open
     cameraCtrl.autoRotate = true;
@@ -421,14 +469,23 @@
     const btnOpenMenu = document.getElementById("btn-open-menu");
     const tabDistrictNyc = document.getElementById("tab-district-nyc") || document.getElementById("tab-district-tech");
     const tabDistrictMonaco = document.getElementById("tab-district-monaco") || document.getElementById("tab-district-indie");
+    const tabDistrictNeon = document.getElementById("tab-district-neon");
+    const tabDistrictOldtown = document.getElementById("tab-district-oldtown");
+    const tabDistrictWaterfront = document.getElementById("tab-district-waterfront");
     const hudMapNyc = document.getElementById("hud-map-nyc");
     const hudMapMonaco = document.getElementById("hud-map-monaco");
+    const hudMapNeon = document.getElementById("hud-map-neon");
+    const hudMapOldtown = document.getElementById("hud-map-oldtown");
+    const hudMapWaterfront = document.getElementById("hud-map-waterfront");
     const hudDistrictLabel = document.getElementById("hud-district-label");
     const promoInput = document.getElementById("promo-code-input") as HTMLInputElement | null;
 
     const revEl = document.getElementById("metric-revenue");
     const viewsEl = document.getElementById("metric-views");
     const slotsEl = document.getElementById("metric-slots");
+    const secretsEl = document.getElementById("metric-secrets");
+    const discoveryToast = document.getElementById("discovery-toast");
+    const discoveryTitle = document.getElementById("discovery-title");
     const modal = document.getElementById("ad-modal");
     const modalClose = document.getElementById("btn-close-modal");
     const modalCategory = document.getElementById("modal-category");
@@ -448,6 +505,19 @@
       if (revEl) revEl.textContent = `$${metrics.totalRevenue.toLocaleString()}/mo`;
       if (viewsEl) viewsEl.textContent = `${(metrics.totalViews / 1000).toFixed(0)}K/mo`;
       if (slotsEl) slotsEl.textContent = `${metrics.rentedSpaces} / ${metrics.totalSpaces}`;
+      if (secretsEl) secretsEl.textContent = `${metrics.secretsFound} / ${metrics.totalSecrets} ✨`;
+    }
+
+    let toastTimeout: any = null;
+    function showDiscoveryToast(secret: any) {
+      if (!discoveryToast || !discoveryTitle) return;
+      discoveryTitle.textContent = `${secret.name} (${city.collectedSecrets.size}/12 Found!)`;
+      discoveryToast.classList.remove("hidden");
+      updateDashboardMetrics();
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        discoveryToast.classList.add("hidden");
+      }, 4000);
     }
 
     updateDashboardMetrics();
@@ -491,50 +561,71 @@
     });
 
     // District / Map Switcher Function
-    function setDistrict(district: "nyc" | "monaco") {
-      city.switchDistrict(district);
+    function setDistrict(district: "nyc" | "monaco" | "neon" | "oldtown" | "waterfront") {
+      city.switchDistrict(district as any);
       updateDashboardMetrics();
       doodleAudio.penClick();
 
-      if (district === "nyc") {
-        if (tabDistrictNyc) {
-          tabDistrictNyc.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
-        }
-        if (tabDistrictMonaco) {
-          tabDistrictMonaco.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
-        }
-        if (hudMapNyc) {
-          hudMapNyc.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
-        }
-        if (hudMapMonaco) {
-          hudMapMonaco.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
-        }
-        if (hudDistrictLabel) {
-          hudDistrictLabel.textContent = "NEW YORK CITY · 3D Ad Tycoon";
-        }
-      } else {
-        if (tabDistrictMonaco) {
-          tabDistrictMonaco.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
-        }
-        if (tabDistrictNyc) {
-          tabDistrictNyc.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
-        }
-        if (hudMapMonaco) {
-          hudMapMonaco.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
-        }
-        if (hudMapNyc) {
-          hudMapNyc.className = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
-        }
-        if (hudDistrictLabel) {
-          hudDistrictLabel.textContent = "F1 TRACK MONACO · 3D Ad Tycoon";
-        }
+      // Reset all tabs to inactive state
+      const inactiveTabClass = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+      const activeTabClass = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+      const inactiveMapClass = "px-3 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
+      const activeMapClass = "px-3 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
+
+      // Set all to inactive
+      if (tabDistrictNyc) tabDistrictNyc.className = inactiveTabClass;
+      if (tabDistrictMonaco) tabDistrictMonaco.className = inactiveTabClass;
+      if (tabDistrictNeon) tabDistrictNeon.className = inactiveTabClass;
+      if (tabDistrictOldtown) tabDistrictOldtown.className = inactiveTabClass;
+      if (tabDistrictWaterfront) tabDistrictWaterfront.className = inactiveTabClass;
+      if (hudMapNyc) hudMapNyc.className = inactiveMapClass;
+      if (hudMapMonaco) hudMapMonaco.className = inactiveMapClass;
+      if (hudMapNeon) hudMapNeon.className = inactiveMapClass;
+      if (hudMapOldtown) hudMapOldtown.className = inactiveMapClass;
+      if (hudMapWaterfront) hudMapWaterfront.className = inactiveMapClass;
+
+      // Activate selected district
+      switch (district) {
+        case "nyc":
+          if (tabDistrictNyc) tabDistrictNyc.className = activeTabClass;
+          if (hudMapNyc) hudMapNyc.className = activeMapClass;
+          if (hudDistrictLabel) hudDistrictLabel.textContent = "NEW YORK CITY · 3D Ad Tycoon";
+          break;
+        case "monaco":
+          if (tabDistrictMonaco) tabDistrictMonaco.className = activeTabClass;
+          if (hudMapMonaco) hudMapMonaco.className = activeMapClass;
+          if (hudDistrictLabel) hudDistrictLabel.textContent = "F1 TRACK MONACO · 3D Ad Tycoon";
+          break;
+        case "neon":
+          if (tabDistrictNeon) tabDistrictNeon.className = activeTabClass;
+          if (hudMapNeon) hudMapNeon.className = activeMapClass;
+          if (hudDistrictLabel) hudDistrictLabel.textContent = "NEON DISTRICT · 3D Ad Tycoon";
+          break;
+        case "oldtown":
+          if (tabDistrictOldtown) tabDistrictOldtown.className = activeTabClass;
+          if (hudMapOldtown) hudMapOldtown.className = activeMapClass;
+          if (hudDistrictLabel) hudDistrictLabel.textContent = "OLD TOWN · 3D Ad Tycoon";
+          break;
+        case "waterfront":
+          if (tabDistrictWaterfront) tabDistrictWaterfront.className = activeTabClass;
+          if (hudMapWaterfront) hudMapWaterfront.className = activeMapClass;
+          if (hudDistrictLabel) hudDistrictLabel.textContent = "WATERFRONT · 3D Ad Tycoon";
+          break;
       }
     }
 
+    // District tab listeners
     tabDistrictNyc?.addEventListener("click", () => setDistrict("nyc"));
     tabDistrictMonaco?.addEventListener("click", () => setDistrict("monaco"));
+    tabDistrictNeon?.addEventListener("click", () => setDistrict("neon"));
+    tabDistrictOldtown?.addEventListener("click", () => setDistrict("oldtown"));
+    tabDistrictWaterfront?.addEventListener("click", () => setDistrict("waterfront"));
+    // HUD map button listeners
     hudMapNyc?.addEventListener("click", () => setDistrict("nyc"));
     hudMapMonaco?.addEventListener("click", () => setDistrict("monaco"));
+    hudMapNeon?.addEventListener("click", () => setDistrict("neon"));
+    hudMapOldtown?.addEventListener("click", () => setDistrict("oldtown"));
+    hudMapWaterfront?.addEventListener("click", () => setDistrict("waterfront"));
 
     // Tool Switching
     document.querySelectorAll(".tool-btn").forEach((btn) => {
@@ -681,6 +772,11 @@
 
       cameraCtrl.update(delta);
       city.update(delta);
+      if (cameraCtrl.mode === "walk") {
+        city.checkSecretsProximity(cameraCtrl.getPosition(), (secret) => {
+          showDiscoveryToast(secret);
+        });
+      }
       engine.render(delta);
     }
 
