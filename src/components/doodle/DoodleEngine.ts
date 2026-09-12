@@ -341,25 +341,133 @@ export class DoodleEngine {
   }
 
   private setupSkyAndEnvironment() {
-    // Hand-Drawn Doodle Sun with Rays
-    const sunGroup = new THREE.Group();
-    sunGroup.position.set(-45, 60, -90);
+    const skyGroup = new THREE.Group();
+    skyGroup.name = "DoodleSkyDome";
 
-    const sunRingGeo = new THREE.RingGeometry(5.5, 6.2, 32);
-    const sunRingMat = this.createDoodleMaterial({ ink: INK_COLORS.ORANGE, fill: true });
-    const sunRing = new THREE.Mesh(sunRingGeo, sunRingMat);
+    const blueMat = this.createDoodleMaterial({ ink: INK_COLORS.BLUE, fill: false });
+    const cyanMat = this.createDoodleMaterial({ ink: INK_COLORS.CYAN, fill: false });
+    const orangeMat = this.createDoodleMaterial({ ink: INK_COLORS.ORANGE, fill: true });
+
+    const domeRadius = 75;
+
+    // 1. Longitude Rib Arches (from ground rim to apex)
+    const numRibs = 12;
+    for (let i = 0; i < numRibs; i++) {
+      const angle = (i / numRibs) * Math.PI;
+      const points: THREE.Vector3[] = [];
+      const segments = 32;
+      for (let s = 0; s <= segments; s++) {
+        const phi = (s / segments) * Math.PI;
+        const x = Math.sin(phi) * Math.cos(angle) * domeRadius;
+        const z = Math.sin(phi) * Math.sin(angle) * domeRadius;
+        const y = Math.cos(phi) * domeRadius;
+        if (y >= -1) points.push(new THREE.Vector3(x, Math.max(0, y), z));
+      }
+      if (points.length >= 2) {
+        const curve = new THREE.CatmullRomCurve3(points);
+        const ribGeo = new THREE.TubeGeometry(curve, 32, 0.25, 4, false);
+        const rib = new THREE.Mesh(ribGeo, blueMat);
+        rib.userData.noCollision = true;
+        skyGroup.add(rib);
+      }
+    }
+
+    // 2. Concentric Horizontal Latitude Rings
+    const ringHeights = [22, 45, 62];
+    ringHeights.forEach((h) => {
+      const r = Math.sqrt(Math.max(0, domeRadius * domeRadius - h * h));
+      const ringGeo = new THREE.TorusGeometry(r, 0.22, 6, 48);
+      ringGeo.rotateX(Math.PI / 2);
+      const ring = new THREE.Mesh(ringGeo, cyanMat);
+      ring.position.y = h;
+      ring.userData.noCollision = true;
+      skyGroup.add(ring);
+    });
+
+    // 3. Ground Rim Collar Ring
+    const rimGeo = new THREE.TorusGeometry(domeRadius, 0.35, 6, 48);
+    rimGeo.rotateX(Math.PI / 2);
+    const rim = new THREE.Mesh(rimGeo, blueMat);
+    rim.position.y = 0.2;
+    rim.userData.noCollision = true;
+    skyGroup.add(rim);
+
+    // 4. Hand-Drawn Doodle Sun with Rays (matching reference screenshot)
+    const sunGroup = new THREE.Group();
+    sunGroup.position.set(-18, 52, -35);
+    const sunRingGeo = new THREE.RingGeometry(5.0, 5.8, 32);
+    const sunRing = new THREE.Mesh(sunRingGeo, orangeMat);
     sunGroup.add(sunRing);
 
-    // 8 Doodle Rays
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const rayGeo = new THREE.BoxGeometry(0.3, 3.2, 0.3);
-      const rayMesh = new THREE.Mesh(rayGeo, sunRingMat);
-      rayMesh.position.set(Math.cos(angle) * 8.5, Math.sin(angle) * 8.5, 0);
-      rayMesh.rotation.z = angle + Math.PI / 2;
-      sunGroup.add(rayMesh);
+    for (let i = 0; i < 10; i++) {
+      const angle = (i / 10) * Math.PI * 2;
+      const rayGeo = new THREE.BoxGeometry(0.35, 3.2, 0.35);
+      const ray = new THREE.Mesh(rayGeo, orangeMat);
+      ray.position.set(Math.cos(angle) * 7.6, Math.sin(angle) * 7.6, 0);
+      ray.rotation.z = angle + Math.PI / 2;
+      sunGroup.add(ray);
     }
-    this.scene.add(sunGroup);
+    const eye1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.2), orangeMat);
+    eye1.position.set(-1.8, 1.2, 0.1);
+    const eye2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.2), orangeMat);
+    eye2.position.set(1.8, 1.2, 0.1);
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.2, 4, 12, Math.PI), orangeMat);
+    mouth.position.set(0, -0.6, 0.1);
+    mouth.rotation.z = Math.PI;
+    sunGroup.add(eye1, eye2, mouth);
+    sunGroup.userData.noCollision = true;
+    skyGroup.add(sunGroup);
+
+    // 5. Floating Doodle Clouds
+    const cloudPositions = [
+      { x: 32, y: 48, z: -25, scale: 1.2 },
+      { x: -35, y: 44, z: 15, scale: 0.9 },
+      { x: 20, y: 55, z: 25, scale: 1.0 },
+    ];
+    cloudPositions.forEach((cp) => {
+      const cloud = new THREE.Group();
+      cloud.position.set(cp.x, cp.y, cp.z);
+      const c1 = new THREE.Mesh(new THREE.SphereGeometry(3.5 * cp.scale, 8, 6), cyanMat);
+      const c2 = new THREE.Mesh(new THREE.SphereGeometry(4.5 * cp.scale, 8, 6), cyanMat);
+      c2.position.set(3.2 * cp.scale, 0.8 * cp.scale, 0);
+      const c3 = new THREE.Mesh(new THREE.SphereGeometry(3.2 * cp.scale, 8, 6), cyanMat);
+      c3.position.set(6.2 * cp.scale, -0.4 * cp.scale, 0);
+      cloud.add(c1, c2, c3);
+      cloud.userData.noCollision = true;
+      skyGroup.add(cloud);
+    });
+
+    // 6. Paper Airplanes Gliding in Sky Dome
+    const planePositions = [
+      { x: -10, y: 46, z: -10, rotY: 0.4, rotZ: 0.1 },
+      { x: 25, y: 38, z: -15, rotY: -0.6, rotZ: -0.15 },
+    ];
+    planePositions.forEach((pp) => {
+      const plane = new THREE.Group();
+      plane.position.set(pp.x, pp.y, pp.z);
+      plane.rotation.set(0.1, pp.rotY, pp.rotZ);
+
+      const wingGeo = new THREE.BufferGeometry();
+      const vertices = new Float32Array([
+        0, 0, 3.5,
+        -2.2, 0.4, -2.5,
+        0, 0.1, -1.8,
+        0, 0, 3.5,
+        0, 0.1, -1.8,
+        2.2, 0.4, -2.5,
+        0, 0, 3.5,
+        0, -0.6, -2.0,
+        0, 0.1, -1.8,
+      ]);
+      wingGeo.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      wingGeo.computeVertexNormals();
+      const planeMesh = new THREE.Mesh(wingGeo, blueMat);
+      plane.add(planeMesh);
+      plane.userData.noCollision = true;
+      skyGroup.add(plane);
+    });
+
+    this.scene.add(skyGroup);
   }
 
   private onResize = () => {

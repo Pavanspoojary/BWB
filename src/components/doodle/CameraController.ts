@@ -326,6 +326,47 @@ export class CameraController {
     return false;
   }
 
+  private getSurfaceHeightUnder(pos: THREE.Vector3): number {
+    let surfaceY = 0;
+    // Base district heights for compatibility
+    if (pos.z >= -280 && pos.z <= -180 && Math.abs(pos.x) <= 90) {
+      const t = Math.max(0, Math.min(1, ((-pos.z) - 180) / 100));
+      surfaceY = t * 25;
+    } else if (pos.z <= -280 && Math.abs(pos.x) <= 100 && pos.y >= 50) {
+      surfaceY = 80;
+    } else if (pos.z >= 30 && pos.z <= 160 && Math.abs(pos.x) <= 80 && pos.y < -5) {
+      surfaceY = -16;
+    } else if (pos.z <= -280 && Math.abs(pos.x) <= 80 && pos.y < -10) {
+      surfaceY = -25;
+    }
+
+    if (!this.getColliders) return surfaceY;
+    const colliders = this.getColliders();
+    if (!colliders || colliders.length === 0) return surfaceY;
+
+    const feetY = pos.y - 1.85;
+    const footRadius = 0.45;
+
+    // Detect highest solid collider surface directly beneath player's feet
+    for (let i = 0; i < colliders.length; i++) {
+      const b = colliders[i];
+      if (
+        pos.x + footRadius > b.min.x &&
+        pos.x - footRadius < b.max.x &&
+        pos.z + footRadius > b.min.z &&
+        pos.z - footRadius < b.max.z
+      ) {
+        // Platform or stair step: must be below feet or at most 0.65m step-up
+        if (b.max.y <= feetY + 0.65) {
+          if (b.max.y > surfaceY) {
+            surfaceY = b.max.y;
+          }
+        }
+      }
+    }
+    return surfaceY;
+  }
+
   public update(delta: number) {
     if (this.mode === "orbit") {
       if (this.autoRotate && !this.isOrbitDragging && !this.isPanning) {
@@ -335,23 +376,8 @@ export class CameraController {
         this.updateOrbitCamera();
       }
     } else if (this.mode === "walk") {
-      // Dynamic ground height determination based on position in megacity
-      let targetGround = 0;
-      if (this.walkPos.z >= -280 && this.walkPos.z <= -180 && Math.abs(this.walkPos.x) <= 90) {
-        // Residential hills elevation transition: slopes up to 25m
-        const t = Math.max(0, Math.min(1, ((-this.walkPos.z) - 180) / 100));
-        targetGround = t * 25;
-      } else if (this.walkPos.z <= -280 && Math.abs(this.walkPos.x) <= 100 && this.walkPos.y >= 50) {
-        // Cloud district sky platforms
-        targetGround = 80;
-      } else if (this.walkPos.z >= 30 && this.walkPos.z <= 160 && Math.abs(this.walkPos.x) <= 80 && this.walkPos.y < -5) {
-        // Underground city
-        targetGround = -16;
-      } else if (this.walkPos.z <= -280 && Math.abs(this.walkPos.x) <= 80 && this.walkPos.y < -10) {
-        // Secret endgame core
-        targetGround = -25;
-      }
-      this.groundHeight = targetGround + 2.0;
+      const surfaceY = this.getSurfaceHeightUnder(this.walkPos);
+      this.groundHeight = surfaceY + 2.0;
 
       const isMoving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
       const speed = this.isSprinting ? 36.0 : (this.isCrouching ? 8.0 : 20.0);
@@ -377,30 +403,44 @@ export class CameraController {
           const stepMove = totalMove.clone().divideScalar(steps);
 
           for (let s = 0; s < steps; s++) {
-            // Wall collision with smooth sliding along X axis
+            // Wall collision with smooth sliding along X axis + stair stepping
             const testX = this.walkPos.clone();
             testX.x += stepMove.x;
             if (!this.checkCollision(testX)) {
               this.walkPos.x = testX.x;
+            } else {
+              const stepUpX = testX.clone();
+              stepUpX.y += 0.5;
+              if (!this.checkCollision(stepUpX)) {
+                this.walkPos.x = testX.x;
+                this.walkPos.y = stepUpX.y;
+              }
             }
 
-            // Wall collision with smooth sliding along Z axis
+            // Wall collision with smooth sliding along Z axis + stair stepping
             const testZ = this.walkPos.clone();
             testZ.z += stepMove.z;
             if (!this.checkCollision(testZ)) {
               this.walkPos.z = testZ.z;
+            } else {
+              const stepUpZ = testZ.clone();
+              stepUpZ.y += 0.5;
+              if (!this.checkCollision(stepUpZ)) {
+                this.walkPos.z = testZ.z;
+                this.walkPos.y = stepUpZ.y;
+              }
             }
           }
 
           this.resolvePenetration();
 
-          // Clamp inside district boundary
+          // Clamp inside arena boundary
           this.walkPos.x = Math.max(-this.walkClamp.x, Math.min(this.walkClamp.x, this.walkPos.x));
           this.walkPos.z = Math.max(-this.walkClamp.z, Math.min(this.walkClamp.z, this.walkPos.z));
         }
       }
 
-      // Jump & Gravity physics
+      // Jump & Gravity physics with vertical platform landing
       if (!this.isGrounded) {
         this.verticalVelocity -= 28.0 * delta; // Gravity
         this.walkPos.y += this.verticalVelocity * delta;
@@ -412,7 +452,13 @@ export class CameraController {
           this.jumpsRemaining = 2;
         }
       } else {
-        this.walkPos.y = this.groundHeight;
+        // If walking off an edge onto lower ground or void
+        if (this.walkPos.y > this.groundHeight + 0.3) {
+          this.isGrounded = false;
+        } else {
+          // Smoothly adapt to stepped surface height (e.g. climbing stairs)
+          this.walkPos.y = THREE.MathUtils.lerp(this.walkPos.y, this.groundHeight, 0.35);
+        }
       }
 
       this.updateWalkCamera();

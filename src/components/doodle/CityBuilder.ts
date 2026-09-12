@@ -13,8 +13,7 @@ export type BuildingType =
   | "tree"
   | "streetlight";
 
-export interface AdSpace {
-  id: string;
+export interface AdBillboardConfig {
   title: string;
   category: "Rooftop Billboard" | "Wall Banner" | "Highway Billboard" | "Street Kiosk" | "Scaffolding Ad";
   viewsMonthly: number;
@@ -23,6 +22,12 @@ export interface AdSpace {
   sponsorTagline: string;
   accentColor: string;
   isAvailable: boolean;
+  imageUrl?: string;
+  linkUrl?: string;
+}
+
+export interface AdSpace extends AdBillboardConfig {
+  id: string;
   mesh: THREE.Mesh;
   canvas: HTMLCanvasElement;
   texture: THREE.CanvasTexture;
@@ -103,7 +108,7 @@ export class CityBuilder {
     cyan: THREE.ShaderMaterial;
   };
 
-  // Pre-configured NYC sponsor billboards
+  // Pre-configured sponsor billboards with real logos
   private initialAdConfigs = [
     {
       title: "One Times Square - Towering LED Spectacular",
@@ -114,6 +119,8 @@ export class CityBuilder {
       sponsorTagline: "Financial infrastructure for the internet",
       accentColor: "#6366f1",
       isAvailable: false,
+      imageUrl: "https://images.ctfassets.net/f60q1anpxzid/asset-1718873099042/727f7f858276f571fafead354f9a4fa1/stripe-logo.png",
+      linkUrl: "https://stripe.com",
     },
     {
       title: "Empire State Building - 34th St Billboard",
@@ -124,6 +131,8 @@ export class CityBuilder {
       sponsorTagline: "Develop. Preview. Ship. Fast.",
       accentColor: "#1a30c0",
       isAvailable: false,
+      imageUrl: "https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png",
+      linkUrl: "https://vercel.com",
     },
     {
       title: "Chrysler Spire - 42nd St Mega-Banner",
@@ -134,6 +143,8 @@ export class CityBuilder {
       sponsorTagline: "Supercharged productivity shortcuts for Mac",
       accentColor: "#ef4444",
       isAvailable: false,
+      imageUrl: "https://www.raycast.com/favicon-production.png",
+      linkUrl: "https://raycast.com",
     },
     {
       title: "Flatiron Prow - Broadway & 5th Ave",
@@ -144,6 +155,8 @@ export class CityBuilder {
       sponsorTagline: "The Open Source Firebase Alternative",
       accentColor: "#10b981",
       isAvailable: false,
+      imageUrl: "https://supabase.com/_next/image?url=%2Fimages%2Fcompany%2Fbrand%2Fsupabase-logo-wordmark--light.png&w=384&q=75",
+      linkUrl: "https://supabase.com",
     },
     {
       title: "Times Square Broadway - Digital Canyon Wall",
@@ -154,6 +167,8 @@ export class CityBuilder {
       sponsorTagline: "SQLite distributed database for developers",
       accentColor: "#06b6d4",
       isAvailable: false,
+      imageUrl: "https://turso.tech/images/turso-light.png",
+      linkUrl: "https://turso.tech",
     },
     {
       title: "High Line Elevated Rail - Overpass Billboard",
@@ -164,6 +179,8 @@ export class CityBuilder {
       sponsorTagline: "Where the world builds software",
       accentColor: "#1a30c0",
       isAvailable: false,
+      imageUrl: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
+      linkUrl: "https://github.com",
     },
     {
       title: "West Village Brownstone - Fire Escape Banner",
@@ -171,9 +188,11 @@ export class CityBuilder {
       viewsMonthly: 65000,
       priceMonthly: 450,
       sponsorName: "YOUR BRAND HERE",
-      sponsorTagline: "Prime pedestrian visibility in Soho",
+      sponsorTagline: "Prime pedestrian visibility in Courtyard",
       accentColor: "#d02030",
       isAvailable: true,
+      imageUrl: "",
+      linkUrl: "",
     },
     {
       title: "Subway 42nd St Station - Entrance Kiosk",
@@ -1706,8 +1725,8 @@ export class CityBuilder {
   }
 
   // Create Billboard Mesh with attached AdSpace metadata
-  private createAdBillboardMesh(
-    adConfig: typeof this.initialAdConfigs[0],
+  public createAdBillboardMesh(
+    adConfig: AdBillboardConfig,
     width: number,
     height: number,
     parentGroup: THREE.Group
@@ -1738,6 +1757,8 @@ export class CityBuilder {
       sponsorTagline: adConfig.sponsorTagline,
       accentColor: adConfig.accentColor,
       isAvailable: adConfig.isAvailable,
+      imageUrl: adConfig.imageUrl,
+      linkUrl: adConfig.linkUrl,
       mesh: billboardMesh,
       canvas,
       texture,
@@ -1750,7 +1771,7 @@ export class CityBuilder {
     return billboardMesh;
   }
 
-  // Generate 2D canvas texture for an ad space with authentic doodle styling
+  // Generate 2D canvas texture for an ad space with authentic doodle styling & optional real logo/image
   private createBillboardTexture(ad: {
     sponsorName: string;
     sponsorTagline: string;
@@ -1758,25 +1779,30 @@ export class CityBuilder {
     isAvailable: boolean;
     priceMonthly: number;
     viewsMonthly: number;
+    imageUrl?: string;
   }): { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture } {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 256;
     const ctx = canvas.getContext("2d")!;
 
-    this.drawAdCanvas(ctx, canvas.width, canvas.height, ad);
-
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
+
+    this.drawAdCanvas(ctx, canvas.width, canvas.height, ad, () => {
+      texture.needsUpdate = true;
+    });
 
     return { canvas, texture };
   }
 
   public redrawBillboard(ad: AdSpace) {
     const ctx = ad.canvas.getContext("2d")!;
-    this.drawAdCanvas(ctx, ad.canvas.width, ad.canvas.height, ad);
+    this.drawAdCanvas(ctx, ad.canvas.width, ad.canvas.height, ad, () => {
+      ad.texture.needsUpdate = true;
+    });
     ad.texture.needsUpdate = true;
   }
 
@@ -1791,7 +1817,9 @@ export class CityBuilder {
       isAvailable: boolean;
       priceMonthly: number;
       viewsMonthly: number;
-    }
+      imageUrl?: string;
+    },
+    onImageLoaded?: () => void
   ) {
     // 1. Paper texture fill
     ctx.fillStyle = "#faf7ee";
@@ -1835,9 +1863,9 @@ export class CityBuilder {
       ctx.fillText(`$${ad.priceMonthly}/mo · ${(ad.viewsMonthly / 1000).toFixed(0)}K views`, 32, 206);
     } else {
       ctx.fillStyle = "#059669";
-      ctx.fillText("● NYC VERIFIED SPONSOR", 32, 46);
+      ctx.fillText("● VERIFIED SPONSOR", 32, 46);
 
-      ctx.font = "bold 48px 'Patrick Hand', cursive, sans-serif";
+      ctx.font = "bold 46px 'Patrick Hand', cursive, sans-serif";
       ctx.fillStyle = ad.accentColor || "#1a30c0";
       ctx.fillText(ad.sponsorName, 32, 112);
 
@@ -1857,6 +1885,83 @@ export class CityBuilder {
       ctx.arc(x, y, 4, 0, Math.PI * 2);
       ctx.fill();
     });
+
+    // 5. If a real Image/Logo URL is supplied, load and render it inside the billboard
+    if (ad.imageUrl) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        // Redraw canvas with the logo nicely framed
+        ctx.fillStyle = "#faf7ee";
+        ctx.fillRect(0, 0, w, h);
+
+        // Faint blue ruled lines
+        ctx.strokeStyle = "rgba(26, 48, 192, 0.12)";
+        ctx.lineWidth = 1.5;
+        for (let y = 24; y < h; y += 28) {
+          ctx.beginPath();
+          ctx.moveTo(10, y);
+          ctx.lineTo(w - 10, y);
+          ctx.stroke();
+        }
+
+        // Draw image in upper/middle frame with padding
+        const padX = 32;
+        const padY = 28;
+        const maxW = w - padX * 2;
+        const maxH = h - padY * 2 - 40;
+
+        let drawW = img.width || 200;
+        let drawH = img.height || 100;
+        const aspect = drawW / drawH;
+        if (drawW > maxW) {
+          drawW = maxW;
+          drawH = drawW / aspect;
+        }
+        if (drawH > maxH) {
+          drawH = maxH;
+          drawW = drawH * aspect;
+        }
+
+        const imgX = (w - drawW) / 2;
+        const imgY = padY + (maxH - drawH) / 2;
+        ctx.drawImage(img, imgX, imgY, drawW, drawH);
+
+        // Corner scotch-tape strips for hand-drawn notebook aesthetic
+        ctx.fillStyle = "rgba(240, 220, 160, 0.7)";
+        ctx.save();
+        ctx.translate(imgX - 4, imgY - 4);
+        ctx.rotate(-0.25);
+        ctx.fillRect(-10, -6, 26, 12);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(imgX + drawW + 4, imgY - 4);
+        ctx.rotate(0.25);
+        ctx.fillRect(-16, -6, 26, 12);
+        ctx.restore();
+
+        // Border around billboard
+        ctx.strokeStyle = ad.isAvailable ? "#d02030" : "#1a30c0";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(12, 12, w - 24, h - 24);
+        ctx.strokeStyle = ad.isAvailable ? "rgba(208, 32, 48, 0.45)" : "rgba(26, 48, 192, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(18, 18, w - 36, h - 36);
+
+        // Bottom sponsor label
+        ctx.font = "bold 20px 'Patrick Hand', cursive, sans-serif";
+        ctx.fillStyle = ad.accentColor || "#1a30c0";
+        ctx.fillText(ad.sponsorName, 32, h - 34);
+
+        ctx.font = "16px 'Patrick Hand', cursive, sans-serif";
+        ctx.fillStyle = "#52525b";
+        ctx.fillText(ad.sponsorTagline || "Click to visit sponsor", 32, h - 14);
+
+        if (onImageLoaded) onImageLoaded();
+      };
+      img.src = ad.imageUrl;
+    }
   }
 
   // Beautiful Hand-Drawn Doodle Trees
@@ -3164,7 +3269,7 @@ export class CityBuilder {
 
   public leaseAdSpace(
     adId: string,
-    inputs: { sponsorName: string; sponsorTagline: string; accentColor: string }
+    inputs: { sponsorName: string; sponsorTagline: string; accentColor: string; imageUrl?: string; linkUrl?: string }
   ): boolean {
     const ad = this.adSpaces.get(adId);
     if (!ad) return false;
@@ -3172,6 +3277,8 @@ export class CityBuilder {
     ad.sponsorName = inputs.sponsorName;
     ad.sponsorTagline = inputs.sponsorTagline;
     ad.accentColor = inputs.accentColor;
+    if (inputs.imageUrl !== undefined) ad.imageUrl = inputs.imageUrl;
+    if (inputs.linkUrl !== undefined) ad.linkUrl = inputs.linkUrl;
     ad.isAvailable = false;
 
     this.redrawBillboard(ad);
@@ -3245,6 +3352,15 @@ export class CityBuilder {
     this.secrets = [];
 
     const allSecretDefs: { id: string; district: string; name: string; pos: [number, number, number] }[] = [
+      // 0. Courtyard Arena Parkour Tokens (high-density exploration)
+      { id: "arena_stairs", district: "downtown", name: "⭐ West Exterior Staircase Token", pos: [-24, 1.2, 5] },
+      { id: "arena_bridge", district: "downtown", name: "🌉 Suspended Skybridge Secret Token", pos: [-19, 7.2, -6] },
+      { id: "arena_crane_cab", district: "downtown", name: "🏗️ Tower Crane Operator's Key", pos: [2.4, 33.2, 0] },
+      { id: "arena_crane_tip", district: "downtown", name: "👑 Summit Crane Boom Champion Crown", pos: [0, 34.2, 18] },
+      { id: "arena_watertank", district: "downtown", name: "🚰 East Building Rooftop Tank Token", pos: [35, 23.0, -6] },
+      { id: "arena_crate_parkour", district: "downtown", name: "📦 Crate Parkour Stash Token", pos: [-14, 3.8, 6] },
+      { id: "arena_colonnade", district: "downtown", name: "🏛️ North Colonnade Hidden Token", pos: [0, 1.5, -28] },
+
       // 1. Downtown
       { id: "downtown_vault", district: "downtown", name: "🗝️ 34th St Rooftop Vault Key", pos: [-70, 18.0, 20] },
       { id: "downtown_bull", district: "downtown", name: "🐂 Golden Bull of Wall Street", pos: [-85, 1.6, 5] },

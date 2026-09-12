@@ -99,6 +99,24 @@
       <div id="walk-helper" class="hidden bg-[#faf7ee]/95 border border-[#1a30c0] text-[#1a30c0] px-4 py-1 rounded-full text-xs shadow-sm pointer-events-none">
         Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · Click billboard to sponsor
       </div>
+
+      <!-- Speedrun Parkour Live Stopwatch HUD -->
+      <div id="speedrun-hud" class="bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2 sm:p-2.5 shadow-md -rotate-1 text-[#1a30c0] font-[Patrick_Hand,cursive] pointer-events-auto">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⏱️</span>
+          <div>
+            <div class="text-[9px] uppercase font-bold tracking-wider text-[#d02030] leading-none">Rooftop Parkour Speedrun</div>
+            <div id="speedrun-timer" class="text-xl sm:text-2xl font-black font-mono leading-tight">00:00.00</div>
+          </div>
+          <button id="btn-reset-speedrun" type="button" class="ml-1 px-2 py-0.5 text-xs font-bold rounded-lg border border-[#1a30c0] hover:bg-[#1a30c0] hover:text-white transition-all cursor-pointer" title="Reset Run (Key: R)">
+            Reset [R]
+          </button>
+        </div>
+        <div class="text-[10px] text-[#1a30c0]/80 mt-0.5 flex items-center justify-between border-t border-[#1a30c0]/20 pt-0.5 font-mono">
+          <span>Route: Ground → Bridge → Crane Tip</span>
+          <span>PB: <b id="speedrun-pb" class="text-[#059669]">--:--.--</b></span>
+        </div>
+      </div>
     </div>
 
     <!-- Top Right: City Revenue & Metrics Badge -->
@@ -500,6 +518,27 @@
         </div>
 
         <div>
+          <label class="block text-sm font-bold mb-1">Logo / Banner Image URL (Optional)</label>
+          <input
+            type="url"
+            id="input-logo-url"
+            placeholder="https://example.com/logo.png"
+            class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-medium focus:outline-none focus:border-[#d02030]"
+          />
+          <span class="text-[11px] text-[#1a30c0]/70">Renders real image inside billboard with hand-drawn scotch tape</span>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold mb-1">Target Website Link (Optional)</label>
+          <input
+            type="url"
+            id="input-link-url"
+            placeholder="https://yourwebsite.com"
+            class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-medium focus:outline-none focus:border-[#d02030]"
+          />
+        </div>
+
+        <div>
           <label class="block text-sm font-bold mb-1">Doodle Pen Ink Color</label>
           <div class="flex items-center gap-3">
             <label class="flex items-center gap-1 cursor-pointer">
@@ -529,6 +568,22 @@
         </button>
       </form>
 
+      <!-- Leased Ad Details & Visit Link -->
+      <div id="modal-leased-info" class="hidden space-y-3 mt-4">
+        <div id="modal-image-preview-container" class="p-3 bg-white/70 rounded-xl border border-[#1a30c0]/30 text-center">
+          <img id="modal-image-preview" src="" alt="Sponsor Banner" class="max-h-32 max-w-full mx-auto object-contain rounded-md" />
+        </div>
+        <a
+          id="btn-visit-sponsor"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block w-full py-2.5 rounded-2xl bg-[#059669] hover:bg-[#047857] text-white text-center font-black text-lg transition-all shadow-md cursor-pointer"
+        >
+          🚀 Visit Sponsor Website ↗
+        </a>
+      </div>
+
       <div id="sponsor-success" class="hidden text-center py-4">
         <div class="text-4xl mb-1">🎉</div>
         <h4 class="text-xl font-black text-[#059669]">Billboard Claimed!</h4>
@@ -542,6 +597,7 @@
 
 <!-- Client-Side Doodle Engine Bootstrap Script -->
 <script>
+  import * as THREE from "three";
   import { DoodleEngine } from "./DoodleEngine";
   import { CityBuilder, type BuildingType } from "./CityBuilder";
   import { CameraController } from "./CameraController";
@@ -593,10 +649,53 @@
     const modalAdId = document.getElementById("modal-ad-id") as HTMLInputElement;
     const inputBrand = document.getElementById("input-brand-name") as HTMLInputElement;
     const inputTagline = document.getElementById("input-tagline") as HTMLInputElement;
+    const inputLogoUrl = document.getElementById("input-logo-url") as HTMLInputElement | null;
+    const inputLinkUrl = document.getElementById("input-link-url") as HTMLInputElement | null;
+    const modalLeasedBox = document.getElementById("modal-leased-info");
+    const modalImagePreviewContainer = document.getElementById("modal-image-preview-container");
+    const modalImagePreview = document.getElementById("modal-image-preview") as HTMLImageElement | null;
+    const btnVisitSponsor = document.getElementById("btn-visit-sponsor") as HTMLAnchorElement | null;
+    const speedrunTimer = document.getElementById("speedrun-timer");
+    const speedrunPb = document.getElementById("speedrun-pb");
+    const btnResetSpeedrun = document.getElementById("btn-reset-speedrun");
     const sponsorForm = document.getElementById("ad-sponsor-form") as HTMLFormElement;
     const sponsorSuccess = document.getElementById("sponsor-success");
     const walkHelper = document.getElementById("walk-helper");
     const btnSound = document.getElementById("btn-sound-toggle");
+
+    // Rooftop Parkour Speedrun State
+    let speedrunState: "idle" | "running" | "finished" = "idle";
+    let speedrunStartTime = 0;
+    let speedrunElapsedTime = 0;
+    let speedrunPassedBridge = false;
+    let speedrunPB = parseFloat(localStorage.getItem("doodle_speedrun_pb") || "0") || 0;
+
+    function formatSpeedrunTime(seconds: number): string {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      const ms = Math.floor((seconds * 100) % 100);
+      return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${ms.toString().padStart(2, "0")}`;
+    }
+
+    if (speedrunPb && speedrunPB > 0) {
+      speedrunPb.textContent = formatSpeedrunTime(speedrunPB);
+    }
+
+    function resetSpeedrun() {
+      speedrunState = "idle";
+      speedrunStartTime = 0;
+      speedrunElapsedTime = 0;
+      speedrunPassedBridge = false;
+      if (speedrunTimer) speedrunTimer.textContent = "00:00.00";
+      cameraCtrl.teleportTo(0, 0, 24, new THREE.Vector3(0, 8, -6));
+    }
+
+    btnResetSpeedrun?.addEventListener("click", resetSpeedrun);
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "KeyR" && cameraCtrl.mode === "walk" && (!modal || modal.classList.contains("hidden"))) {
+        resetSpeedrun();
+      }
+    });
 
     function updateDashboardMetrics() {
       const metrics = city.getCityMetrics();
@@ -807,7 +906,7 @@
       if (enabled) doodleAudio.penClick();
     });
 
-    // Open Billboard Modal helper
+    // Open Billboard Modal helper with real image & link support
     function openAdModal(ad: any) {
       modalCategory!.textContent = ad.category;
       modalTitle!.textContent = ad.title;
@@ -816,8 +915,28 @@
       modalAdId.value = ad.id;
       inputBrand.value = ad.sponsorName === "YOUR BRAND HERE" || ad.sponsorName === "AVAILABLE AD SLOT" ? "" : ad.sponsorName;
       inputTagline.value = ad.sponsorTagline;
+      if (inputLogoUrl) inputLogoUrl.value = ad.imageUrl || "";
+      if (inputLinkUrl) inputLinkUrl.value = ad.linkUrl || "";
 
-      sponsorForm.classList.remove("hidden");
+      if (ad.isAvailable) {
+        sponsorForm.classList.remove("hidden");
+        modalLeasedBox?.classList.add("hidden");
+      } else {
+        sponsorForm.classList.remove("hidden");
+        if (modalLeasedBox) {
+          modalLeasedBox.classList.remove("hidden");
+          if (ad.imageUrl && modalImagePreview && modalImagePreviewContainer) {
+            modalImagePreview.src = ad.imageUrl;
+            modalImagePreviewContainer.classList.remove("hidden");
+          } else if (modalImagePreviewContainer) {
+            modalImagePreviewContainer.classList.add("hidden");
+          }
+          if (btnVisitSponsor) {
+            btnVisitSponsor.href = ad.linkUrl || "https://builtwhilebroke.tech";
+          }
+        }
+      }
+
       sponsorSuccess?.classList.add("hidden");
       modal?.classList.remove("hidden");
     }
@@ -841,7 +960,7 @@
       if (e.target === modal) modal.classList.add("hidden");
     });
 
-    // Submit Sponsor Booking
+    // Submit Sponsor Booking with Logo & URL
     sponsorForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       const adId = modalAdId.value;
@@ -849,11 +968,15 @@
       const tagline = inputTagline.value.trim() || "Verified Doodle Sponsor";
       const colorRadio = document.querySelector('input[name="accentColor"]:checked') as HTMLInputElement | null;
       const accentColor = colorRadio ? colorRadio.value : "#1a30c0";
+      const logoUrl = inputLogoUrl ? inputLogoUrl.value.trim() : "";
+      const linkUrl = inputLinkUrl ? inputLinkUrl.value.trim() : "";
 
       city.leaseAdSpace(adId, {
         sponsorName: brandName,
         sponsorTagline: tagline,
         accentColor,
+        imageUrl: logoUrl || undefined,
+        linkUrl: linkUrl || undefined,
       });
 
       updateDashboardMetrics();
@@ -906,12 +1029,47 @@
 
       cameraCtrl.update(delta);
       city.update(delta);
+
       if (cameraCtrl.mode === "walk") {
         const p = cameraCtrl.getPosition();
         city.checkSecretsProximity(p, (secret) => {
           showDiscoveryToast(secret);
         });
         checkDistrictBoundary(p);
+
+        // Rooftop Parkour Speedrun Tracker
+        if (speedrunState === "idle") {
+          // Trigger start when stepping off spawn pad
+          const distFromSpawn = Math.hypot(p.x - 0, p.z - 24);
+          if (distFromSpawn > 2.0 && distFromSpawn < 18.0) {
+            speedrunState = "running";
+            speedrunStartTime = performance.now();
+          }
+        } else if (speedrunState === "running") {
+          speedrunElapsedTime = (performance.now() - speedrunStartTime) / 1000;
+          if (speedrunTimer) {
+            speedrunTimer.textContent = formatSpeedrunTime(speedrunElapsedTime);
+          }
+
+          // Checkpoint 1: Skybridge (x around -19, z around -6, elevated y >= 5.5)
+          if (!speedrunPassedBridge && Math.hypot(p.x - (-19), p.z - (-6)) < 4.5 && p.y >= 5.5) {
+            speedrunPassedBridge = true;
+            doodleAudio.discoveryChime();
+          }
+
+          // Finish Line: Crane Boom Tip (x around 0, z around 14 to 20, high elevation y >= 30.0)
+          if (speedrunPassedBridge && Math.hypot(p.x - 0, p.z - 16) < 4.0 && p.y >= 30.0) {
+            speedrunState = "finished";
+            doodleAudio.rentAd();
+            if (speedrunPB === 0 || speedrunElapsedTime < speedrunPB) {
+              speedrunPB = speedrunElapsedTime;
+              localStorage.setItem("doodle_speedrun_pb", speedrunPB.toFixed(2));
+              if (speedrunPb) {
+                speedrunPb.textContent = formatSpeedrunTime(speedrunPB) + " 🏆 NEW PB!";
+              }
+            }
+          }
+        }
       }
       engine.render(delta);
     }
