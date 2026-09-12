@@ -203,8 +203,8 @@ void main() {
     }
   }
 
-  float fade = mix(1.0, 0.28, smoothstep(14.0, 110.0, d));
-  float fadeE = mix(1.0, 0.45, smoothstep(30.0, 220.0, dFront));
+  float fade = mix(1.0, 0.28, smoothstep(30.0, 550.0, d));
+  float fadeE = mix(1.0, 0.45, smoothstep(60.0, 850.0, dFront));
 
   // Notebook paper simulation (cream base, grain, blue ruled lines, red left margin)
   vec2 pp = gl_FragCoord.xy;
@@ -255,10 +255,10 @@ export class DoodleEngine {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    // Main 3D Scene
+    // Main 3D Scene - Expanded far plane for real-scale city & circuit maps
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 300);
-    this.camera.position.set(0, 12, 28);
+    this.camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 1200);
+    this.camera.position.set(0, 16, 42);
 
     // WebGL Renderer
     this.renderer = new THREE.WebGLRenderer({

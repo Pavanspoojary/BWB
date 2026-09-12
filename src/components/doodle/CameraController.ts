@@ -9,8 +9,8 @@ export class CameraController {
   public autoRotate: boolean = true;
 
   // Orbit controls state
-  private target = new THREE.Vector3(0, 5, 0);
-  private spherical = new THREE.Spherical(56, Math.PI / 3.4, Math.PI / 4);
+  private target = new THREE.Vector3(0, 6, 0);
+  private spherical = new THREE.Spherical(95, Math.PI / 3.2, Math.PI / 4);
   private isOrbitDragging = false;
   private isPanning = false;
   private previousMouse = { x: 0, y: 0 };
@@ -99,7 +99,7 @@ export class CameraController {
         this.spherical.phi = Math.max(0.1, Math.min(Math.PI / 2.05, this.spherical.phi - dy * 0.005));
         this.updateOrbitCamera();
       } else if (this.isPanning) {
-        const panSpeed = 0.04 * (this.spherical.radius / 50);
+        const panSpeed = 0.05 * (this.spherical.radius / 60);
         const forward = new THREE.Vector3().subVectors(this.target, this.camera.position);
         forward.y = 0;
         forward.normalize();
@@ -121,7 +121,7 @@ export class CameraController {
   private onWheel = (e: WheelEvent) => {
     e.preventDefault();
     if (this.mode === "orbit") {
-      this.spherical.radius = Math.max(12, Math.min(120, this.spherical.radius + e.deltaY * 0.05));
+      this.spherical.radius = Math.max(15, Math.min(550, this.spherical.radius + e.deltaY * 0.08));
       this.updateOrbitCamera();
     }
   };
@@ -217,7 +217,7 @@ export class CameraController {
       }
     } else if (this.mode === "walk") {
       const isMoving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
-      const speed = this.isSprinting ? 26.0 : (this.isCrouching ? 8.0 : 15.0);
+      const speed = this.isSprinting ? 36.0 : (this.isCrouching ? 8.0 : 20.0);
 
       if (isMoving) {
         this.walkStepTimer += delta;
@@ -234,9 +234,9 @@ export class CameraController {
         if (moveDir.lengthSq() > 0) {
           moveDir.normalize();
           this.walkPos.addScaledVector(moveDir, speed * delta);
-          // Clamp inside city boundary
-          this.walkPos.x = Math.max(-65, Math.min(65, this.walkPos.x));
-          this.walkPos.z = Math.max(-65, Math.min(65, this.walkPos.z));
+          // Clamp inside expanded real-scale city boundary
+          this.walkPos.x = Math.max(-280, Math.min(280, this.walkPos.x));
+          this.walkPos.z = Math.max(-280, Math.min(280, this.walkPos.z));
         }
       }
 
