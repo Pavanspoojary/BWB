@@ -341,18 +341,7 @@ export class DoodleEngine {
   }
 
   private setupSkyAndEnvironment() {
-    // 1. Geodesic Wireframe Sky Dome
-    const domeGeo = new THREE.IcosahedronGeometry(180, 2);
-    const domeWireMat = new THREE.MeshBasicMaterial({
-      color: 0x1a30c0,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.16,
-    });
-    const skyDome = new THREE.Mesh(domeGeo, domeWireMat);
-    this.scene.add(skyDome);
-
-    // 2. Hand-Drawn Doodle Sun with Rays
+    // Hand-Drawn Doodle Sun with Rays
     const sunGroup = new THREE.Group();
     sunGroup.position.set(-45, 60, -90);
 
