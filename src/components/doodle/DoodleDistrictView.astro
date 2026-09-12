@@ -1,0 +1,648 @@
+---
+// Shared 3D Doodle City Scene & Landing Page View
+---
+
+<!-- Fullscreen 3D Doodle City Container -->
+<div class="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#faf7ee]" id="game-container">
+  
+  <!-- 3D WebGL Canvas for G-buffer and Post-Processing Shader -->
+  <canvas id="doodle-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+
+  <!-- IN-GAME HUD (Initially hidden; appears after clicking START) -->
+  <div id="doodle-hud" class="hidden absolute inset-0 pointer-events-none text-[#1a30c0] font-[Patrick_Hand,cursive]">
+    
+    <!-- Top Left: Title Badge & Menu Button -->
+    <div class="absolute left-4 sm:left-6 top-4 pointer-events-auto flex items-center gap-3">
+      <button
+        id="btn-open-menu"
+        type="button"
+        class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border-2 border-[#1a30c0] bg-[#faf7ee]/95 hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all shadow-md cursor-pointer -rotate-1"
+        title="Open Landing Menu (Esc)"
+      >
+        <span class="text-base font-bold">☰ MENU</span>
+        <span class="text-[10px] px-1.5 py-0.2 rounded border border-current font-mono">ESC</span>
+      </button>
+
+      <div class="hidden md:block">
+        <span class="text-xl sm:text-2xl font-black text-[#1a30c0] tracking-wide">
+          DOODLE CITY
+        </span>
+        <span class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">DOODLE DISTRICT · 3D Ad Tycoon</span>
+      </div>
+
+      <button
+        id="btn-sound-toggle"
+        type="button"
+        class="px-2.5 py-1.5 text-xs font-bold rounded-xl border-2 border-[#1a30c0] bg-[#faf7ee]/95 hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all shadow-sm cursor-pointer"
+        title="Toggle SFX"
+      >
+        🔊 Pen SFX: ON
+      </button>
+    </div>
+
+    <!-- Top Center: View Mode Switcher & Helper -->
+    <div class="absolute left-1/2 -translate-x-1/2 top-4 pointer-events-auto flex flex-col items-center gap-2">
+      <div class="flex items-center gap-1.5 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
+        <button id="btn-mode-orbit" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer">
+          🛰️ God / Orbit View
+        </button>
+        <button id="btn-mode-walk" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer">
+          🚶 1st-Person Walk (WASD)
+        </button>
+      </div>
+
+      <!-- Helper Toast for Walk Controls -->
+      <div id="walk-helper" class="hidden bg-[#faf7ee]/95 border border-[#1a30c0] text-[#1a30c0] px-4 py-1 rounded-full text-xs shadow-sm pointer-events-none">
+        Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · Click billboard to sponsor
+      </div>
+    </div>
+
+    <!-- Top Right: City Revenue & Metrics Badge -->
+    <div class="absolute right-4 sm:right-6 top-4 pointer-events-auto text-right bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2.5 sm:p-3 shadow-md rotate-1 max-w-[200px] sm:max-w-none">
+      <div class="text-[10px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Monthly Ad Revenue</div>
+      <div class="text-2xl sm:text-3xl font-black text-[#d02030] leading-tight" id="metric-revenue">$6,370/mo</div>
+      
+      <div class="flex items-center justify-end gap-2.5 mt-1 text-[11px] text-[#1a30c0] pt-1 border-t border-[#1a30c0]/20 font-mono">
+        <span>Views: <b id="metric-views" class="text-[#d02030]">1,023K/mo</b></span>
+        <span>·</span>
+        <span>Leased: <b id="metric-slots" class="text-[#059669]">6 / 8</b></span>
+      </div>
+    </div>
+
+    <!-- Bottom Toolbar: Build & Placement Dock -->
+    <div class="absolute left-1/2 -translate-x-1/2 bottom-4 pointer-events-auto flex items-center gap-1.5 sm:gap-2 p-2 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-xl max-w-[96vw] overflow-x-auto">
+      <span class="text-xs uppercase tracking-wider text-[#1a30c0]/70 font-bold px-1 hidden sm:inline">Tools:</span>
+      
+      <button type="button" class="tool-btn px-2.5 sm:px-3.5 py-1.5 rounded-xl border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all" data-tool="select">
+        <span>🔍</span>
+        <span>Inspect / Rent</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="skyscraper">
+        <span>🏢</span>
+        <span>Tower</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="indie-loft">
+        <span>🏠</span>
+        <span>Loft</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="crane-tower">
+        <span>🏗️</span>
+        <span>Crane</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="highway-billboard">
+        <span>🪧</span>
+        <span>Billboard</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="street-kiosk">
+        <span>📱</span>
+        <span>Kiosk</span>
+      </button>
+
+      <button type="button" class="tool-btn px-2.5 sm:px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-all hover:bg-[#1a30c0]/10" data-tool="tree">
+        <span>🌳</span>
+        <span>Tree</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- EXACT LANDING OVERLAY PANEL (Matching Screenshot media_1789220264942.png) -->
+  <div id="landing-overlay" class="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-6 pointer-events-auto transition-all duration-300">
+    <div class="w-full max-w-[840px] max-h-[96vh] overflow-y-auto bg-[#faf7ee] border-[3px] border-[#1a30c0] rounded-[32px] p-6 sm:p-9 shadow-[0_25px_60px_rgba(26,48,192,0.2)] relative text-[#1a30c0] font-[Patrick_Hand,cursive] animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Main Title Header -->
+      <div class="text-center pt-1 mb-6">
+        <h1 class="text-5xl sm:text-6xl md:text-[68px] font-black tracking-wider text-[#1a30c0] leading-none mb-2 select-none">
+          DOODLE DISTRICT
+        </h1>
+        <p class="text-base sm:text-xl text-[#1a30c0]/90 font-medium">
+          the scribbled city builder &amp; ad space marketplace
+        </p>
+      </div>
+
+      <!-- Big START Button -->
+      <div class="flex flex-col items-center justify-center gap-3.5 mb-7">
+        <button
+          id="btn-start-game"
+          type="button"
+          class="w-full max-w-[460px] py-4 px-8 rounded-2xl bg-[#1a30c0] hover:bg-[#142699] text-white text-center shadow-[0_6px_0_0_#0f1c75] hover:shadow-[0_3px_0_0_#0f1c75] hover:translate-y-[3px] active:translate-y-[6px] active:shadow-none transition-all cursor-pointer group"
+        >
+          <span class="block text-3xl sm:text-4xl font-black tracking-wide leading-none group-hover:scale-102 transition-transform">
+            START
+          </span>
+          <span class="block text-xs sm:text-sm text-blue-100/90 font-normal tracking-wide mt-1">
+            solo · build, explore &amp; lease ad spots
+          </span>
+        </button>
+
+        <!-- Red Secondary Action Button -->
+        <button
+          id="btn-buy-spaces-action"
+          type="button"
+          class="w-full max-w-[340px] py-2.5 px-6 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-center shadow-[0_4px_0_0_#8c111c] hover:shadow-[0_2px_0_0_#8c111c] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer"
+        >
+          <span class="block text-lg sm:text-xl font-black tracking-wide leading-none">
+            BUY AD SPACES
+          </span>
+          <span class="block text-[11px] text-red-100/90 font-normal mt-0.5">
+            instant live ad placement on 3d skyscrapers
+          </span>
+        </button>
+      </div>
+
+      <!-- District / Map Switcher Tabs -->
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <span class="text-sm font-bold text-[#1a30c0]/70 lowercase font-[Caveat,cursive] text-lg">map</span>
+        
+        <button
+          type="button"
+          id="tab-district-tech"
+          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all"
+          data-district="tech"
+        >
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">DOODLE DISTRICT</span>
+          <span class="block text-[10px] text-blue-200 mt-0.5">streets, rooftops and fire escapes</span>
+        </button>
+
+        <button
+          type="button"
+          id="tab-district-indie"
+          class="district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all"
+          data-district="indie"
+        >
+          <span class="block text-xs sm:text-sm font-bold uppercase tracking-wider leading-none">INDIE ALLEY</span>
+          <span class="block text-[10px] text-[#1a30c0]/70 mt-0.5">brick lofts, canopies and rooftop banners</span>
+        </button>
+      </div>
+
+      <!-- Pen Line Separator -->
+      <div class="w-full h-px bg-[#1a30c0]/25 mb-6"></div>
+
+      <!-- Two-Column Controls & Gameplay Guide (Matching Screenshot media_1789220264942.png) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-xs sm:text-[13px] leading-relaxed mb-6">
+        
+        <!-- Left Column: MOUSE + KEYBOARD -->
+        <div>
+          <h3 class="text-sm sm:text-base font-bold uppercase tracking-wider text-[#1a30c0] mb-3 pb-1 border-b border-[#1a30c0]/20">
+            MOUSE + KEYBOARD
+          </h3>
+          
+          <ul class="space-y-1.5 text-[#1a30c0]/90">
+            <li>
+              <span class="font-bold text-[#d02030]">WASD</span> move &nbsp;
+              <span class="font-bold text-[#d02030]">Mouse</span> look &nbsp;
+              <span class="font-bold text-[#d02030]">Shift</span> sprint
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">LMB</span> fire / inspect &nbsp;
+              <span class="font-bold text-[#d02030]">RMB</span> aim down sights / orbit
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">Space</span> jump (again on a wall = wall jump)
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">Space</span> again in the air = double jump
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">C / Ctrl</span> slide on the ground · air dash in the air
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">Q / E</span> grapple: tap to swing, hold to reel, jump to launch
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">F</span> quick inspect &nbsp;
+              <span class="font-bold text-[#d02030]">M</span> pen scribble SFX
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">1-6</span> select tool: Inspect, Tower, Loft, Billboard, Kiosk, Tree
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">Esc</span> pause / menu &nbsp;
+              <span class="font-bold text-[#d02030]">Tab</span> metrics dashboard
+            </li>
+          </ul>
+        </div>
+
+        <!-- Right Column: PS5 CONTROLLER & TYCOON GUIDE -->
+        <div>
+          <h3 class="text-sm sm:text-base font-bold uppercase tracking-wider text-[#1a30c0] mb-3 pb-1 border-b border-[#1a30c0]/20">
+            PS5 CONTROLLER
+          </h3>
+          
+          <ul class="space-y-1.5 text-[#1a30c0]/90">
+            <li>
+              <span class="font-bold text-[#d02030]">L stick</span> move &nbsp;
+              <span class="font-bold text-[#d02030]">R stick</span> look &nbsp;
+              <span class="font-bold text-[#d02030]">L3</span> sprint
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">R2</span> fire / place structure &nbsp;
+              <span class="font-bold text-[#d02030]">L2</span> aim / rotate
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">✕</span> jump &nbsp;
+              <span class="font-bold text-[#d02030]">○</span> slide · air dash
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">L1</span> grapple (hold to reel, ✕ to launch)
+            </li>
+            <li>
+              <span class="font-bold text-[#d02030]">R1</span> quick snapshot &nbsp;
+              <span class="font-bold text-[#d02030]">Options</span> pause / menu
+            </li>
+            <li class="pt-1 text-[#059669] font-bold">
+              ● Click any billboard to inspect metrics &amp; lease ad slot
+            </li>
+            <li class="text-[#1a30c0]/80">
+              ● Build towers &amp; lofts to boost city views &amp; revenue
+            </li>
+            <li class="text-[#1a30c0]/80">
+              ● Real-time live 3D preview of sponsor brands &amp; taglines
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Return Info & Enter Code Box (Matching media_1789220264942.png) -->
+      <div class="flex items-center justify-between pt-2">
+        <div class="text-[11px] text-[#1a30c0]/60">
+          press <span class="font-mono text-[#d02030] font-bold">[ESC]</span> anytime to return to this menu · <a href="https://github.com/Pavanspoojary/builtwhilebroke" target="_blank" rel="noopener noreferrer" class="hover:underline text-[#1a30c0]/80">builtwhilebroke</a>
+        </div>
+
+        <div class="relative">
+          <input
+            type="text"
+            id="promo-code-input"
+            placeholder="enter code here"
+            class="w-36 px-3 py-1 text-xs rounded-lg border border-dashed border-[#1a30c0]/40 bg-white/70 text-[#1a30c0] placeholder-[#1a30c0]/40 focus:outline-none focus:border-[#1a30c0] font-mono text-right"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ad Sponsor / Inspection Modal -->
+  <div id="ad-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#faf7ee] border-[3px] border-[#1a30c0] rounded-3xl p-6 shadow-2xl relative font-[Patrick_Hand,cursive] -rotate-1 text-[#1a30c0] animate-in fade-in zoom-in duration-150">
+      
+      <button id="btn-close-modal" type="button" class="absolute top-4 right-4 text-2xl font-bold text-[#1a30c0] hover:text-[#d02030] cursor-pointer">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xl">🪧</span>
+        <span id="modal-category" class="text-xs uppercase font-bold tracking-wider px-2 py-0.5 rounded-md border border-[#1a30c0] bg-[#1a30c0]/10">
+          Rooftop Billboard
+        </span>
+      </div>
+
+      <h3 id="modal-title" class="text-2xl font-black text-[#1a30c0] leading-tight">
+        Central Tech Tower - North Rooftop
+      </h3>
+
+      <!-- Metrics pill box -->
+      <div class="grid grid-cols-2 gap-2 my-3 p-2.5 rounded-xl border-2 border-dashed border-[#1a30c0]/40 bg-white/70">
+        <div>
+          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Monthly Views</div>
+          <div id="modal-views" class="text-xl font-bold text-[#1a30c0]">140,000/mo</div>
+        </div>
+        <div>
+          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Asking Price</div>
+          <div id="modal-price" class="text-xl font-bold text-[#d02030]">$1,200/mo</div>
+        </div>
+      </div>
+
+      <form id="ad-sponsor-form" class="space-y-3 mt-4">
+        <input type="hidden" id="modal-ad-id" value="" />
+        
+        <div>
+          <label class="block text-sm font-bold mb-1">Your Brand / Product Name</label>
+          <input
+            type="text"
+            id="input-brand-name"
+            required
+            placeholder="e.g. Supabase, Raycast, Bun"
+            class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-bold focus:outline-none focus:border-[#d02030]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold mb-1">Headline / Tagline</label>
+          <input
+            type="text"
+            id="input-tagline"
+            required
+            placeholder="e.g. Build in a weekend, scale to millions"
+            class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-medium focus:outline-none focus:border-[#d02030]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold mb-1">Doodle Pen Ink Color</label>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="accentColor" value="#1a30c0" checked class="accent-[#1a30c0]" />
+              <span>Blue Ink</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="accentColor" value="#d02030" class="accent-[#d02030]" />
+              <span class="text-[#d02030] font-bold">Red Ink</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="accentColor" value="#059669" class="accent-[#059669]" />
+              <span class="text-[#059669]">Green</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="accentColor" value="#ea580c" class="accent-[#ea580c]" />
+              <span class="text-[#ea580c]">Orange</span>
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full mt-2 py-2.5 rounded-2xl bg-[#1a30c0] hover:bg-[#152799] text-[#faf7ee] font-black text-lg transition-all shadow-md cursor-pointer -rotate-1 active:scale-95"
+        >
+          ✍️ Sign &amp; Sponsor Space in 3D
+        </button>
+      </form>
+
+      <div id="sponsor-success" class="hidden text-center py-4">
+        <div class="text-4xl mb-1">🎉</div>
+        <h4 class="text-xl font-black text-[#059669]">Billboard Claimed!</h4>
+        <p class="text-sm text-[#1a30c0] mt-1">
+          Your ad is now actively displayed in 3D across Doodle City!
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Client-Side Doodle Engine Bootstrap Script -->
+<script>
+  import { DoodleEngine } from "./DoodleEngine";
+  import { CityBuilder, type BuildingType } from "./CityBuilder";
+  import { CameraController } from "./CameraController";
+  import { doodleAudio } from "./DoodleAudio";
+
+  function initDoodleDistrict() {
+    const canvas = document.getElementById("doodle-canvas") as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const engine = new DoodleEngine({ canvas });
+    const city = new CityBuilder(engine);
+    const cameraCtrl = new CameraController(engine.camera, canvas);
+
+    // Start with auto-orbit so background rotates while landing overlay is open
+    cameraCtrl.autoRotate = true;
+
+    // DOM Elements
+    const landingOverlay = document.getElementById("landing-overlay");
+    const doodleHud = document.getElementById("doodle-hud");
+    const btnStart = document.getElementById("btn-start-game");
+    const btnBuyAction = document.getElementById("btn-buy-spaces-action");
+    const btnOpenMenu = document.getElementById("btn-open-menu");
+    const tabDistrictTech = document.getElementById("tab-district-tech");
+    const tabDistrictIndie = document.getElementById("tab-district-indie");
+    const promoInput = document.getElementById("promo-code-input") as HTMLInputElement | null;
+
+    const revEl = document.getElementById("metric-revenue");
+    const viewsEl = document.getElementById("metric-views");
+    const slotsEl = document.getElementById("metric-slots");
+    const modal = document.getElementById("ad-modal");
+    const modalClose = document.getElementById("btn-close-modal");
+    const modalCategory = document.getElementById("modal-category");
+    const modalTitle = document.getElementById("modal-title");
+    const modalViews = document.getElementById("modal-views");
+    const modalPrice = document.getElementById("modal-price");
+    const modalAdId = document.getElementById("modal-ad-id") as HTMLInputElement;
+    const inputBrand = document.getElementById("input-brand-name") as HTMLInputElement;
+    const inputTagline = document.getElementById("input-tagline") as HTMLInputElement;
+    const sponsorForm = document.getElementById("ad-sponsor-form") as HTMLFormElement;
+    const sponsorSuccess = document.getElementById("sponsor-success");
+    const walkHelper = document.getElementById("walk-helper");
+    const btnSound = document.getElementById("btn-sound-toggle");
+
+    function updateDashboardMetrics() {
+      const metrics = city.getCityMetrics();
+      if (revEl) revEl.textContent = `$${metrics.totalRevenue.toLocaleString()}/mo`;
+      if (viewsEl) viewsEl.textContent = `${(metrics.totalViews / 1000).toFixed(0)}K/mo`;
+      if (slotsEl) slotsEl.textContent = `${metrics.rentedSpaces} / ${metrics.totalSpaces}`;
+    }
+
+    updateDashboardMetrics();
+
+    // Enter City from Landing Screen
+    function enterCity() {
+      doodleAudio.penClick();
+      cameraCtrl.autoRotate = false;
+      landingOverlay?.classList.add("hidden");
+      doodleHud?.classList.remove("hidden");
+    }
+
+    function openMenu() {
+      doodleAudio.penClick();
+      cameraCtrl.autoRotate = true;
+      landingOverlay?.classList.remove("hidden");
+      doodleHud?.classList.add("hidden");
+    }
+
+    btnStart?.addEventListener("click", enterCity);
+    btnOpenMenu?.addEventListener("click", openMenu);
+
+    // Buy Ad Spaces CTA directly opens the billboard modal
+    btnBuyAction?.addEventListener("click", () => {
+      enterCity();
+      const firstAd = Array.from(city.adSpaces.values())[0];
+      if (firstAd) openAdModal(firstAd);
+    });
+
+    // ESC key toggles Menu
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (modal && !modal.classList.contains("hidden")) {
+          modal.classList.add("hidden");
+        } else if (landingOverlay?.classList.contains("hidden")) {
+          openMenu();
+        } else {
+          enterCity();
+        }
+      }
+    });
+
+    // District Switcher
+    tabDistrictTech?.addEventListener("click", () => {
+      tabDistrictTech.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+      tabDistrictIndie!.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+      city.switchDistrict("tech");
+      updateDashboardMetrics();
+    });
+
+    tabDistrictIndie?.addEventListener("click", () => {
+      tabDistrictIndie.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0] bg-[#1a30c0] text-[#faf7ee] shadow-sm cursor-pointer transition-all";
+      tabDistrictTech!.className = "district-tab px-4 py-2 rounded-xl text-left border-2 border-[#1a30c0]/40 hover:border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0]/10 shadow-sm cursor-pointer transition-all";
+      city.switchDistrict("indie");
+      updateDashboardMetrics();
+    });
+
+    // Tool Switching
+    document.querySelectorAll(".tool-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tool-btn").forEach((b) => {
+          b.classList.remove("bg-[#1a30c0]", "text-[#faf7ee]");
+          b.classList.add("text-[#1a30c0]");
+        });
+        btn.classList.add("bg-[#1a30c0]", "text-[#faf7ee]");
+        btn.classList.remove("text-[#1a30c0]");
+
+        const tool = btn.getAttribute("data-tool") as BuildingType | "select";
+        city.buildTool = tool;
+        doodleAudio.penClick();
+      });
+    });
+
+    // Number keys 1-7 for instant tool switching
+    const toolOrder: (BuildingType | "select")[] = ["select", "skyscraper", "indie-loft", "crane-tower", "highway-billboard", "street-kiosk", "tree"];
+    window.addEventListener("keydown", (e) => {
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= toolOrder.length && landingOverlay?.classList.contains("hidden")) {
+        const tool = toolOrder[num - 1];
+        city.buildTool = tool;
+        document.querySelectorAll(".tool-btn").forEach((b, idx) => {
+          if (idx === num - 1) {
+            b.classList.add("bg-[#1a30c0]", "text-[#faf7ee]");
+            b.classList.remove("text-[#1a30c0]");
+          } else {
+            b.classList.remove("bg-[#1a30c0]", "text-[#faf7ee]");
+            b.classList.add("text-[#1a30c0]");
+          }
+        });
+        doodleAudio.penClick();
+      }
+    });
+
+    // Camera Mode Toggle
+    const btnOrbit = document.getElementById("btn-mode-orbit");
+    const btnWalk = document.getElementById("btn-mode-walk");
+
+    btnOrbit?.addEventListener("click", () => {
+      cameraCtrl.setMode("orbit");
+      btnOrbit.className = "px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
+      btnWalk!.className = "px-3.5 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
+      walkHelper?.classList.add("hidden");
+      doodleAudio.penClick();
+    });
+
+    btnWalk?.addEventListener("click", () => {
+      cameraCtrl.setMode("walk");
+      btnWalk.className = "px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer";
+      btnOrbit!.className = "px-3.5 py-1 rounded-xl text-xs sm:text-sm font-medium text-[#1a30c0] hover:bg-[#1a30c0]/10 transition-all cursor-pointer";
+      walkHelper?.classList.remove("hidden");
+      doodleAudio.penClick();
+    });
+
+    // Sound Toggle
+    btnSound?.addEventListener("click", () => {
+      const enabled = doodleAudio.toggle();
+      btnSound.textContent = `🔊 Pen SFX: ${enabled ? "ON" : "OFF"}`;
+      if (enabled) doodleAudio.penClick();
+    });
+
+    // Open Billboard Modal helper
+    function openAdModal(ad: any) {
+      modalCategory!.textContent = ad.category;
+      modalTitle!.textContent = ad.title;
+      modalViews!.textContent = `${ad.viewsMonthly.toLocaleString()}/mo`;
+      modalPrice!.textContent = `$${ad.priceMonthly}/mo`;
+      modalAdId.value = ad.id;
+      inputBrand.value = ad.sponsorName === "YOUR BRAND HERE" || ad.sponsorName === "AVAILABLE AD SLOT" ? "" : ad.sponsorName;
+      inputTagline.value = ad.sponsorTagline;
+
+      sponsorForm.classList.remove("hidden");
+      sponsorSuccess?.classList.add("hidden");
+      modal?.classList.remove("hidden");
+    }
+
+    // Canvas click handling
+    canvas.addEventListener("click", (e) => {
+      const clickedAd = city.handlePointerClick(e);
+      if (clickedAd) {
+        openAdModal(clickedAd);
+      } else if (city.buildTool !== "select") {
+        updateDashboardMetrics();
+      }
+    });
+
+    modalClose?.addEventListener("click", () => {
+      modal?.classList.add("hidden");
+      doodleAudio.penClick();
+    });
+
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+
+    // Submit Sponsor Booking
+    sponsorForm?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const adId = modalAdId.value;
+      const brandName = inputBrand.value.trim() || "NEW TECH BRAND";
+      const tagline = inputTagline.value.trim() || "Verified Doodle Sponsor";
+      const colorRadio = document.querySelector('input[name="accentColor"]:checked') as HTMLInputElement | null;
+      const accentColor = colorRadio ? colorRadio.value : "#1a30c0";
+
+      city.leaseAdSpace(adId, {
+        sponsorName: brandName,
+        sponsorTagline: tagline,
+        accentColor,
+      });
+
+      updateDashboardMetrics();
+
+      sponsorForm.classList.add("hidden");
+      sponsorSuccess?.classList.remove("hidden");
+
+      setTimeout(() => {
+        modal?.classList.add("hidden");
+      }, 1600);
+    });
+
+    // Easter egg code handler
+    promoInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const val = promoInput.value.trim().toLowerCase();
+        if (val === "broke" || val === "hack" || val === "doodle") {
+          doodleAudio.rentAd();
+          promoInput.value = "CODE UNLOCKED! ✨";
+          setTimeout(() => {
+            promoInput.value = "";
+          }, 2000);
+        }
+      }
+    });
+
+    // Animation Loop
+    let lastTime = performance.now();
+    function animate(time: number) {
+      requestAnimationFrame(animate);
+      const delta = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      cameraCtrl.update(delta);
+      city.update(delta);
+      engine.render(delta);
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDoodleDistrict);
+  } else {
+    initDoodleDistrict();
+  }
+</script>
