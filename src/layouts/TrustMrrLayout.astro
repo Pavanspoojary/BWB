@@ -1,6 +1,4 @@
 ---
-import SponsorSidebars from '../components/SponsorSidebars.astro';
-
 interface Props {
   title?: string;
   description?: string;
@@ -8,8 +6,8 @@ interface Props {
 }
 
 const {
-  title = "TrustMRR · Dev Spaces - The database of verified developer ad spaces",
-  description = "Browse and sponsor verified developer ad spaces inside tools, docs, and dashboards on TrustMRR. The database of verified startup revenues and developer spaces.",
+  title = "Doodle District · Dev Spaces & 3D Ad Tycoon",
+  description = "Browse and sponsor verified developer ad spaces inside tools, docs, and 3D Doodle City.",
   activePath = "/",
 } = Astro.props;
 ---
@@ -19,46 +17,41 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/></svg>" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23faf7ee' stroke='%231a30c0' stroke-width='2'/><circle cx='10' cy='6' r='2' fill='%23d02030'/><path d='M10 16l4-6 5 4 7-8' stroke='%231a30c0' stroke-width='2' stroke-linecap='round'/></svg>" />
     <meta name="generator" content={Astro.generator} />
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="application-name" content="TrustMRR" />
-    <meta name="keywords" content="buy SaaS, sell SaaS, developer ad spaces, micro-sponsorships, documentation ads, verified startup revenue, verified MRR, Stripe verified, indie hackers, builtwhilebroke" />
+    <meta name="application-name" content="Doodle District" />
+    <meta name="keywords" content="doodle city, 3d city builder, developer ad spaces, micro-sponsorships, documentation ads, verified startup revenue, verified MRR, builtwhilebroke" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="TrustMRR" />
+    <meta property="og:site_name" content="Doodle District" />
 
     <!-- Font imports -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-[#0b0c0f] text-zinc-100 font-sans selection:bg-blue-600/30 selection:text-blue-200 min-h-screen relative flex flex-col antialiased">
     
-    <!-- Exact Floating Sponsor Sidebars from Screenshots -->
-    <SponsorSidebars />
-
     <!-- Main Content Wrapper -->
     <div class="flex-1 w-full flex flex-col items-center">
       
-      <!-- Top Navigation Header (Shown on inner pages, hidden on home page which has its own hero branding) -->
+      <!-- Top Navigation Header -->
       {activePath !== '/' && (
         <header class="sticky top-0 z-40 w-full border-b border-[#1f222b] bg-[#0b0c0f]/90 backdrop-blur transition-colors">
           <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             
             <!-- Logo & Brand -->
             <a href="/" class="flex items-center gap-2 group">
-              <svg class="w-4 h-4 text-[#3b82f6] fill-current" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-              <span class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-                TrustMRR
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">DEV SPACES</span>
+              <span class="text-xl">🏙️</span>
+              <span class="text-base font-bold tracking-tight text-white flex items-center gap-1.5 font-mono">
+                DOODLE DISTRICT
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">3D AD TYCOON</span>
               </span>
             </a>
 
@@ -124,19 +117,17 @@ const {
         <slot />
       </main>
 
-      <!-- Clean Minimal TrustMRR Footer -->
-      <footer class="w-full border-t border-[#181a20] bg-[#090a0d] py-10 text-xs text-zinc-500 mt-auto">
+      <!-- Clean Minimal Doodle District Footer -->
+      <footer class="w-full border-t border-[#181a20] bg-[#090a0d] py-8 text-xs text-zinc-500 mt-auto">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2">
-            <svg class="w-3.5 h-3.5 text-[#3b82f6] fill-current" viewBox="0 0 24 24">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-            <span class="text-zinc-400 font-semibold">TrustMRR</span>
-            <span>&copy; {new Date().getFullYear()} · The database of verified startup revenues</span>
+            <span class="text-base">🏙️</span>
+            <span class="text-zinc-300 font-bold font-mono">DOODLE DISTRICT</span>
+            <span>&copy; {new Date().getFullYear()} · The 3D Scribbled City Builder &amp; Ad Marketplace</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-3 text-zinc-500">
-            <a href="/city" class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">3D Doodle City</a>
+            <a href="/" class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">3D Doodle City</a>
             <span>·</span>
             <a href="/browser" class="hover:text-zinc-300 transition-colors">Marketplace</a>
             <span>·</span>

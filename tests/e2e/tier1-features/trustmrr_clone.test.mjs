@@ -247,11 +247,11 @@ describe('Tier 1: TrustMRR Clone - Static Distribution & Routes Integrity', () =
     expect(html).toContain('ad-sponsor-form');
   });
 
-  it('verifies index.html contains TrustMRR brand and verified revenue headlines', () => {
+  it('verifies index.html contains Doodle District brand and 3D canvas', () => {
     const indexPath = join(process.cwd(), 'dist', 'index.html');
     const html = readFileSync(indexPath, 'utf-8');
-    expect(html).toContain('TrustMRR');
-    expect(html).toContain('The database of verified startup revenues');
+    expect(html).toContain('DOODLE DISTRICT');
+    expect(html).toContain('doodle-canvas');
     expect(html).toContain('builtwhilebroke');
   });
 

@@ -6,24 +6,32 @@ export class CameraController {
   public mode: CameraMode = "orbit";
   public camera: THREE.PerspectiveCamera;
   public domElement: HTMLElement;
+  public autoRotate: boolean = true;
 
   // Orbit controls state
-  private target = new THREE.Vector3(0, 4, 0);
-  private spherical = new THREE.Spherical(55, Math.PI / 3.2, Math.PI / 4);
+  private target = new THREE.Vector3(0, 5, 0);
+  private spherical = new THREE.Spherical(56, Math.PI / 3.4, Math.PI / 4);
   private isOrbitDragging = false;
   private isPanning = false;
   private previousMouse = { x: 0, y: 0 };
 
   // Walk controls state
   private walkPos = new THREE.Vector3(0, 2.0, 35);
-  private walkYaw = 0;
+  private walkYaw = Math.PI;
   private walkPitch = 0;
   private moveForward = false;
   private moveBackward = false;
   private moveLeft = false;
   private moveRight = false;
-  private walkSpeed = 16.0;
+  private isSprinting = false;
+  private isCrouching = false;
   private walkStepTimer = 0;
+
+  // Jump physics
+  private verticalVelocity = 0;
+  private isGrounded = true;
+  private jumpsRemaining = 2;
+  private groundHeight = 2.0;
 
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
@@ -36,6 +44,7 @@ export class CameraController {
   public setMode(mode: CameraMode) {
     this.mode = mode;
     if (mode === "walk") {
+      this.autoRotate = false;
       this.walkPos.set(0, 2.0, 35);
       this.walkYaw = Math.PI;
       this.walkPitch = 0;
@@ -60,6 +69,7 @@ export class CameraController {
     this.previousMouse.y = e.clientY;
 
     if (this.mode === "orbit") {
+      this.autoRotate = false;
       if (e.button === 0) {
         this.isOrbitDragging = true;
       } else if (e.button === 2) {
@@ -135,6 +145,22 @@ export class CameraController {
       case "ArrowRight":
         this.moveRight = true;
         break;
+      case "ShiftLeft":
+      case "ShiftRight":
+        this.isSprinting = true;
+        break;
+      case "KeyC":
+      case "ControlLeft":
+      case "ControlRight":
+        this.isCrouching = true;
+        break;
+      case "Space":
+        if (this.jumpsRemaining > 0) {
+          this.verticalVelocity = 12.0;
+          this.isGrounded = false;
+          this.jumpsRemaining--;
+        }
+        break;
     }
   };
 
@@ -156,6 +182,15 @@ export class CameraController {
       case "ArrowRight":
         this.moveRight = false;
         break;
+      case "ShiftLeft":
+      case "ShiftRight":
+        this.isSprinting = false;
+        break;
+      case "KeyC":
+      case "ControlLeft":
+      case "ControlRight":
+        this.isCrouching = false;
+        break;
     }
   };
 
@@ -169,13 +204,21 @@ export class CameraController {
     this.camera.quaternion.setFromEuler(euler);
 
     // Footstep bobbing
-    const bob = Math.sin(this.walkStepTimer * 12) * 0.06;
-    this.camera.position.set(this.walkPos.x, this.walkPos.y + bob, this.walkPos.z);
+    const bob = this.isGrounded ? Math.sin(this.walkStepTimer * (this.isSprinting ? 16 : 11)) * 0.06 : 0;
+    const eyeTarget = this.isCrouching ? 1.1 : this.groundHeight;
+    this.camera.position.set(this.walkPos.x, this.walkPos.y + bob + (eyeTarget - this.groundHeight), this.walkPos.z);
   }
 
   public update(delta: number) {
-    if (this.mode === "walk") {
+    if (this.mode === "orbit") {
+      if (this.autoRotate && !this.isOrbitDragging && !this.isPanning) {
+        this.spherical.theta += 0.04 * delta;
+        this.updateOrbitCamera();
+      }
+    } else if (this.mode === "walk") {
       const isMoving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
+      const speed = this.isSprinting ? 26.0 : (this.isCrouching ? 8.0 : 15.0);
+
       if (isMoving) {
         this.walkStepTimer += delta;
 
@@ -190,10 +233,23 @@ export class CameraController {
 
         if (moveDir.lengthSq() > 0) {
           moveDir.normalize();
-          this.walkPos.addScaledVector(moveDir, this.walkSpeed * delta);
+          this.walkPos.addScaledVector(moveDir, speed * delta);
           // Clamp inside city boundary
           this.walkPos.x = Math.max(-65, Math.min(65, this.walkPos.x));
           this.walkPos.z = Math.max(-65, Math.min(65, this.walkPos.z));
+        }
+      }
+
+      // Jump & Gravity physics
+      if (!this.isGrounded) {
+        this.verticalVelocity -= 28.0 * delta; // Gravity
+        this.walkPos.y += this.verticalVelocity * delta;
+
+        if (this.walkPos.y <= this.groundHeight) {
+          this.walkPos.y = this.groundHeight;
+          this.verticalVelocity = 0;
+          this.isGrounded = true;
+          this.jumpsRemaining = 2;
         }
       }
 
