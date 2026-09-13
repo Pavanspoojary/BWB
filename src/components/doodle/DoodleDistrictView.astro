@@ -45,8 +45,8 @@
     <!-- Top Center: View Mode Switcher & Map Switcher -->
     <div class="absolute left-1/2 -translate-x-1/2 top-4 pointer-events-auto flex flex-col items-center gap-2">
       <div class="flex items-center gap-2">
-        <!-- Camera View Mode -->
-        <div class="flex items-center gap-1.5 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md">
+        <!-- Camera View Mode (hidden: walk-only, god view removed) -->
+        <div class="hidden items-center gap-1.5 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md" aria-hidden="true">
           <button id="btn-mode-orbit" type="button" class="px-3.5 py-1 rounded-xl text-xs sm:text-sm font-bold bg-[#1a30c0] text-[#faf7ee] transition-all cursor-pointer">
             🛰️ God / Orbit View
           </button>
@@ -54,17 +54,6 @@
             🚶 1st-Person Walk (WASD)
           </button>
         </div>
-
-        <!-- 2D Map Blueprint Toggle -->
-        <button
-          id="btn-toggle-vertex-map"
-          type="button"
-          class="flex items-center gap-1 px-3.5 py-1.5 bg-[#faf7ee]/95 border-2 border-[#1a30c0] hover:bg-[#1a30c0] hover:text-[#faf7ee] rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer transition-all -rotate-1"
-          title="Toggle 2D City Blueprint Map (Key: M)"
-        >
-          <span>🗺️</span>
-          <span>Map (M)</span>
-        </button>
 
         <!-- In-HUD Quick Map Switcher (Hidden as requested: "remove travels") -->
         <div class="hidden items-center gap-1 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md" aria-hidden="true">
@@ -109,7 +98,7 @@
 
       <!-- Helper Toast for Walk Controls -->
       <div id="walk-helper" class="hidden bg-[#faf7ee]/95 border border-[#1a30c0] text-[#1a30c0] px-4 py-1 rounded-full text-xs shadow-sm pointer-events-none">
-        Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · Click a board to view &amp; upvote · <b>L</b> to launch
+        Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · <b>0–9</b> hop floors
       </div>
 
       <!-- Today's Hunt Leaderboard HUD -->
@@ -119,9 +108,12 @@
           <span class="text-[10px] font-mono text-[#1a30c0]/70">resets <b id="hunt-countdown" class="text-[#d02030]">--:--:--</b></span>
         </div>
         <ol id="hunt-list" class="mt-1 space-y-0.5 text-xs sm:text-sm font-bold"></ol>
-        <button id="btn-hunt-launch" type="button" class="mt-1.5 w-full py-1 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-xs sm:text-sm font-black transition-all cursor-pointer" title="Claim an open launch board (Key: L)">
+        <button id="btn-hunt-launch" type="button" class="mt-1.5 w-full py-1 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-xs sm:text-sm font-black transition-all cursor-pointer" title="Launch your product (Key: L)">
           🚀 Launch your product [L]
         </button>
+        <a href="/product" class="mt-1 block text-center text-[11px] font-bold text-[#059669] hover:text-[#d02030] transition-colors">
+          + List a product for free →
+        </a>
       </div>
     </div>
 
@@ -137,8 +129,15 @@
       </div>
     </div>
 
-    <!-- Bottom Left: Build-in-Public Ship Log -->
-    <div id="ship-log" class="absolute left-4 sm:left-6 bottom-4 pointer-events-none text-left bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2.5 sm:p-3 shadow-md -rotate-1 max-w-[240px] sm:max-w-[280px]">
+    <!-- Bottom Center: Lift Floor Indicator (visible inside the cab) -->
+    <div id="lift-chip" class="hidden absolute left-1/2 -translate-x-1/2 bottom-4 pointer-events-none text-center bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl px-4 py-2 shadow-md text-[#1a30c0] font-[Patrick_Hand,cursive]">
+      <div class="text-[10px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">🛗 Lift</div>
+      <div id="lift-floor-label" class="text-xl font-black leading-tight">L0 · LOBBY</div>
+      <div class="text-[11px] text-[#1a30c0]/80 font-mono">panel: W ▲ · S ▼ · 0-9 dial · door exits</div>
+    </div>
+
+    <!-- Bottom Left: Build-in-Public Ship Log (desktop only, declutters mobile) -->
+    <div id="ship-log" class="hidden sm:block absolute left-4 sm:left-6 bottom-4 pointer-events-none text-left bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2.5 sm:p-3 shadow-md -rotate-1 max-w-[240px] sm:max-w-[280px]">
       <div class="text-[10px] uppercase tracking-wider text-[#059669] font-bold">🛠️ Ship Log · build in public</div>
       <ul id="ship-log-list" class="mt-1 space-y-1 text-[11px] sm:text-xs text-[#1a30c0]"></ul>
     </div>
@@ -230,10 +229,10 @@
           class="w-full max-w-[340px] py-2.5 px-6 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-center shadow-[0_4px_0_0_#8c111c] hover:shadow-[0_2px_0_0_#8c111c] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer"
         >
           <span class="block text-lg sm:text-xl font-black tracking-wide leading-none">
-            🚀 LAUNCH YOUR PRODUCT
+            🚀 LAUNCH YOUR PRODUCT (L)
           </span>
           <span class="block text-[11px] text-red-100/90 font-normal mt-0.5">
-            claim an open board &amp; go live on the hunt
+            list your product for free · hunt board
           </span>
         </button>
       </div>
@@ -263,13 +262,13 @@
               <span class="font-bold text-[#d02030]">Shift</span> sprint
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">Click</span> a launch board to view a product
+              <span class="font-bold text-[#d02030]">🚶 Walk only</span> — boots on the ground, no god view
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">▲ Upvote</span> the products you love in the panel
+              <span class="font-bold text-[#d02030]">🚶 Walk</span> the boulevards, rings &amp; roundabouts
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">L</span> launch your own product on an open board
+              <span class="font-bold text-[#d02030]">⭕ Founder Circle</span> is the anchor — every axis meets there
             </li>
             <li>
               <span class="font-bold text-[#d02030]">Space</span> jump · <span class="font-bold text-[#d02030]">Space</span> again = double jump
@@ -278,42 +277,75 @@
               <span class="font-bold text-[#d02030]">C / Ctrl</span> crouch &nbsp;
               <span class="font-bold text-[#d02030]">Esc</span> pause / menu
             </li>
+            <li>
+              <span class="font-bold text-[#d02030]">L</span> launch your product (/product)
+            </li>
           </ul>
         </div>
 
         <!-- Right Column: PS5 CONTROLLER & TYCOON GUIDE -->
         <div>
           <h3 class="text-sm sm:text-base font-bold uppercase tracking-wider text-[#1a30c0] mb-3 pb-1 border-b border-[#1a30c0]/20">
-            HOW LAUNCH WORLD WORKS
+            INFINITOWN ISLAND
           </h3>
           
           <ul class="space-y-1.5 text-[#1a30c0]/90">
             <li>
-              <span class="font-bold text-[#d02030]">🚀 Launch</span> your product on any open board
+              <span class="font-bold text-[#d02030]">🏙️ Procedural blocks</span> — towers grow taller downtown
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">▲ Hunt</span> — upvote the best products daily
+              <span class="font-bold text-[#d02030]">💡 Lit windows</span> — cyan + warm glass, seeded layout
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">🛠️ Build in public</span> — every launch hits the ship log
+              <span class="font-bold text-[#d02030]">🚗 Live traffic</span> — 9 cars looping the grid, lights on
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">⏰ Board resets</span> at midnight — ship early, stay #1
-            </li>
-            <li>
-              <span class="font-bold text-[#d02030]">📍 Founder plots</span> — surveyed blocks, claim yours soon
+              <span class="font-bold text-[#d02030]">📍 Next piece</span> — founder plots along these streets
             </li>
             <li class="pt-1 text-[#059669] font-bold">
-              ● Click any launch board to view metrics &amp; upvote
+              ● Walk the avenues — the city grows here next
             </li>
             <li class="text-[#1a30c0]/80">
-              ● Launch from the Ship Ave gantry or a roadside board
-            </li>
-            <li class="text-[#1a30c0]/80">
-              ● Real-time live 3D preview of products &amp; pitches
+              ● Launches, hunts &amp; towers return with the plots
             </li>
           </ul>
         </div>
+      </div>
+
+      <!-- Settings: movement tuning -->
+      <div class="mb-6 p-4 rounded-2xl border-2 border-dashed border-[#1a30c0]/40 bg-white/60">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm sm:text-base font-bold uppercase tracking-wider text-[#1a30c0]">
+            ⚙️ Movement Settings
+          </h3>
+          <button
+            id="btn-reset-settings"
+            type="button"
+            class="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#1a30c0] text-[#1a30c0] hover:bg-[#1a30c0] hover:text-white transition-all cursor-pointer"
+            title="Reset to defaults"
+          >
+            Reset
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs sm:text-[13px] text-[#1a30c0]">
+          <label class="block">
+            <span class="flex justify-between font-bold mb-1"><span>🚶 Walk speed</span><span id="set-walk-val" class="font-mono text-[#d02030]">20</span></span>
+            <input id="set-walk" type="range" min="4" max="30" step="1" value="20" class="w-full accent-[#1a30c0] cursor-pointer" />
+          </label>
+          <label class="block">
+            <span class="flex justify-between font-bold mb-1"><span>⚡ Sprint speed</span><span id="set-sprint-val" class="font-mono text-[#d02030]">36</span></span>
+            <input id="set-sprint" type="range" min="10" max="60" step="1" value="36" class="w-full accent-[#1a30c0] cursor-pointer" />
+          </label>
+          <label class="block">
+            <span class="flex justify-between font-bold mb-1"><span>🖱️ Look sensitivity</span><span id="set-look-val" class="font-mono text-[#d02030]">3.5</span></span>
+            <input id="set-look" type="range" min="0.5" max="10" step="0.5" value="3.5" class="w-full accent-[#1a30c0] cursor-pointer" />
+          </label>
+          <label class="block">
+            <span class="flex justify-between font-bold mb-1"><span>🦘 Jump power</span><span id="set-jump-val" class="font-mono text-[#d02030]">12</span></span>
+            <input id="set-jump" type="range" min="6" max="20" step="0.5" value="12" class="w-full accent-[#d02030] cursor-pointer" />
+          </label>
+        </div>
+        <p class="text-[11px] text-[#1a30c0]/60 mt-2">Applies instantly · saved in this browser</p>
       </div>
 
       <!-- Bottom Row: Return Info & Enter Code Box (Matching media_1789220264942.png) -->
@@ -474,23 +506,6 @@
     </div>
   </div>
 
-  <!-- 2D VERTEX CITY BLUEPRINT MAP MODAL -->
-  <div id="modal-vertex-map" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs pointer-events-auto">
-    <div class="relative w-full max-w-5xl max-h-[92vh] bg-[#faf7ee] border-4 border-[#1a30c0] rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col overflow-hidden text-[#1a30c0] font-[Patrick_Hand,cursive]">
-      <div class="flex items-center justify-between pb-3 border-b-2 border-[#1a30c0]/30 mb-3">
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-black tracking-wide leading-none text-[#1a30c0]">VERTEX CITY MAP</h2>
-          <p class="text-xs sm:text-sm text-[#1a30c0]/80">Reference Canvas: 1660 × 1107 · Ideas Move Here</p>
-        </div>
-        <button id="btn-close-vertex-map" type="button" class="w-9 h-9 rounded-full border-2 border-[#1a30c0] text-lg font-bold flex items-center justify-center hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all cursor-pointer">
-          ✕
-        </button>
-      </div>
-      <div class="relative flex-1 overflow-auto rounded-2xl border-2 border-[#1a30c0]/40 bg-[#faf7ee] flex items-center justify-center p-1">
-        <img src="/maps/vertex_city.jpg" alt="Vertex City Blueprint Map" class="w-full h-auto max-h-[74vh] object-contain rounded-xl select-none shadow-md" />
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Client-Side Doodle Engine Bootstrap Script -->
@@ -501,6 +516,9 @@
   import { CameraController } from "./CameraController";
   import { doodleAudio } from "./DoodleAudio";
   import { DISTRICT_REGISTRY } from "./DistrictManager";
+  import { FirstFloor } from "./FirstFloor";
+  import { SecondFloor } from "./SecondFloor";
+  import { UpperFloors, FLOOR_BASES, FLOOR_NAMES } from "./UpperFloors";
 
   function initDoodleDistrict() {
     const canvas = document.getElementById("doodle-canvas") as HTMLCanvasElement;
@@ -508,12 +526,17 @@
 
     const engine = new DoodleEngine({ canvas });
     const city = new CityBuilder(engine);
+    // Piece 03+04+05: lobby, discussion floor and tower offices (with lift).
+    new FirstFloor(engine, city);
+    new SecondFloor(engine, city);
+    new UpperFloors(engine, city);
     const cameraCtrl = new CameraController(engine.camera, canvas);
     cameraCtrl.getColliders = () => city.getColliders();
     city.cameraController = cameraCtrl;
 
-    // Start with auto-orbit so background rotates while landing overlay is open
-    cameraCtrl.autoRotate = true;
+    // Walk-only: god view removed, boots on the ground from the first frame
+    cameraCtrl.setMode("walk");
+    cameraCtrl.autoRotate = false;
 
     // DOM Elements
     const landingOverlay = document.getElementById("landing-overlay");
@@ -686,7 +709,7 @@
 
     updateDashboardMetrics();
 
-    // Enter City from Landing Screen
+    // Enter City from Landing Screen (walk mode only — god view removed)
     function enterCity() {
       try {
         doodleAudio.penClick();
@@ -695,6 +718,10 @@
       }
       if (cameraCtrl) {
         cameraCtrl.autoRotate = false;
+        cameraCtrl.setMode("walk");
+      }
+      if (walkHelper) {
+        walkHelper.classList.remove("hidden");
       }
       if (landingOverlay) {
         landingOverlay.classList.add("hidden");
@@ -728,21 +755,46 @@
     btnStart?.addEventListener("click", enterCity);
     btnOpenMenu?.addEventListener("click", openMenu);
 
-    // Launch CTA opens the first open launch board (falls back to any board)
+    // Launch CTA opens the first open launch board (falls back to any board).
+    // Roads-only step: no boards exist yet, so hunters get a progress toast.
+    function showNote(icon: string, category: string, title: string) {
+      if (!discoveryToast || !discoveryTitle) return;
+      if (discoveryIcon) discoveryIcon.textContent = icon;
+      if (discoveryCategory) discoveryCategory.textContent = category;
+      discoveryTitle.textContent = title;
+      discoveryToast.classList.remove("hidden");
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        discoveryToast.classList.add("hidden");
+      }, 3500);
+    }
+
     function openLaunchFlow() {
       enterCity();
       const ads = Array.from(city.adSpaces.values());
       const openSlot = ads.find((a) => a.isAvailable) || ads[0];
-      if (openSlot) openAdModal(openSlot);
+      if (openSlot) {
+        openAdModal(openSlot);
+      } else {
+        showNote("🛣️", "CITY UNDER CONSTRUCTION", "Launch boards return with the founder plots");
+      }
     }
 
-    btnBuyAction?.addEventListener("click", openLaunchFlow);
-    btnHuntLaunch?.addEventListener("click", openLaunchFlow);
+    btnBuyAction?.addEventListener("click", () => {
+      // Lobby CTA goes to the free product hunt page
+      window.location.href = "/product";
+    });
+    btnHuntLaunch?.addEventListener("click", () => {
+      // HUD hunt button goes to the free product hunt page
+      window.location.href = "/product";
+    });
 
-    // ESC key toggles Menu, L opens the launch flow
+    // ESC key toggles Menu, L opens the product hunt page (/product)
     window.addEventListener("keydown", (e) => {
-      if (e.code === "KeyL" && landingOverlay?.classList.contains("hidden") && (!modal || modal.classList.contains("hidden"))) {
-        openLaunchFlow();
+      if ((e.code === "KeyL" || e.key === "l" || e.key === "L") && (!modal || modal.classList.contains("hidden"))) {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag === "input" || tag === "textarea" || tag === "select") return;
+        window.location.href = "/product";
       }
       if (e.key === "Escape") {
         if (modal && !modal.classList.contains("hidden")) {
@@ -890,39 +942,84 @@
       if (enabled) doodleAudio.penClick();
     });
 
-    // 2D Vertex City Map Modal Handlers
-    const btnToggleMap = document.getElementById("btn-toggle-vertex-map");
-    const modalVertexMap = document.getElementById("modal-vertex-map");
-    const btnCloseVertexMap = document.getElementById("btn-close-vertex-map");
+    // Movement settings: sliders -> camera, persisted to localStorage
+    const MOVE_DEFAULTS = { walk: 20, sprint: 36, look: 3.5, jump: 12 };
+    const setWalk = document.getElementById("set-walk") as HTMLInputElement | null;
+    const setSprint = document.getElementById("set-sprint") as HTMLInputElement | null;
+    const setLook = document.getElementById("set-look") as HTMLInputElement | null;
+    const setJump = document.getElementById("set-jump") as HTMLInputElement | null;
+    const setWalkVal = document.getElementById("set-walk-val");
+    const setSprintVal = document.getElementById("set-sprint-val");
+    const setLookVal = document.getElementById("set-look-val");
+    const setJumpVal = document.getElementById("set-jump-val");
+    const btnResetSettings = document.getElementById("btn-reset-settings");
 
-    const toggleVertexMap = () => {
-      if (!modalVertexMap) return;
-      const isHidden = modalVertexMap.classList.contains("hidden");
-      if (isHidden) {
-        modalVertexMap.classList.remove("hidden");
-        doodleAudio.penClick();
-      } else {
-        modalVertexMap.classList.add("hidden");
-        doodleAudio.penClick();
+    function readMovementSettings(): typeof MOVE_DEFAULTS {
+      try {
+        const raw = localStorage.getItem("doodle_move_settings");
+        if (!raw) return { ...MOVE_DEFAULTS };
+        const parsed = JSON.parse(raw);
+        return {
+          walk: Number(parsed.walk) || MOVE_DEFAULTS.walk,
+          sprint: Number(parsed.sprint) || MOVE_DEFAULTS.sprint,
+          look: Number(parsed.look) || MOVE_DEFAULTS.look,
+          jump: Number(parsed.jump) || MOVE_DEFAULTS.jump,
+        };
+      } catch {
+        return { ...MOVE_DEFAULTS };
       }
-    };
+    }
 
-    btnToggleMap?.addEventListener("click", toggleVertexMap);
-    btnCloseVertexMap?.addEventListener("click", () => {
-      modalVertexMap?.classList.add("hidden");
-      doodleAudio.penClick();
-    });
+    function applyMovementSettings(s: typeof MOVE_DEFAULTS) {
+      cameraCtrl.walkSpeed = s.walk;
+      cameraCtrl.sprintSpeed = s.sprint;
+      cameraCtrl.lookSensitivity = s.look / 1000;
+      cameraCtrl.jumpPower = s.jump;
+      if (setWalk) setWalk.value = String(s.walk);
+      if (setSprint) setSprint.value = String(s.sprint);
+      if (setLook) setLook.value = String(s.look);
+      if (setJump) setJump.value = String(s.jump);
+      if (setWalkVal) setWalkVal.textContent = String(s.walk);
+      if (setSprintVal) setSprintVal.textContent = String(s.sprint);
+      if (setLookVal) setLookVal.textContent = String(s.look);
+      if (setJumpVal) setJumpVal.textContent = String(s.jump);
+    }
 
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "m" || e.key === "M") {
-        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-        if (tag !== "input" && tag !== "textarea") {
-          toggleVertexMap();
+    function collectMovementSettings(): typeof MOVE_DEFAULTS {
+      return {
+        walk: setWalk ? Number(setWalk.value) : MOVE_DEFAULTS.walk,
+        sprint: setSprint ? Number(setSprint.value) : MOVE_DEFAULTS.sprint,
+        look: setLook ? Number(setLook.value) : MOVE_DEFAULTS.look,
+        jump: setJump ? Number(setJump.value) : MOVE_DEFAULTS.jump,
+      };
+    }
+
+    function saveMovementSettings(s: typeof MOVE_DEFAULTS) {
+      try {
+        localStorage.setItem("doodle_move_settings", JSON.stringify(s));
+      } catch {
+        /* private mode — settings last for the session */
+      }
+    }
+
+    applyMovementSettings(readMovementSettings());
+    for (const el of [setWalk, setSprint, setLook, setJump]) {
+      el?.addEventListener("input", () => {
+        const s = collectMovementSettings();
+        // Sprint must stay above walk speed
+        if (s.sprint < s.walk) {
+          s.sprint = s.walk;
+          if (setSprint) setSprint.value = String(s.sprint);
+          if (setSprintVal) setSprintVal.textContent = String(s.sprint);
         }
-      }
-      if (e.key === "Escape" && modalVertexMap && !modalVertexMap.classList.contains("hidden")) {
-        modalVertexMap.classList.add("hidden");
-      }
+        applyMovementSettings(s);
+        saveMovementSettings(s);
+      });
+    }
+    btnResetSettings?.addEventListener("click", () => {
+      applyMovementSettings({ ...MOVE_DEFAULTS });
+      saveMovementSettings({ ...MOVE_DEFAULTS });
+      doodleAudio.penClick();
     });
 
     // Open Product Modal helper with upvotes, image & link support
@@ -1051,6 +1148,110 @@
 
     // Animation Loop
     let lastTime = performance.now();
+    const liftChip = document.getElementById("lift-chip");
+    const liftFloorLabel = document.getElementById("lift-floor-label");
+    let liftChipText = "";
+
+    function inLiftCab(p: any): boolean {
+      return Math.abs(p.x - 36.5) < 2 && Math.abs(p.z) < 1.2;
+    }
+    function floorAtFeet(feetY: number): number {
+      let best = -1;
+      let bestD = 2.5;
+      for (let f = 0; f < FLOOR_BASES.length; f++) {
+        const d = Math.abs(feetY - FLOOR_BASES[f]);
+        if (d < bestD) {
+          bestD = d;
+          best = f;
+        }
+      }
+      return best;
+    }
+    function rideLiftTo(floor: number) {
+      if (floor < 0 || floor > 9) return;
+      doodleAudio.discoveryChime();
+      const base = FLOOR_BASES[floor];
+      // Face west on arrival so holding W strolls out of the doorway
+      cameraCtrl.teleportTo(36.5, base, 0, new THREE.Vector3(28, base + 2, 0));
+      // Freeze held keys briefly so the ride keypress never walks you out
+      cameraCtrl.clearMoveFlags();
+      cameraCtrl.suppressMoveUntil = performance.now() + 450;
+      showNote("🛗", `LEVEL ${floor}`, `${FLOOR_NAMES[floor]} floor`);
+    }
+    function updateLiftChip(p: any) {
+      if (!liftChip || !liftFloorLabel) return;
+      if (!inLiftCab(p)) {
+        if (liftChipText !== "") {
+          liftChipText = "";
+          liftChip.classList.add("hidden");
+        }
+        return;
+      }
+      const f = floorAtFeet(p.y - 1.85);
+      const label = f >= 0 ? `L${f} · ${FLOOR_NAMES[f]}` : "···";
+      if (label !== liftChipText) {
+        liftChipText = label;
+        liftFloorLabel.textContent = label;
+        liftChip.classList.remove("hidden");
+      }
+    }
+
+    // W/S drives the lift while standing in the cab (fresh presses only).
+    // Face the east panel to ride; face the west doors to walk out instead.
+    // Number keys dial a floor directly from anywhere (1-9, 0 = 10).
+    const digitMap: Record<string, number> = {
+      Digit0: 0, Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4,
+      Digit5: 5, Digit6: 6, Digit7: 7, Digit8: 8, Digit9: 9,
+      Numpad0: 0, Numpad1: 1, Numpad2: 2, Numpad3: 3, Numpad4: 4,
+      Numpad5: 5, Numpad6: 6, Numpad7: 7, Numpad8: 8, Numpad9: 9,
+    };
+    // Two-digit dial buffer: "1" pauses for a possible "0" (= top floor L9)
+    let dialPending: string | null = null;
+    let dialTimer: number | null = null;
+    window.addEventListener("keydown", (e) => {
+      if (e.repeat || cameraCtrl.mode !== "walk") return;
+      if (e.code in digitMap) {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag === "input" || tag === "textarea" || tag === "select") return;
+        const p = cameraCtrl.getPosition();
+        const f = floorAtFeet(p.y - 1.85);
+        if (f < 0) return;
+        const d = digitMap[e.code];
+        if (dialTimer !== null) {
+          window.clearTimeout(dialTimer);
+          dialTimer = null;
+        }
+        if (dialPending === "1") {
+          // Second digit: "10" means the top floor, anything else keeps floor 1
+          dialPending = null;
+          const target = d === 0 ? 9 : 1;
+          if (target !== f) rideLiftTo(target);
+          return;
+        }
+        if (d === 1) {
+          dialPending = "1";
+          showNote("🛗", "DIALING", "1… (press 0 for the top floor)");
+          dialTimer = window.setTimeout(() => {
+            dialTimer = null;
+            dialPending = null;
+            if (f !== 1) rideLiftTo(1);
+          }, 1500);
+          return;
+        }
+        dialPending = null;
+        if (d !== f) rideLiftTo(d);
+        return;
+      }
+      if (e.code !== "KeyW" && e.code !== "KeyS") return;
+      const p = cameraCtrl.getPosition();
+      if (!inLiftCab(p)) return;
+      if (cameraCtrl.doorFacing() >= 0.5) return; // facing the doors: walk, don't ride
+      const f = floorAtFeet(p.y - 1.85);
+      if (f < 0) return;
+      if (e.code === "KeyW" && f < 9) rideLiftTo(f + 1);
+      else if (e.code === "KeyS" && f > 0) rideLiftTo(f - 1);
+    });
+
     function animate(time: number) {
       requestAnimationFrame(animate);
       const delta = Math.min((time - lastTime) / 1000, 0.1);
@@ -1065,6 +1266,7 @@
           showDiscoveryToast(secret);
         });
         checkDistrictBoundary(p);
+        updateLiftChip(p);
       }
       engine.render(delta);
     }
@@ -1088,6 +1290,17 @@
         if (doodleHud) {
           doodleHud.classList.remove("hidden");
           doodleHud.style.display = "block";
+        }
+      });
+      const btnBuyAction = document.getElementById("btn-buy-spaces-action");
+      btnBuyAction?.addEventListener("click", () => {
+        window.location.href = "/product";
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "KeyL" || e.key === "l" || e.key === "L") {
+          const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+          if (tag === "input" || tag === "textarea" || tag === "select") return;
+          window.location.href = "/product";
         }
       });
     }

@@ -324,6 +324,65 @@ export type Database = {
         };
         Relationships: [];
       };
+      products: {
+        Row: {
+          id: string;
+          name: string;
+          tagline: string;
+          url: string;
+          maker: string;
+          base_upvotes: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          tagline?: string;
+          url?: string;
+          maker?: string;
+          base_upvotes?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          tagline?: string;
+          url?: string;
+          maker?: string;
+          base_upvotes?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      product_votes: {
+        Row: {
+          id: string;
+          product_id: string;
+          voter: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          voter: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          voter?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: string;
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

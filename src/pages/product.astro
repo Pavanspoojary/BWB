@@ -1,0 +1,370 @@
+---
+const title = "Product Hunt, doodled // Free Hunt Board | builtwhilebroke.tech";
+const description = "List your product for free on the doodle hunt board. Hunted daily, ranked by upvotes — zero dollars, zero gatekeepers.";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23faf7ee' stroke='%231a30c0' stroke-width='2'/><path d='M6 8h20M6 14h20M6 20h20M6 26h20' stroke='%231a30c0' stroke-opacity='0.25' stroke-width='1.5'/><circle cx='10' cy='6' r='2' fill='%23d02030'/></svg>" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#faf7ee" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Patrick Hand', cursive, sans-serif;
+        background-color: #faf7ee;
+        background-image:
+          linear-gradient(90deg, transparent 79px, rgba(208,32,48,.55) 79px, rgba(208,32,48,.55) 81px, transparent 81px),
+          linear-gradient(rgba(26,48,192,.10) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 28px;
+      }
+      .font-mono2 { font-family: 'JetBrains Mono', monospace; }
+      .font-hand2 { font-family: 'Caveat', cursive, sans-serif; }
+    </style>
+  </head>
+  <body class="min-h-screen text-[#1a30c0] antialiased">
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <!-- Nav -->
+      <div class="flex items-center justify-between mb-6 text-sm font-bold">
+        <a href="/city" class="px-3 py-1.5 rounded-xl border-2 border-[#1a30c0] bg-[#faf7ee] hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all shadow-sm">← 3D world</a>
+        <a href="/" class="hover:underline text-[#1a30c0]/70">builtwhilebroke.tech</a>
+      </div>
+
+      <!-- Hero -->
+      <div class="bg-[#faf7ee] border-[3px] border-[#1a30c0] rounded-[28px] p-6 sm:p-9 shadow-[0_18px_50px_rgba(26,48,192,0.18)] -rotate-1 mb-8 relative">
+        <div class="absolute -top-4 left-8 px-3 py-0.5 bg-[#d02030] text-white text-xs font-bold rounded-lg rotate-2 shadow">100% FREE</div>
+        <div class="font-mono2 text-xs text-[#d02030] font-bold mb-2">$ ./hunt --free --forever</div>
+        <h1 class="text-4xl sm:text-6xl font-black tracking-wide leading-none mb-3">
+          PRODUCT HUNT<span class="text-[#d02030]">,</span> <span class="font-hand2 text-[#059669]">doodled</span>
+        </h1>
+        <p class="text-base sm:text-xl text-[#1a30c0]/85 max-w-2xl">
+          List your product for <b>free</b>. No fees, no approval queue, no gatekeepers.
+          Hunters upvote the best. Tap again to take it back. The board re-ranks live.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-5 text-sm font-bold">
+          <div class="px-3 py-1.5 rounded-xl border-2 border-[#1a30c0] bg-white/70">
+            <span class="text-[#1a30c0]/60">PRODUCTS:</span>
+            <span id="stat-products" class="text-[#1a30c0] font-mono2">0</span>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl border-2 border-[#1a30c0] bg-white/70">
+            <span class="text-[#1a30c0]/60">▲ UPVOTES:</span>
+            <span id="stat-upvotes" class="text-[#d02030] font-mono2">0</span>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl border-2 border-dashed border-[#059669] text-[#059669] rotate-1">
+            LISTING FEE: $0 ✍️
+          </div>
+          <div class="px-3 py-1.5 rounded-xl border-2 border-[#1a30c0]/40 bg-white/60 font-mono2 text-xs flex items-center gap-2">
+            <span id="db-dot" class="inline-block w-2 h-2 rounded-full bg-[#1a30c0]/30"></span>
+            <span id="db-status" class="text-[#1a30c0]/70">connecting…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Hunt list -->
+        <section class="lg:col-span-2">
+          <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="text-2xl font-black tracking-wide">🏆 TODAY'S HUNT</h2>
+          <span class="text-xs text-[#1a30c0]/60 font-mono2">tap ▲ to vote · tap again to un-vote</span>
+          </div>
+          <ol id="hunt-list" class="space-y-4"></ol>
+        </section>
+
+        <!-- Free listing form -->
+        <aside>
+          <div class="bg-[#faf7ee] border-[3px] border-[#1a30c0] rounded-[24px] p-5 sm:p-6 shadow-[0_14px_40px_rgba(26,48,192,0.15)] rotate-1 lg:sticky lg:top-6">
+            <h2 class="text-2xl font-black mb-1">✏️ LIST YOURS</h2>
+            <p class="text-sm text-[#1a30c0]/60 mb-4 font-mono2">free forever · goes live instantly</p>
+            <form id="list-form" class="space-y-3">
+              <div>
+                <label class="block text-sm font-bold mb-1" for="f-name">Product name *</label>
+                <input id="f-name" required maxlength="40" placeholder="e.g. ShipLog" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-bold focus:outline-none focus:border-[#d02030]" />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-1" for="f-tagline">One-line pitch *</label>
+                <input id="f-tagline" required maxlength="80" placeholder="e.g. Changelog-as-a-service for indie hackers" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base focus:outline-none focus:border-[#d02030]" />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-1" for="f-url">Website</label>
+                <input id="f-url" type="url" maxlength="120" placeholder="https://yourproduct.com" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base focus:outline-none focus:border-[#d02030]" />
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-1" for="f-maker">Maker handle</label>
+                <input id="f-maker" maxlength="30" placeholder="@you" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base focus:outline-none focus:border-[#d02030]" />
+              </div>
+              <button type="submit" class="w-full py-3 rounded-2xl bg-[#d02030] hover:bg-[#b51826] text-white font-black text-xl transition-all shadow-[0_4px_0_0_#8c111c] hover:shadow-[0_2px_0_0_#8c111c] hover:translate-y-[2px] cursor-pointer -rotate-1">
+                🚀 LAUNCH FOR $0
+              </button>
+            </form>
+            <p class="text-[11px] text-[#1a30c0]/50 mt-3 font-mono2">
+              listings + votes live in this browser (static $0 hosting — no database to pay for)
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="text-center text-xs text-[#1a30c0]/50 mt-10 font-mono2">
+        drawn with a leaky pen · <a href="/city" class="underline hover:text-[#d02030]">back to the 3D world</a>
+      </footer>
+    </main>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    interface HuntProduct {
+      id: string;
+      name: string;
+      tagline: string;
+      url: string;
+      maker: string;
+      upvotes: number;
+      custom?: boolean;
+    }
+    // Offline fallback seeds (used only when the database is unreachable)
+    const SEEDS: HuntProduct[] = [
+      { id: "seed-doodleboard", name: "DoodleBoard", tagline: "Trello for people who think in sketches", url: "https://builtwhilebroke.tech", maker: "@builtwhilebroke", upvotes: 2314 },
+      { id: "seed-shiplog", name: "ShipLog", tagline: "Changelog-as-a-service for indie hackers", url: "", maker: "@pavan", upvotes: 1892 },
+      { id: "seed-brokeauth", name: "BrokeAuth", tagline: "Auth via Telegram DMs. Do not ask how.", url: "", maker: "@anon", upvotes: 1204 },
+      { id: "seed-cachemoney", name: "CacheMoney", tagline: "Redis on a Raspberry Pi under someone's desk", url: "", maker: "@homelab", upvotes: 866 },
+      { id: "seed-midnightdb", name: "MidnightDB", tagline: "SQLite with delusions of grandeur", url: "", maker: "@sqlitefan", upvotes: 542 },
+    ];
+    const LS_PRODUCTS = "bwb_products";
+    const LS_VOTES = "bwb_product_votes";
+    const LS_VOTER = "bwb_voter";
+
+    let MODE: "db" | "local" = "db";
+    let voterId = "";
+
+    function loadJSON(key: string, fallback: any): any {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+    function saveJSON(key: string, val: any): void {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch {
+        /* private mode */
+      }
+    }
+
+    function getVoterId(): string {
+      let v = loadJSON(LS_VOTER, "") as string;
+      if (!v) {
+        v = "v_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+        saveJSON(LS_VOTER, v);
+      }
+      return v;
+    }
+
+    function setStatus(live: boolean): void {
+      const dot = document.getElementById("db-dot");
+      const txt = document.getElementById("db-status");
+      if (dot) dot.className = "inline-block w-2 h-2 rounded-full " + (live ? "bg-[#059669]" : "bg-[#d02030]");
+      if (txt) txt.textContent = live ? "live · shared board" : "offline · local view";
+    }
+
+    /** Load the shared board: products + vote counts + my ballots. Null on failure. */
+    async function dbLoad(): Promise<{ products: HuntProduct[]; votes: string[] } | null> {
+      try {
+        const { data, error } = await (supabase as any)
+          .from("products")
+          .select("id, name, tagline, url, maker, base_upvotes, created_at, product_votes(count)")
+          .order("created_at", { ascending: true });
+        if (error || !data) return null;
+        const mine = await (supabase as any)
+          .from("product_votes")
+          .select("product_id")
+          .eq("voter", voterId);
+        const votes: string[] = !mine.error && mine.data ? mine.data.map((r: any) => r.product_id) : [];
+        const products: HuntProduct[] = (data as any[]).map((row: any) => ({
+          id: String(row.id),
+          name: String(row.name ?? "Untitled"),
+          tagline: String(row.tagline ?? ""),
+          url: String(row.url ?? ""),
+          maker: String(row.maker ?? "@anon"),
+          upvotes: Number(row.base_upvotes ?? 0) + Number(row.product_votes?.[0]?.count ?? 0),
+          custom: true,
+        }));
+        products.sort((a, b) => b.upvotes - a.upvotes);
+        return { products, votes };
+      } catch {
+        return null;
+      }
+    }
+
+    /** Local fallback board (seeds + this browser's listings). */
+    function localLoad(): { products: HuntProduct[]; votes: string[] } {
+      const customs = loadJSON(LS_PRODUCTS, []) as HuntProduct[];
+      const byId = new Map<string, HuntProduct>();
+      for (const p of SEEDS) byId.set(p.id, { ...p });
+      for (const p of customs) byId.set(p.id, { ...p });
+      const products = [...byId.values()].sort((a, b) => b.upvotes - a.upvotes);
+      return { products, votes: loadJSON(LS_VOTES, []) as string[] };
+    }
+
+    async function refresh(highlightId?: string): Promise<void> {
+      if (MODE === "db") {
+        const loaded = await dbLoad();
+        if (!loaded) {
+          MODE = "local";
+          setStatus(false);
+          const fb = localLoad();
+          render(fb.products, fb.votes, highlightId);
+          return;
+        }
+        setStatus(true);
+        render(loaded.products, loaded.votes, highlightId);
+      } else {
+        const fb = localLoad();
+        render(fb.products, fb.votes, highlightId);
+      }
+    }
+
+    function esc(s: string | number | undefined): string {
+      return String(s ?? "").replace(/[&<>"']/g, (c: string) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+    }
+
+    function render(products: HuntProduct[], votes: string[], highlightId?: string): void {
+      const list = document.getElementById("hunt-list")!;
+      const totalVotes = products.reduce((n: number, p: HuntProduct) => n + p.upvotes, 0);
+      document.getElementById("stat-products")!.textContent = String(products.length);
+      document.getElementById("stat-upvotes")!.textContent = totalVotes.toLocaleString();
+      list.innerHTML = "";
+      products.forEach((p: HuntProduct, i: number) => {
+        const voted = votes.includes(p.id);
+        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+        const tilt = i % 2 === 0 ? "-rotate-1" : "rotate-1";
+        const li = document.createElement("li");
+        li.id = `card-${p.id}`;
+        li.className =
+          `flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 bg-[#faf7ee] border-[3px] rounded-[20px] shadow-[0_8px_24px_rgba(26,48,192,0.12)] ${tilt} ` +
+          (p.id === highlightId ? "border-[#059669]" : i === 0 ? "border-[#d02030]" : "border-[#1a30c0]");
+        li.innerHTML =
+          `<button data-vote="${esc(p.id)}" title="${voted ? "Remove upvote" : "Upvote"}" ` +
+          `class="w-[70px] shrink-0 flex flex-col items-center justify-center gap-0.5 rounded-2xl border-2 font-bold transition-all cursor-pointer ` +
+          (voted
+            ? "border-[#d02030] bg-[#d02030] text-white"
+            : "border-[#1a30c0] bg-white/70 text-[#1a30c0] hover:bg-[#1a30c0] hover:text-[#faf7ee]") +
+          `"><span class="text-xl leading-none">▲</span><span class="text-base font-mono2">${p.upvotes.toLocaleString()}</span></button>` +
+          `<div class="min-w-0 flex-1">` +
+          `<div class="flex items-center gap-2 flex-wrap"><span class="text-sm font-mono2 text-[#1a30c0]/60">${medal}</span>` +
+          (p.url
+            ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" class="text-xl sm:text-2xl font-black text-[#1a30c0] hover:text-[#d02030] transition-colors truncate">${esc(p.name)} ↗</a>`
+            : `<span class="text-xl sm:text-2xl font-black text-[#1a30c0] truncate">${esc(p.name)}</span>`) +
+          (p.custom ? `<span class="text-[10px] font-mono2 px-1.5 py-0.5 bg-[#059669] text-white rounded-md rotate-2">FRESH</span>` : "") +
+          `</div><p class="text-sm sm:text-base text-[#1a30c0]/75 mt-0.5 truncate">${esc(p.tagline)}</p>` +
+          `<p class="text-[11px] text-[#1a30c0]/50 font-mono2 mt-1">by ${esc(p.maker || "@anon")}</p></div>`;
+        list.appendChild(li);
+      });
+      list.querySelectorAll("[data-vote]").forEach((btn: Element) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-vote");
+          if (!id) return;
+          void toggleVote(id);
+        });
+      });
+    }
+
+    async function toggleVote(id: string): Promise<void> {
+      if (MODE === "db") {
+        try {
+          const mine = await (supabase as any)
+            .from("product_votes")
+            .select("id")
+            .eq("product_id", id)
+            .eq("voter", voterId)
+            .maybeSingle();
+          if (mine.data) {
+            await (supabase as any).from("product_votes").delete().eq("id", mine.data.id);
+          } else {
+            await (supabase as any).from("product_votes").insert({ product_id: id, voter: voterId });
+          }
+          await refresh();
+          return;
+        } catch {
+          MODE = "local";
+          setStatus(false);
+        }
+      }
+      // Local fallback toggle
+      const customs = loadJSON(LS_PRODUCTS, []) as HuntProduct[];
+      let target = customs.find((p: HuntProduct) => p.id === id);
+      if (!target) {
+        const seed = SEEDS.find((p: HuntProduct) => p.id === id);
+        if (!seed) return;
+        target = { ...seed };
+        customs.unshift(target);
+      }
+      const vs = loadJSON(LS_VOTES, []) as string[];
+      if (vs.includes(id)) {
+        target.upvotes = Math.max(0, target.upvotes - 1);
+        saveJSON(LS_VOTES, vs.filter((v: string) => v !== id));
+      } else {
+        target.upvotes += 1;
+        vs.push(id);
+        saveJSON(LS_VOTES, vs);
+      }
+      saveJSON(LS_PRODUCTS, customs);
+      await refresh();
+    }
+
+    function val(id: string): string {
+      return (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ?? "";
+    }
+
+    document.getElementById("list-form")!.addEventListener("submit", (e: Event) => {
+      e.preventDefault();
+      const name = val("f-name").slice(0, 40);
+      const tagline = val("f-tagline").slice(0, 80) || "Fresh out of the oven";
+      const url = val("f-url").slice(0, 120);
+      const maker = val("f-maker").slice(0, 30) || "@anon";
+      if (!name) return;
+      const form = e.target as HTMLFormElement;
+      void (async () => {
+        const newId = await submitListing(name, tagline, url, maker);
+        form.reset();
+        await refresh(newId ?? undefined);
+        if (newId) document.getElementById(`card-${newId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      })();
+    });
+
+    /** Insert a listing (shared board first, local fallback). Returns the new id. */
+    async function submitListing(name: string, tagline: string, url: string, maker: string): Promise<string | null> {
+      if (MODE === "db") {
+        try {
+          const { data, error } = await (supabase as any)
+            .from("products")
+            .insert({ name, tagline, url, maker })
+            .select("id")
+            .single();
+          if (!error && data) return String(data.id);
+          MODE = "local";
+          setStatus(false);
+        } catch {
+          MODE = "local";
+          setStatus(false);
+        }
+      }
+      const customs = loadJSON(LS_PRODUCTS, []) as HuntProduct[];
+      const newId = "user-" + Date.now().toString(36);
+      customs.unshift({ id: newId, name, tagline, url, maker, upvotes: 0, custom: true });
+      saveJSON(LS_PRODUCTS, customs);
+      return newId;
+    }
+
+    voterId = getVoterId();
+    void refresh();
+  </script>
+  </body>
+</html>
