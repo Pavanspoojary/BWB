@@ -602,8 +602,8 @@ export class VertexCityBuilder {
     // CENTERPIECE AD BILLBOARD: BuiltWhileBroke / Stripe Megaboard
     if (city && typeof city.createAdBillboardMesh === "function" && city.initialAdConfigs) {
       const bb = city.createAdBillboardMesh(city.initialAdConfigs[0], 14, 7.5, group);
-      bb.mesh.position.set(fc.x, 12, fc.z - 36);
-      bb.mesh.rotation.y = 0;
+      bb.position.set(fc.x, 12, fc.z - 36);
+      bb.rotation.y = 0;
     }
 
     return group;
@@ -657,8 +657,8 @@ export class VertexCityBuilder {
     // Deploy Avenue Ad Banner
     if (city && typeof city.createAdBillboardMesh === "function" && city.initialAdConfigs) {
       const banner = city.createAdBillboardMesh(city.initialAdConfigs[1], 11, 5.5, lqGroup);
-      banner.mesh.position.set(mapToWorld(825, 230).x, 14, mapToWorld(825, 230).z);
-      banner.mesh.rotation.y = Math.PI / 2;
+      banner.position.set(mapToWorld(825, 230).x, 14, mapToWorld(825, 230).z);
+      banner.rotation.y = Math.PI / 2;
     }
 
     group.add(lqGroup);
@@ -695,7 +695,7 @@ export class VertexCityBuilder {
     // Product Square Corner Billboard
     if (city && typeof city.createAdBillboardMesh === "function" && city.initialAdConfigs) {
       const psBoard = city.createAdBillboardMesh(city.initialAdConfigs[4], 10, 5, psGroup);
-      psBoard.mesh.position.set(mapToWorld(620, 420).x, 10, mapToWorld(620, 420).z);
+      psBoard.position.set(mapToWorld(620, 420).x, 10, mapToWorld(620, 420).z);
     }
 
     group.add(psGroup);
@@ -773,7 +773,7 @@ export class VertexCityBuilder {
     // Raycast / Venture Ward Skyboard
     if (city && typeof city.createAdBillboardMesh === "function" && city.initialAdConfigs) {
       const vBoard = city.createAdBillboardMesh(city.initialAdConfigs[2], 12, 6, vwGroup);
-      vBoard.mesh.position.set(mapToWorld(1160, 300).x, 22, mapToWorld(1160, 300).z);
+      vBoard.position.set(mapToWorld(1160, 300).x, 22, mapToWorld(1160, 300).z);
     }
 
     group.add(vwGroup);
@@ -977,7 +977,7 @@ export class VertexCityBuilder {
     // Supabase / Harbor Terminal Billboard
     if (city && typeof city.createAdBillboardMesh === "function" && city.initialAdConfigs) {
       const hBoard = city.createAdBillboardMesh(city.initialAdConfigs[3], 11, 5, harborGroup);
-      hBoard.mesh.position.set(harborPos.x - 28, 15, harborPos.z - 6);
+      hBoard.position.set(harborPos.x - 28, 15, harborPos.z - 6);
     }
 
     group.add(harborGroup);

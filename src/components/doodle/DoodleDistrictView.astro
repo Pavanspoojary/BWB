@@ -471,6 +471,9 @@
           Your product is live on the 3D hunt board. Walk the world and gather upvotes!
         </p>
       </div>
+    </div>
+  </div>
+
   <!-- 2D VERTEX CITY BLUEPRINT MAP MODAL -->
   <div id="modal-vertex-map" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs pointer-events-auto">
     <div class="relative w-full max-w-5xl max-h-[92vh] bg-[#faf7ee] border-4 border-[#1a30c0] rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col overflow-hidden text-[#1a30c0] font-[Patrick_Hand,cursive]">
@@ -685,17 +688,41 @@
 
     // Enter City from Landing Screen
     function enterCity() {
-      doodleAudio.penClick();
-      cameraCtrl.autoRotate = false;
-      landingOverlay?.classList.add("hidden");
-      doodleHud?.classList.remove("hidden");
+      try {
+        doodleAudio.penClick();
+      } catch (e) {
+        console.warn("Audio error:", e);
+      }
+      if (cameraCtrl) {
+        cameraCtrl.autoRotate = false;
+      }
+      if (landingOverlay) {
+        landingOverlay.classList.add("hidden");
+        landingOverlay.style.display = "none";
+      }
+      if (doodleHud) {
+        doodleHud.classList.remove("hidden");
+        doodleHud.style.display = "block";
+      }
     }
 
     function openMenu() {
-      doodleAudio.penClick();
-      cameraCtrl.autoRotate = true;
-      landingOverlay?.classList.remove("hidden");
-      doodleHud?.classList.add("hidden");
+      try {
+        doodleAudio.penClick();
+      } catch (e) {
+        console.warn("Audio error:", e);
+      }
+      if (cameraCtrl) {
+        cameraCtrl.autoRotate = true;
+      }
+      if (landingOverlay) {
+        landingOverlay.classList.remove("hidden");
+        landingOverlay.style.display = "flex";
+      }
+      if (doodleHud) {
+        doodleHud.classList.add("hidden");
+        doodleHud.style.display = "none";
+      }
     }
 
     btnStart?.addEventListener("click", enterCity);
@@ -1045,9 +1072,30 @@
     requestAnimationFrame(animate);
   }
 
+  function safeInit() {
+    try {
+      initDoodleDistrict();
+    } catch (err) {
+      console.error("[DoodleDistrict] Failed to initialize 3D scene:", err);
+      const btnStart = document.getElementById("btn-start-game");
+      const landingOverlay = document.getElementById("landing-overlay");
+      const doodleHud = document.getElementById("doodle-hud");
+      btnStart?.addEventListener("click", () => {
+        if (landingOverlay) {
+          landingOverlay.classList.add("hidden");
+          landingOverlay.style.display = "none";
+        }
+        if (doodleHud) {
+          doodleHud.classList.remove("hidden");
+          doodleHud.style.display = "block";
+        }
+      });
+    }
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initDoodleDistrict);
+    document.addEventListener("DOMContentLoaded", safeInit);
   } else {
-    initDoodleDistrict();
+    safeInit();
   }
 </script>
