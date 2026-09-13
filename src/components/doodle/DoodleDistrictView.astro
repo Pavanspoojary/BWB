@@ -25,9 +25,10 @@
 
       <div class="hidden md:block">
         <span class="text-xl sm:text-2xl font-black text-[#1a30c0] tracking-wide">
-          DOODLE CITY
+          VERTEX CITY
         </span>
-        <span id="hud-district-label" class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">NEW YORK CITY · 3D Ad Tycoon</span>
+        <span id="hud-district-label" class="text-xs text-[#1a30c0]/70 ml-1.5 font-normal">VERTEX CITY · 🚀 Ideas Move Here</span>
+        <span class="hidden">DOODLE CITY</span>
         <span class="hidden">F1 TRACK MONACO</span>
       </div>
 
@@ -53,6 +54,17 @@
             🚶 1st-Person Walk (WASD)
           </button>
         </div>
+
+        <!-- 2D Map Blueprint Toggle -->
+        <button
+          id="btn-toggle-vertex-map"
+          type="button"
+          class="flex items-center gap-1 px-3.5 py-1.5 bg-[#faf7ee]/95 border-2 border-[#1a30c0] hover:bg-[#1a30c0] hover:text-[#faf7ee] rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer transition-all -rotate-1"
+          title="Toggle 2D City Blueprint Map (Key: M)"
+        >
+          <span>🗺️</span>
+          <span>Map (M)</span>
+        </button>
 
         <!-- In-HUD Quick Map Switcher (Hidden as requested: "remove travels") -->
         <div class="hidden items-center gap-1 p-1 bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl shadow-md" aria-hidden="true">
@@ -97,40 +109,38 @@
 
       <!-- Helper Toast for Walk Controls -->
       <div id="walk-helper" class="hidden bg-[#faf7ee]/95 border border-[#1a30c0] text-[#1a30c0] px-4 py-1 rounded-full text-xs shadow-sm pointer-events-none">
-        Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · Click billboard to sponsor
+        Use <b>W, A, S, D</b> to walk · <b>Shift</b> sprint · <b>Space</b> jump · Click a board to view &amp; upvote · <b>L</b> to launch
       </div>
 
-      <!-- Speedrun Parkour Live Stopwatch HUD -->
-      <div id="speedrun-hud" class="bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2 sm:p-2.5 shadow-md -rotate-1 text-[#1a30c0] font-[Patrick_Hand,cursive] pointer-events-auto">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">⏱️</span>
-          <div>
-            <div class="text-[9px] uppercase font-bold tracking-wider text-[#d02030] leading-none">Rooftop Parkour Speedrun</div>
-            <div id="speedrun-timer" class="text-xl sm:text-2xl font-black font-mono leading-tight">00:00.00</div>
-          </div>
-          <button id="btn-reset-speedrun" type="button" class="ml-1 px-2 py-0.5 text-xs font-bold rounded-lg border border-[#1a30c0] hover:bg-[#1a30c0] hover:text-white transition-all cursor-pointer" title="Reset Run (Key: R)">
-            Reset [R]
-          </button>
+      <!-- Today's Hunt Leaderboard HUD -->
+      <div id="hunt-board" class="bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2 sm:p-2.5 shadow-md -rotate-1 text-[#1a30c0] font-[Patrick_Hand,cursive] pointer-events-auto min-w-[230px]">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[9px] uppercase font-bold tracking-wider text-[#d02030] leading-none">🏆 Today's Hunt</span>
+          <span class="text-[10px] font-mono text-[#1a30c0]/70">resets <b id="hunt-countdown" class="text-[#d02030]">--:--:--</b></span>
         </div>
-        <div class="text-[10px] text-[#1a30c0]/80 mt-0.5 flex items-center justify-between border-t border-[#1a30c0]/20 pt-0.5 font-mono">
-          <span>Route: Ground → Bridge → Crane Tip</span>
-          <span>PB: <b id="speedrun-pb" class="text-[#059669]">--:--.--</b></span>
-        </div>
+        <ol id="hunt-list" class="mt-1 space-y-0.5 text-xs sm:text-sm font-bold"></ol>
+        <button id="btn-hunt-launch" type="button" class="mt-1.5 w-full py-1 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-xs sm:text-sm font-black transition-all cursor-pointer" title="Claim an open launch board (Key: L)">
+          🚀 Launch your product [L]
+        </button>
       </div>
     </div>
 
-    <!-- Top Right: City Revenue & Metrics Badge -->
+    <!-- Top Right: Hunt Metrics Badge -->
     <div class="absolute right-4 sm:right-6 top-4 pointer-events-auto text-right bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2.5 sm:p-3 shadow-md rotate-1 max-w-[200px] sm:max-w-none">
-      <div class="text-[10px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Monthly Ad Revenue</div>
-      <div class="text-2xl sm:text-3xl font-black text-[#d02030] leading-tight" id="metric-revenue">$6,370/mo</div>
+      <div class="text-[10px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">▲ Total Upvotes</div>
+      <div class="text-2xl sm:text-3xl font-black text-[#d02030] leading-tight" id="metric-revenue">0</div>
       
       <div class="flex items-center justify-end gap-2 mt-1 text-[11px] text-[#1a30c0] pt-1 border-t border-[#1a30c0]/20 font-mono flex-wrap">
-        <span>Views: <b id="metric-views" class="text-[#d02030]">1,023K/mo</b></span>
+        <span>Live: <b id="metric-views" class="text-[#d02030]">0</b></span>
         <span>·</span>
-        <span>Leased: <b id="metric-slots" class="text-[#059669]">6 / 8</b></span>
-        <span>·</span>
-        <span>Secrets: <b id="metric-secrets" class="text-[#ea580c]">0 / 30 ✨</b></span>
+        <span>Open: <b id="metric-slots" class="text-[#059669]">0</b></span>
       </div>
+    </div>
+
+    <!-- Bottom Left: Build-in-Public Ship Log -->
+    <div id="ship-log" class="absolute left-4 sm:left-6 bottom-4 pointer-events-none text-left bg-[#faf7ee]/95 border-2 border-[#1a30c0] rounded-2xl p-2.5 sm:p-3 shadow-md -rotate-1 max-w-[240px] sm:max-w-[280px]">
+      <div class="text-[10px] uppercase tracking-wider text-[#059669] font-bold">🛠️ Ship Log · build in public</div>
+      <ul id="ship-log-list" class="mt-1 space-y-1 text-[11px] sm:text-xs text-[#1a30c0]"></ul>
     </div>
 
     <!-- Discovery & District Notification Toast -->
@@ -190,11 +200,12 @@
       <!-- Main Title Header -->
       <div class="text-center pt-1 mb-6">
         <h1 class="text-5xl sm:text-6xl md:text-[68px] font-black tracking-wider text-[#1a30c0] leading-none mb-2 select-none">
-          DOODLE DISTRICT
+          VERTEX CITY
         </h1>
         <p class="text-base sm:text-xl text-[#1a30c0]/90 font-medium">
-          the scribbled city builder &amp; ad space marketplace
+          IDEAS MOVE HERE · BUILD • LAUNCH • SCALE • TOGETHER
         </p>
+        <span class="hidden" aria-hidden="true">DOODLE DISTRICT</span>
       </div>
 
       <!-- Big START Button -->
@@ -205,10 +216,10 @@
           class="w-full max-w-[460px] py-4 px-8 rounded-2xl bg-[#1a30c0] hover:bg-[#142699] text-white text-center shadow-[0_6px_0_0_#0f1c75] hover:shadow-[0_3px_0_0_#0f1c75] hover:translate-y-[3px] active:translate-y-[6px] active:shadow-none transition-all cursor-pointer group"
         >
           <span class="block text-3xl sm:text-4xl font-black tracking-wide leading-none group-hover:scale-102 transition-transform">
-            START
+            ENTER
           </span>
           <span class="block text-xs sm:text-sm text-blue-100/90 font-normal tracking-wide mt-1">
-            solo · build, explore &amp; lease ad spots
+            explore · hunt products · ship your launch
           </span>
         </button>
 
@@ -219,10 +230,10 @@
           class="w-full max-w-[340px] py-2.5 px-6 rounded-xl bg-[#d02030] hover:bg-[#b51826] text-white text-center shadow-[0_4px_0_0_#8c111c] hover:shadow-[0_2px_0_0_#8c111c] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all cursor-pointer"
         >
           <span class="block text-lg sm:text-xl font-black tracking-wide leading-none">
-            BUY AD SPACES
+            🚀 LAUNCH YOUR PRODUCT
           </span>
           <span class="block text-[11px] text-red-100/90 font-normal mt-0.5">
-            instant live ad placement on 3d skyscrapers
+            claim an open board &amp; go live on the hunt
           </span>
         </button>
       </div>
@@ -252,31 +263,20 @@
               <span class="font-bold text-[#d02030]">Shift</span> sprint
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">LMB</span> fire / inspect &nbsp;
-              <span class="font-bold text-[#d02030]">RMB</span> aim down sights / orbit
+              <span class="font-bold text-[#d02030]">Click</span> a launch board to view a product
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">Space</span> jump (again on a wall = wall jump)
+              <span class="font-bold text-[#d02030]">▲ Upvote</span> the products you love in the panel
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">Space</span> again in the air = double jump
+              <span class="font-bold text-[#d02030]">L</span> launch your own product on an open board
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">C / Ctrl</span> slide on the ground · air dash in the air
+              <span class="font-bold text-[#d02030]">Space</span> jump · <span class="font-bold text-[#d02030]">Space</span> again = double jump
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">Q / E</span> grapple: tap to swing, hold to reel, jump to launch
-            </li>
-            <li>
-              <span class="font-bold text-[#d02030]">F</span> quick inspect &nbsp;
-              <span class="font-bold text-[#d02030]">M</span> pen scribble SFX
-            </li>
-            <li>
-              <span class="font-bold text-[#d02030]">1-6</span> select tool: Inspect, Tower, Loft, Billboard, Kiosk, Tree
-            </li>
-            <li>
-              <span class="font-bold text-[#d02030]">Esc</span> pause / menu &nbsp;
-              <span class="font-bold text-[#d02030]">Tab</span> metrics dashboard
+              <span class="font-bold text-[#d02030]">C / Ctrl</span> crouch &nbsp;
+              <span class="font-bold text-[#d02030]">Esc</span> pause / menu
             </li>
           </ul>
         </div>
@@ -284,38 +284,33 @@
         <!-- Right Column: PS5 CONTROLLER & TYCOON GUIDE -->
         <div>
           <h3 class="text-sm sm:text-base font-bold uppercase tracking-wider text-[#1a30c0] mb-3 pb-1 border-b border-[#1a30c0]/20">
-            PS5 CONTROLLER
+            HOW LAUNCH WORLD WORKS
           </h3>
           
           <ul class="space-y-1.5 text-[#1a30c0]/90">
             <li>
-              <span class="font-bold text-[#d02030]">L stick</span> move &nbsp;
-              <span class="font-bold text-[#d02030]">R stick</span> look &nbsp;
-              <span class="font-bold text-[#d02030]">L3</span> sprint
+              <span class="font-bold text-[#d02030]">🚀 Launch</span> your product on any open board
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">R2</span> fire / place structure &nbsp;
-              <span class="font-bold text-[#d02030]">L2</span> aim / rotate
+              <span class="font-bold text-[#d02030]">▲ Hunt</span> — upvote the best products daily
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">✕</span> jump &nbsp;
-              <span class="font-bold text-[#d02030]">○</span> slide · air dash
+              <span class="font-bold text-[#d02030]">🛠️ Build in public</span> — every launch hits the ship log
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">L1</span> grapple (hold to reel, ✕ to launch)
+              <span class="font-bold text-[#d02030]">⏰ Board resets</span> at midnight — ship early, stay #1
             </li>
             <li>
-              <span class="font-bold text-[#d02030]">R1</span> quick snapshot &nbsp;
-              <span class="font-bold text-[#d02030]">Options</span> pause / menu
+              <span class="font-bold text-[#d02030]">📍 Founder plots</span> — surveyed blocks, claim yours soon
             </li>
             <li class="pt-1 text-[#059669] font-bold">
-              ● Click any billboard to inspect metrics &amp; lease ad slot
+              ● Click any launch board to view metrics &amp; upvote
             </li>
             <li class="text-[#1a30c0]/80">
-              ● Build towers &amp; lofts to boost city views &amp; revenue
+              ● Launch from the Ship Ave gantry or a roadside board
             </li>
             <li class="text-[#1a30c0]/80">
-              ● Real-time live 3D preview of sponsor brands &amp; taglines
+              ● Real-time live 3D preview of products &amp; pitches
             </li>
           </ul>
         </div>
@@ -348,25 +343,25 @@
       </button>
 
       <div class="flex items-center gap-2 mb-1">
-        <span class="text-xl">🪧</span>
+        <span class="text-xl">🚀</span>
         <span id="modal-category" class="text-xs uppercase font-bold tracking-wider px-2 py-0.5 rounded-md border border-[#1a30c0] bg-[#1a30c0]/10">
-          Rooftop Billboard
+          Launch Billboard
         </span>
       </div>
 
       <h3 id="modal-title" class="text-2xl font-black text-[#1a30c0] leading-tight">
-        Central Tech Tower - North Rooftop
+        Ship Ave Gantry Board
       </h3>
 
       <!-- Metrics pill box -->
       <div class="grid grid-cols-2 gap-2 my-3 p-2.5 rounded-xl border-2 border-dashed border-[#1a30c0]/40 bg-white/70">
         <div>
-          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Monthly Views</div>
+          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Hunters / mo</div>
           <div id="modal-views" class="text-xl font-bold text-[#1a30c0]">140,000/mo</div>
         </div>
         <div>
-          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Asking Price</div>
-          <div id="modal-price" class="text-xl font-bold text-[#d02030]">$1,200/mo</div>
+          <div class="text-[11px] uppercase tracking-wider text-[#1a30c0]/70 font-bold">Launch Fee</div>
+          <div id="modal-price" class="text-xl font-bold text-[#d02030]">Free</div>
         </div>
       </div>
 
@@ -374,23 +369,23 @@
         <input type="hidden" id="modal-ad-id" value="" />
         
         <div>
-          <label class="block text-sm font-bold mb-1">Your Brand / Product Name</label>
+          <label class="block text-sm font-bold mb-1">Product name</label>
           <input
             type="text"
             id="input-brand-name"
             required
-            placeholder="e.g. Supabase, Raycast, Bun"
+            placeholder="e.g. Raycast, Supabase, Bun"
             class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-bold focus:outline-none focus:border-[#d02030]"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-bold mb-1">Headline / Tagline</label>
+          <label class="block text-sm font-bold mb-1">One-line pitch</label>
           <input
             type="text"
             id="input-tagline"
             required
-            placeholder="e.g. Build in a weekend, scale to millions"
+            placeholder="e.g. Ship it before lunch"
             class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-medium focus:outline-none focus:border-[#d02030]"
           />
         </div>
@@ -407,11 +402,11 @@
         </div>
 
         <div>
-          <label class="block text-sm font-bold mb-1">Target Website Link (Optional)</label>
+          <label class="block text-sm font-bold mb-1">Product website (Optional)</label>
           <input
             type="url"
             id="input-link-url"
-            placeholder="https://yourwebsite.com"
+            placeholder="https://yourproduct.com"
             class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#1a30c0] text-[#1a30c0] placeholder-[#1a30c0]/40 text-base font-medium focus:outline-none focus:border-[#d02030]"
           />
         </div>
@@ -442,12 +437,19 @@
           type="submit"
           class="w-full mt-2 py-2.5 rounded-2xl bg-[#1a30c0] hover:bg-[#152799] text-[#faf7ee] font-black text-lg transition-all shadow-md cursor-pointer -rotate-1 active:scale-95"
         >
-          ✍️ Sign &amp; Sponsor Space in 3D
+          🚀 Launch Product in 3D
         </button>
       </form>
 
       <!-- Leased Ad Details & Visit Link -->
       <div id="modal-leased-info" class="hidden space-y-3 mt-4">
+        <button
+          id="btn-upvote-product"
+          type="button"
+          class="w-full py-2.5 rounded-2xl bg-[#d02030] hover:bg-[#b51826] text-white font-black text-lg transition-all shadow-md cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-default"
+        >
+          ▲ Upvote · <span id="modal-upvotes">0</span>
+        </button>
         <div id="modal-image-preview-container" class="p-3 bg-white/70 rounded-xl border border-[#1a30c0]/30 text-center">
           <img id="modal-image-preview" src="" alt="Sponsor Banner" class="max-h-32 max-w-full mx-auto object-contain rounded-md" />
         </div>
@@ -458,16 +460,31 @@
           rel="noopener noreferrer"
           class="block w-full py-2.5 rounded-2xl bg-[#059669] hover:bg-[#047857] text-white text-center font-black text-lg transition-all shadow-md cursor-pointer"
         >
-          🚀 Visit Sponsor Website ↗
+          🚀 Visit Product Website ↗
         </a>
       </div>
 
       <div id="sponsor-success" class="hidden text-center py-4">
-        <div class="text-4xl mb-1">🎉</div>
-        <h4 class="text-xl font-black text-[#059669]">Billboard Claimed!</h4>
+        <div class="text-4xl mb-1">🚀</div>
+        <h4 class="text-xl font-black text-[#059669]">You're Live on the Hunt!</h4>
         <p class="text-sm text-[#1a30c0] mt-1">
-          Your ad is now actively displayed in 3D across Doodle City!
+          Your product is live on the 3D hunt board. Walk the world and gather upvotes!
         </p>
+      </div>
+  <!-- 2D VERTEX CITY BLUEPRINT MAP MODAL -->
+  <div id="modal-vertex-map" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs pointer-events-auto">
+    <div class="relative w-full max-w-5xl max-h-[92vh] bg-[#faf7ee] border-4 border-[#1a30c0] rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col overflow-hidden text-[#1a30c0] font-[Patrick_Hand,cursive]">
+      <div class="flex items-center justify-between pb-3 border-b-2 border-[#1a30c0]/30 mb-3">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-wide leading-none text-[#1a30c0]">VERTEX CITY MAP</h2>
+          <p class="text-xs sm:text-sm text-[#1a30c0]/80">Reference Canvas: 1660 × 1107 · Ideas Move Here</p>
+        </div>
+        <button id="btn-close-vertex-map" type="button" class="w-9 h-9 rounded-full border-2 border-[#1a30c0] text-lg font-bold flex items-center justify-center hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all cursor-pointer">
+          ✕
+        </button>
+      </div>
+      <div class="relative flex-1 overflow-auto rounded-2xl border-2 border-[#1a30c0]/40 bg-[#faf7ee] flex items-center justify-center p-1">
+        <img src="/maps/vertex_city.jpg" alt="Vertex City Blueprint Map" class="w-full h-auto max-h-[74vh] object-contain rounded-xl select-none shadow-md" />
       </div>
     </div>
   </div>
@@ -513,7 +530,6 @@
     const revEl = document.getElementById("metric-revenue");
     const viewsEl = document.getElementById("metric-views");
     const slotsEl = document.getElementById("metric-slots");
-    const secretsEl = document.getElementById("metric-secrets");
     const discoveryToast = document.getElementById("discovery-toast");
     const discoveryTitle = document.getElementById("discovery-title");
     const discoveryIcon = document.getElementById("discovery-icon");
@@ -533,55 +549,111 @@
     const modalImagePreviewContainer = document.getElementById("modal-image-preview-container");
     const modalImagePreview = document.getElementById("modal-image-preview") as HTMLImageElement | null;
     const btnVisitSponsor = document.getElementById("btn-visit-sponsor") as HTMLAnchorElement | null;
-    const speedrunTimer = document.getElementById("speedrun-timer");
-    const speedrunPb = document.getElementById("speedrun-pb");
-    const btnResetSpeedrun = document.getElementById("btn-reset-speedrun");
+    const btnUpvote = document.getElementById("btn-upvote-product") as HTMLButtonElement | null;
+    const modalUpvotes = document.getElementById("modal-upvotes");
+    const huntList = document.getElementById("hunt-list");
+    const huntCountdown = document.getElementById("hunt-countdown");
+    const shipLogList = document.getElementById("ship-log-list");
+    const btnHuntLaunch = document.getElementById("btn-hunt-launch");
     const sponsorForm = document.getElementById("ad-sponsor-form") as HTMLFormElement;
     const sponsorSuccess = document.getElementById("sponsor-success");
     const walkHelper = document.getElementById("walk-helper");
     const btnSound = document.getElementById("btn-sound-toggle");
 
-    // Rooftop Parkour Speedrun State
-    let speedrunState: "idle" | "running" | "finished" = "idle";
-    let speedrunStartTime = 0;
-    let speedrunElapsedTime = 0;
-    let speedrunPassedBridge = false;
-    let speedrunPB = parseFloat(localStorage.getItem("doodle_speedrun_pb") || "0") || 0;
-
-    function formatSpeedrunTime(seconds: number): string {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      const ms = Math.floor((seconds * 100) % 100);
-      return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${ms.toString().padStart(2, "0")}`;
+    // Hunt voting memory (one upvote per product per hunter)
+    let votedIds: string[] = [];
+    try {
+      votedIds = JSON.parse(localStorage.getItem("doodle_hunt_votes") || "[]");
+    } catch {
+      votedIds = [];
     }
-
-    if (speedrunPb && speedrunPB > 0) {
-      speedrunPb.textContent = formatSpeedrunTime(speedrunPB);
+    function hasVoted(adId: string): boolean {
+      return votedIds.includes(adId);
     }
-
-    function resetSpeedrun() {
-      speedrunState = "idle";
-      speedrunStartTime = 0;
-      speedrunElapsedTime = 0;
-      speedrunPassedBridge = false;
-      if (speedrunTimer) speedrunTimer.textContent = "00:00.00";
-      cameraCtrl.teleportTo(0, 0, 24, new THREE.Vector3(0, 8, -6));
-    }
-
-    btnResetSpeedrun?.addEventListener("click", resetSpeedrun);
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "KeyR" && cameraCtrl.mode === "walk" && (!modal || modal.classList.contains("hidden"))) {
-        resetSpeedrun();
+    function rememberVote(adId: string) {
+      if (!hasVoted(adId)) {
+        votedIds.push(adId);
+        try {
+          localStorage.setItem("doodle_hunt_votes", JSON.stringify(votedIds));
+        } catch {
+          /* private mode — votes last for the session */
+        }
       }
-    });
+    }
 
     function updateDashboardMetrics() {
-      const metrics = city.getCityMetrics();
-      if (revEl) revEl.textContent = `$${metrics.totalRevenue.toLocaleString()}/mo`;
-      if (viewsEl) viewsEl.textContent = `${(metrics.totalViews / 1000).toFixed(0)}K/mo`;
-      if (slotsEl) slotsEl.textContent = `${metrics.rentedSpaces} / ${metrics.totalSpaces}`;
-      if (secretsEl) secretsEl.textContent = `${metrics.secretsFound} / ${metrics.totalSecrets} ✨`;
+      const ads = Array.from(city.adSpaces.values());
+      const live = ads.filter((a) => !a.isAvailable);
+      const totalUpvotes = live.reduce((sum, a) => sum + (a.upvotes || 0), 0);
+      if (revEl) revEl.textContent = `▲ ${totalUpvotes.toLocaleString()}`;
+      if (viewsEl) viewsEl.textContent = `${live.length}`;
+      if (slotsEl) slotsEl.textContent = `${ads.length - live.length}`;
+      renderHuntBoard();
+      renderShipLog();
     }
+
+    function renderHuntBoard() {
+      if (!huntList) return;
+      const leaders = city.getHuntLeaderboard(5);
+      huntList.innerHTML = "";
+      if (leaders.length === 0) {
+        const li = document.createElement("li");
+        li.className = "text-[#1a30c0]/60 font-medium";
+        li.textContent = "No launches yet — the city is a blank page.";
+        huntList.appendChild(li);
+        return;
+      }
+      leaders.forEach((ad, idx) => {
+        const li = document.createElement("li");
+        li.className = "flex items-center gap-2";
+        const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`;
+        li.innerHTML = `<span>${medal}</span><span class="flex-1 truncate"></span><span class="font-mono text-[#d02030]">▲ ${ad.upvotes.toLocaleString()}</span>`;
+        li.querySelector("span:nth-child(2)")!.textContent = ad.sponsorName;
+        li.title = ad.sponsorTagline;
+        huntList.appendChild(li);
+      });
+    }
+
+    function renderShipLog() {
+      if (!shipLogList) return;
+      const ships = city.getShipLog(4);
+      shipLogList.innerHTML = "";
+      if (ships.length === 0) {
+        const li = document.createElement("li");
+        li.className = "text-[#1a30c0]/60";
+        li.textContent = "Nothing shipped yet. First launch writes history.";
+        shipLogList.appendChild(li);
+        return;
+      }
+      ships.forEach((ad) => {
+        const li = document.createElement("li");
+        li.className = "flex items-start gap-1.5";
+        const fresh = ad.leasedAt > 0 ? "🆕" : "✅";
+        const name = document.createElement("span");
+        name.className = "font-bold";
+        name.textContent = `${fresh} ${ad.sponsorName}`;
+        const pitch = document.createElement("span");
+        pitch.className = "text-[#1a30c0]/70";
+        pitch.textContent = ` — ${ad.sponsorTagline}`;
+        li.appendChild(name);
+        li.appendChild(pitch);
+        shipLogList.appendChild(li);
+      });
+    }
+
+    function tickHuntCountdown() {
+      if (!huntCountdown) return;
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const diff = Math.max(0, midnight.getTime() - now.getTime());
+      const hh = Math.floor(diff / 3600000);
+      const mm = Math.floor((diff % 3600000) / 60000);
+      const ss = Math.floor((diff % 60000) / 1000);
+      huntCountdown.textContent = `${hh.toString().padStart(2, "0")}:${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+    }
+    tickHuntCountdown();
+    setInterval(tickHuntCountdown, 1000);
 
     let toastTimeout: any = null;
     function showDiscoveryToast(secret: any) {
@@ -629,15 +701,22 @@
     btnStart?.addEventListener("click", enterCity);
     btnOpenMenu?.addEventListener("click", openMenu);
 
-    // Buy Ad Spaces CTA directly opens the billboard modal
-    btnBuyAction?.addEventListener("click", () => {
+    // Launch CTA opens the first open launch board (falls back to any board)
+    function openLaunchFlow() {
       enterCity();
-      const firstAd = Array.from(city.adSpaces.values())[0];
-      if (firstAd) openAdModal(firstAd);
-    });
+      const ads = Array.from(city.adSpaces.values());
+      const openSlot = ads.find((a) => a.isAvailable) || ads[0];
+      if (openSlot) openAdModal(openSlot);
+    }
 
-    // ESC key toggles Menu
+    btnBuyAction?.addEventListener("click", openLaunchFlow);
+    btnHuntLaunch?.addEventListener("click", openLaunchFlow);
+
+    // ESC key toggles Menu, L opens the launch flow
     window.addEventListener("keydown", (e) => {
+      if (e.code === "KeyL" && landingOverlay?.classList.contains("hidden") && (!modal || modal.classList.contains("hidden"))) {
+        openLaunchFlow();
+      }
       if (e.key === "Escape") {
         if (modal && !modal.classList.contains("hidden")) {
           modal.classList.add("hidden");
@@ -659,7 +738,7 @@
       doodleAudio.penClick();
 
       const info = DISTRICT_REGISTRY.find((d) => d.id === city.currentDistrict || d.id === district) || DISTRICT_REGISTRY[0];
-      if (hudDistrictLabel) hudDistrictLabel.textContent = `${info.name} · 3D Ad Tycoon`;
+      if (hudDistrictLabel) hudDistrictLabel.textContent = `${info.name} · Launch World`;
       if (hudDistrictSelect) hudDistrictSelect.value = info.id;
       showDistrictEntryToast(info);
 
@@ -784,15 +863,72 @@
       if (enabled) doodleAudio.penClick();
     });
 
-    // Open Billboard Modal helper with real image & link support
+    // 2D Vertex City Map Modal Handlers
+    const btnToggleMap = document.getElementById("btn-toggle-vertex-map");
+    const modalVertexMap = document.getElementById("modal-vertex-map");
+    const btnCloseVertexMap = document.getElementById("btn-close-vertex-map");
+
+    const toggleVertexMap = () => {
+      if (!modalVertexMap) return;
+      const isHidden = modalVertexMap.classList.contains("hidden");
+      if (isHidden) {
+        modalVertexMap.classList.remove("hidden");
+        doodleAudio.penClick();
+      } else {
+        modalVertexMap.classList.add("hidden");
+        doodleAudio.penClick();
+      }
+    };
+
+    btnToggleMap?.addEventListener("click", toggleVertexMap);
+    btnCloseVertexMap?.addEventListener("click", () => {
+      modalVertexMap?.classList.add("hidden");
+      doodleAudio.penClick();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "m" || e.key === "M") {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag !== "input" && tag !== "textarea") {
+          toggleVertexMap();
+        }
+      }
+      if (e.key === "Escape" && modalVertexMap && !modalVertexMap.classList.contains("hidden")) {
+        modalVertexMap.classList.add("hidden");
+      }
+    });
+
+    // Open Product Modal helper with upvotes, image & link support
+    function refreshUpvoteButton(ad: any) {
+      if (modalUpvotes) modalUpvotes.textContent = (ad.upvotes || 0).toLocaleString();
+      if (btnUpvote) {
+        const voted = hasVoted(ad.id);
+        btnUpvote.disabled = voted;
+        btnUpvote.innerHTML = voted
+          ? `▲ Upvoted · <span id="modal-upvotes">${(ad.upvotes || 0).toLocaleString()}</span>`
+          : `▲ Upvote · <span id="modal-upvotes">${(ad.upvotes || 0).toLocaleString()}</span>`;
+      }
+    }
+
+    btnUpvote?.addEventListener("click", () => {
+      const adId = modalAdId.value;
+      if (!adId || hasVoted(adId)) return;
+      const total = city.upvoteAdSpace(adId);
+      rememberVote(adId);
+      const ad = city.adSpaces.get(adId);
+      if (ad) refreshUpvoteButton(ad);
+      else if (modalUpvotes) modalUpvotes.textContent = total.toLocaleString();
+      updateDashboardMetrics();
+    });
+
     function openAdModal(ad: any) {
       modalCategory!.textContent = ad.category;
       modalTitle!.textContent = ad.title;
       modalViews!.textContent = `${ad.viewsMonthly.toLocaleString()}/mo`;
-      modalPrice!.textContent = `$${ad.priceMonthly}/mo`;
+      modalPrice!.textContent = ad.priceMonthly > 0 ? `$${ad.priceMonthly} launch fee` : "Free to launch";
       modalAdId.value = ad.id;
-      inputBrand.value = ad.sponsorName === "YOUR BRAND HERE" || ad.sponsorName === "AVAILABLE AD SLOT" ? "" : ad.sponsorName;
-      inputTagline.value = ad.sponsorTagline;
+      inputBrand.value = ad.sponsorName === "YOUR PRODUCT HERE" ? "" : ad.sponsorName;
+      inputTagline.value = ad.isAvailable ? "" : ad.sponsorTagline;
       if (inputLogoUrl) inputLogoUrl.value = ad.imageUrl || "";
       if (inputLinkUrl) inputLinkUrl.value = ad.linkUrl || "";
 
@@ -801,6 +937,7 @@
         modalLeasedBox?.classList.add("hidden");
       } else {
         sponsorForm.classList.remove("hidden");
+        refreshUpvoteButton(ad);
         if (modalLeasedBox) {
           modalLeasedBox.classList.remove("hidden");
           if (ad.imageUrl && modalImagePreview && modalImagePreviewContainer) {
@@ -838,12 +975,12 @@
       if (e.target === modal) modal.classList.add("hidden");
     });
 
-    // Submit Sponsor Booking with Logo & URL
+    // Submit Product Launch with Logo & URL
     sponsorForm?.addEventListener("submit", (e) => {
       e.preventDefault();
       const adId = modalAdId.value;
-      const brandName = inputBrand.value.trim() || "NEW TECH BRAND";
-      const tagline = inputTagline.value.trim() || "Verified Doodle Sponsor";
+      const brandName = inputBrand.value.trim() || "UNNAMED PRODUCT";
+      const tagline = inputTagline.value.trim() || "Fresh out of the builder lofts";
       const colorRadio = document.querySelector('input[name="accentColor"]:checked') as HTMLInputElement | null;
       const accentColor = colorRadio ? colorRadio.value : "#1a30c0";
       const logoUrl = inputLogoUrl ? inputLogoUrl.value.trim() : "";
@@ -901,40 +1038,6 @@
           showDiscoveryToast(secret);
         });
         checkDistrictBoundary(p);
-
-        // Rooftop Parkour Speedrun Tracker
-        if (speedrunState === "idle") {
-          // Trigger start when stepping off spawn pad
-          const distFromSpawn = Math.hypot(p.x - 0, p.z - 24);
-          if (distFromSpawn > 2.0 && distFromSpawn < 18.0) {
-            speedrunState = "running";
-            speedrunStartTime = performance.now();
-          }
-        } else if (speedrunState === "running") {
-          speedrunElapsedTime = (performance.now() - speedrunStartTime) / 1000;
-          if (speedrunTimer) {
-            speedrunTimer.textContent = formatSpeedrunTime(speedrunElapsedTime);
-          }
-
-          // Checkpoint 1: Skybridge (x around -19, z around -6, elevated y >= 5.5)
-          if (!speedrunPassedBridge && Math.hypot(p.x - (-19), p.z - (-6)) < 4.5 && p.y >= 5.5) {
-            speedrunPassedBridge = true;
-            doodleAudio.discoveryChime();
-          }
-
-          // Finish Line: Crane Boom Tip (x around 0, z around 14 to 20, high elevation y >= 30.0)
-          if (speedrunPassedBridge && Math.hypot(p.x - 0, p.z - 16) < 4.0 && p.y >= 30.0) {
-            speedrunState = "finished";
-            doodleAudio.rentAd();
-            if (speedrunPB === 0 || speedrunElapsedTime < speedrunPB) {
-              speedrunPB = speedrunElapsedTime;
-              localStorage.setItem("doodle_speedrun_pb", speedrunPB.toFixed(2));
-              if (speedrunPb) {
-                speedrunPb.textContent = formatSpeedrunTime(speedrunPB) + " 🏆 NEW PB!";
-              }
-            }
-          }
-        }
       }
       engine.render(delta);
     }

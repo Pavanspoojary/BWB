@@ -15,7 +15,7 @@ export type BuildingType =
 
 export interface AdBillboardConfig {
   title: string;
-  category: "Rooftop Billboard" | "Wall Banner" | "Highway Billboard" | "Street Kiosk" | "Scaffolding Ad";
+  category: "Launch Billboard" | "Launch Banner" | "Hunt Banner" | "Demo Kiosk" | "Scaffold Board";
   viewsMonthly: number;
   priceMonthly: number;
   sponsorName: string;
@@ -24,6 +24,7 @@ export interface AdBillboardConfig {
   isAvailable: boolean;
   imageUrl?: string;
   linkUrl?: string;
+  upvotes?: number;
 }
 
 export interface AdSpace extends AdBillboardConfig {
@@ -32,6 +33,8 @@ export interface AdSpace extends AdBillboardConfig {
   canvas: HTMLCanvasElement;
   texture: THREE.CanvasTexture;
   parentGroup: THREE.Group;
+  upvotes: number;
+  leasedAt: number;
 }
 
 interface TrafficVehicle {
@@ -112,7 +115,7 @@ export class CityBuilder {
   private initialAdConfigs = [
     {
       title: "One Times Square - Towering LED Spectacular",
-      category: "Rooftop Billboard" as const,
+      category: "Launch Billboard" as const,
       viewsMonthly: 280000,
       priceMonthly: 2400,
       sponsorName: "STRIPE",
@@ -124,7 +127,7 @@ export class CityBuilder {
     },
     {
       title: "Empire State Building - 34th St Billboard",
-      category: "Rooftop Billboard" as const,
+      category: "Launch Billboard" as const,
       viewsMonthly: 195000,
       priceMonthly: 1600,
       sponsorName: "VERCEL",
@@ -136,7 +139,7 @@ export class CityBuilder {
     },
     {
       title: "Chrysler Spire - 42nd St Mega-Banner",
-      category: "Rooftop Billboard" as const,
+      category: "Launch Billboard" as const,
       viewsMonthly: 220000,
       priceMonthly: 1850,
       sponsorName: "RAYCAST",
@@ -148,7 +151,7 @@ export class CityBuilder {
     },
     {
       title: "Flatiron Prow - Broadway & 5th Ave",
-      category: "Wall Banner" as const,
+      category: "Launch Banner" as const,
       viewsMonthly: 140000,
       priceMonthly: 1200,
       sponsorName: "SUPABASE",
@@ -160,7 +163,7 @@ export class CityBuilder {
     },
     {
       title: "Times Square Broadway - Digital Canyon Wall",
-      category: "Rooftop Billboard" as const,
+      category: "Launch Billboard" as const,
       viewsMonthly: 110000,
       priceMonthly: 950,
       sponsorName: "TURSO",
@@ -172,7 +175,7 @@ export class CityBuilder {
     },
     {
       title: "High Line Elevated Rail - Overpass Billboard",
-      category: "Highway Billboard" as const,
+      category: "Hunt Banner" as const,
       viewsMonthly: 165000,
       priceMonthly: 1350,
       sponsorName: "GITHUB",
@@ -184,7 +187,7 @@ export class CityBuilder {
     },
     {
       title: "West Village Brownstone - Fire Escape Banner",
-      category: "Wall Banner" as const,
+      category: "Launch Banner" as const,
       viewsMonthly: 65000,
       priceMonthly: 450,
       sponsorName: "YOUR BRAND HERE",
@@ -196,7 +199,7 @@ export class CityBuilder {
     },
     {
       title: "Subway 42nd St Station - Entrance Kiosk",
-      category: "Street Kiosk" as const,
+      category: "Demo Kiosk" as const,
       viewsMonthly: 48000,
       priceMonthly: 320,
       sponsorName: "POSTHOG",
@@ -206,7 +209,7 @@ export class CityBuilder {
     },
     {
       title: "Madison Square Plaza - Newsstand Kiosk",
-      category: "Street Kiosk" as const,
+      category: "Demo Kiosk" as const,
       viewsMonthly: 35000,
       priceMonthly: 280,
       sponsorName: "BUILT WHILE BROKE",
@@ -220,7 +223,7 @@ export class CityBuilder {
   private monacoAdConfigs = [
     {
       title: "Start/Finish Pit Straight Gantry",
-      category: "Highway Billboard" as const,
+      category: "Hunt Banner" as const,
       viewsMonthly: 340000,
       priceMonthly: 3200,
       sponsorName: "TAG HEUER",
@@ -230,7 +233,7 @@ export class CityBuilder {
     },
     {
       title: "Fairmont Hairpin Grandstand Apex Wall",
-      category: "Wall Banner" as const,
+      category: "Launch Banner" as const,
       viewsMonthly: 290000,
       priceMonthly: 2600,
       sponsorName: "PIRELLI",
@@ -240,7 +243,7 @@ export class CityBuilder {
     },
     {
       title: "The Monaco Tunnel Entrance Overpass",
-      category: "Highway Billboard" as const,
+      category: "Hunt Banner" as const,
       viewsMonthly: 310000,
       priceMonthly: 2800,
       sponsorName: "RED BULL",
@@ -250,7 +253,7 @@ export class CityBuilder {
     },
     {
       title: "M/Y Doodle - Harbor Superyacht VIP Deck",
-      category: "Rooftop Billboard" as const,
+      category: "Launch Billboard" as const,
       viewsMonthly: 240000,
       priceMonthly: 2100,
       sponsorName: "FERRARI",
@@ -260,7 +263,7 @@ export class CityBuilder {
     },
     {
       title: "Swimming Pool Chicane Pedestrian Bridge",
-      category: "Highway Billboard" as const,
+      category: "Hunt Banner" as const,
       viewsMonthly: 215000,
       priceMonthly: 1950,
       sponsorName: "MERCEDES-AMG",
@@ -270,7 +273,7 @@ export class CityBuilder {
     },
     {
       title: "Monte Carlo Casino Square Plaza",
-      category: "Wall Banner" as const,
+      category: "Launch Banner" as const,
       viewsMonthly: 275000,
       priceMonthly: 2500,
       sponsorName: "MCLAREN",
@@ -280,7 +283,7 @@ export class CityBuilder {
     },
     {
       title: "Portier Corner - Harbor Wall Barrier",
-      category: "Street Kiosk" as const,
+      category: "Demo Kiosk" as const,
       viewsMonthly: 130000,
       priceMonthly: 1100,
       sponsorName: "RAYCAST",
@@ -290,7 +293,7 @@ export class CityBuilder {
     },
     {
       title: "Nouvelle Chicane Braking Zone",
-      category: "Street Kiosk" as const,
+      category: "Demo Kiosk" as const,
       viewsMonthly: 145000,
       priceMonthly: 1250,
       sponsorName: "SUPABASE",
@@ -661,7 +664,7 @@ export class CityBuilder {
     beacon.position.y = spireY + spireH;
     group.add(beacon);
 
-    // Rooftop Billboard (34th St Facing)
+    // Launch Billboard (34th St Facing)
     const billboard = this.createAdBillboardMesh(this.initialAdConfigs[1], 10.5, 5.0, group);
     billboard.position.set(0, baseH + 3.0, 9.2);
     group.add(billboard);
@@ -960,7 +963,7 @@ export class CityBuilder {
       }
     }
 
-    // Street Wall Banner Ad
+    // Street Launch Banner Ad
     const banner = this.createAdBillboardMesh(this.initialAdConfigs[6], 7.8, 3.8, group);
     banner.position.set(0, 11.2, 5.7);
     group.add(banner);
@@ -1483,7 +1486,7 @@ export class CityBuilder {
       subGroup.add(stGroup);
     });
 
-    // Street Kiosks at subway corners with attached ad spaces
+    // Demo Kiosks at subway corners with attached ad spaces
     const kiosk1 = this.createStreetKiosk(44, 18, 7);
     const kiosk2 = this.createStreetKiosk(-12, -24, 8);
     subGroup.add(kiosk1, kiosk2);
@@ -1759,6 +1762,9 @@ export class CityBuilder {
       isAvailable: adConfig.isAvailable,
       imageUrl: adConfig.imageUrl,
       linkUrl: adConfig.linkUrl,
+      // Hunt seeding: explicit counts win, otherwise deterministic variety
+      upvotes: adConfig.upvotes ?? (120 + this.adSpaces.size * 211),
+      leasedAt: 0,
       mesh: billboardMesh,
       canvas,
       texture,
@@ -1771,7 +1777,7 @@ export class CityBuilder {
     return billboardMesh;
   }
 
-  // Generate 2D canvas texture for an ad space with authentic doodle styling & optional real logo/image
+  // Generate 2D canvas texture for a launch board with doodle styling & optional logo
   private createBillboardTexture(ad: {
     sponsorName: string;
     sponsorTagline: string;
@@ -1779,6 +1785,7 @@ export class CityBuilder {
     isAvailable: boolean;
     priceMonthly: number;
     viewsMonthly: number;
+    upvotes?: number;
     imageUrl?: string;
   }): { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture } {
     const canvas = document.createElement("canvas");
@@ -1817,6 +1824,7 @@ export class CityBuilder {
       isAvailable: boolean;
       priceMonthly: number;
       viewsMonthly: number;
+      upvotes?: number;
       imageUrl?: string;
     },
     onImageLoaded?: () => void
@@ -1848,22 +1856,22 @@ export class CityBuilder {
     ctx.font = "bold 22px 'Patrick Hand', cursive, sans-serif";
     if (ad.isAvailable) {
       ctx.fillStyle = "#d02030";
-      ctx.fillText("★ AVAILABLE FOR LEASE", 32, 46);
+      ctx.fillText("🚀 OPEN LAUNCH SLOT", 32, 46);
 
       ctx.font = "bold 44px 'Patrick Hand', cursive, sans-serif";
       ctx.fillStyle = "#1a30c0";
-      ctx.fillText(ad.sponsorName || "YOUR AD HERE", 32, 108);
+      ctx.fillText(ad.sponsorName || "YOUR PRODUCT HERE", 32, 108);
 
       ctx.font = "24px 'Patrick Hand', cursive, sans-serif";
       ctx.fillStyle = "#27272a";
-      ctx.fillText(ad.sponsorTagline || "Click to rent this 3D billboard slot", 32, 150);
+      ctx.fillText(ad.sponsorTagline || "Click to launch your product on this board", 32, 150);
 
       ctx.font = "bold 28px 'Patrick Hand', monospace, sans-serif";
       ctx.fillStyle = "#d02030";
-      ctx.fillText(`$${ad.priceMonthly}/mo · ${(ad.viewsMonthly / 1000).toFixed(0)}K views`, 32, 206);
+      ctx.fillText(`▲ ${(ad.upvotes ?? 0).toLocaleString()} hunters waiting`, 32, 206);
     } else {
       ctx.fillStyle = "#059669";
-      ctx.fillText("● VERIFIED SPONSOR", 32, 46);
+      ctx.fillText("● LIVE ON THE HUNT", 32, 46);
 
       ctx.font = "bold 46px 'Patrick Hand', cursive, sans-serif";
       ctx.fillStyle = ad.accentColor || "#1a30c0";
@@ -1875,7 +1883,7 @@ export class CityBuilder {
 
       ctx.font = "bold 22px 'Patrick Hand', monospace, sans-serif";
       ctx.fillStyle = "#52525b";
-      ctx.fillText(`Verified Traffic: ${(ad.viewsMonthly / 1000).toFixed(0)}K monthly views`, 32, 206);
+      ctx.fillText(`▲ ${(ad.upvotes ?? 0).toLocaleString()} upvotes · ${(ad.viewsMonthly / 1000).toFixed(0)}K hunters/mo`, 32, 206);
     }
 
     // Corner doodle pins
@@ -1956,7 +1964,7 @@ export class CityBuilder {
 
         ctx.font = "16px 'Patrick Hand', cursive, sans-serif";
         ctx.fillStyle = "#52525b";
-        ctx.fillText(ad.sponsorTagline || "Click to visit sponsor", 32, h - 14);
+        ctx.fillText(ad.sponsorTagline || "Click to visit this product", 32, h - 14);
 
         if (onImageLoaded) onImageLoaded();
       };
@@ -2809,7 +2817,7 @@ export class CityBuilder {
       fairmont.add(balcony);
     }
 
-    // Monaco Billboard 2: Fairmont Hairpin Grandstand Apex Wall Banner
+    // Monaco Billboard 2: Fairmont Hairpin Grandstand Apex Launch Banner
     const bbFairmont = this.createAdBillboardMesh(this.monacoAdConfigs[1], 8.5, 2.6, fairmont);
     bbFairmont.position.set(0, 4.0, 7.3);
     fairmont.add(bbFairmont);
@@ -3280,10 +3288,39 @@ export class CityBuilder {
     if (inputs.imageUrl !== undefined) ad.imageUrl = inputs.imageUrl;
     if (inputs.linkUrl !== undefined) ad.linkUrl = inputs.linkUrl;
     ad.isAvailable = false;
+    // Fresh launch: founder's own upvote starts the hunt, newest first in ship log
+    ad.upvotes = 1;
+    ad.leasedAt = Date.now();
 
     this.redrawBillboard(ad);
     doodleAudio.rentAd();
     return true;
+  }
+
+  /** Cast a hunter upvote for a live product board. Returns the new total. */
+  public upvoteAdSpace(adId: string): number {
+    const ad = this.adSpaces.get(adId);
+    if (!ad || ad.isAvailable) return ad?.upvotes ?? 0;
+    ad.upvotes += 1;
+    this.redrawBillboard(ad);
+    doodleAudio.discoveryChime();
+    return ad.upvotes;
+  }
+
+  /** Top live products by upvotes for the Hunt Board. */
+  public getHuntLeaderboard(limit = 5): AdSpace[] {
+    return Array.from(this.adSpaces.values())
+      .filter((ad) => !ad.isAvailable)
+      .sort((a, b) => b.upvotes - a.upvotes)
+      .slice(0, limit);
+  }
+
+  /** Newest launches first for the build-in-public ship log. */
+  public getShipLog(limit = 4): AdSpace[] {
+    return Array.from(this.adSpaces.values())
+      .filter((ad) => !ad.isAvailable)
+      .sort((a, b) => b.leasedAt - a.leasedAt)
+      .slice(0, limit);
   }
 
   public spawnDistrictSecrets(district: string) {
@@ -3352,18 +3389,18 @@ export class CityBuilder {
     this.secrets = [];
 
     const allSecretDefs: { id: string; district: string; name: string; pos: [number, number, number] }[] = [
-      // 0. Courtyard Arena Parkour Tokens (high-density exploration)
-      { id: "arena_stairs", district: "downtown", name: "⭐ West Exterior Staircase Token", pos: [-24, 1.2, 5] },
-      { id: "arena_bridge", district: "downtown", name: "🌉 Suspended Skybridge Secret Token", pos: [-19, 7.2, -6] },
-      { id: "arena_crane_cab", district: "downtown", name: "🏗️ Tower Crane Operator's Key", pos: [2.4, 33.2, 0] },
-      { id: "arena_crane_tip", district: "downtown", name: "👑 Summit Crane Boom Champion Crown", pos: [0, 34.2, 18] },
-      { id: "arena_watertank", district: "downtown", name: "🚰 East Building Rooftop Tank Token", pos: [35, 23.0, -6] },
-      { id: "arena_crate_parkour", district: "downtown", name: "📦 Crate Parkour Stash Token", pos: [-14, 3.8, 6] },
-      { id: "arena_colonnade", district: "downtown", name: "🏛️ North Colonnade Hidden Token", pos: [0, 1.5, -28] },
+      // 0. Road-network explorer tokens (street landmarks across the grid)
+      { id: "arena_stairs", district: "downtown", name: "🚦 Signal Corner Token", pos: [44.5, 1.2, 42] },
+      { id: "arena_bridge", district: "downtown", name: "⛲ Founders' Circle Island Token", pos: [6, 1.2, 0] },
+      { id: "arena_crane_cab", district: "downtown", name: "🚏 Avenue Sign Token", pos: [6, 1.5, 12] },
+      { id: "arena_crane_tip", district: "downtown", name: "🎖️ Founders' Circle Medal", pos: [-6, 1.5, 0] },
+      { id: "arena_watertank", district: "downtown", name: "💡 Lamplighter's Token", pos: [-34.5, 1.2, 15] },
+      { id: "arena_crate_parkour", district: "downtown", name: "🛹 Curb Ollie Token", pos: [20, 1.2, -4.5] },
+      { id: "arena_colonnade", district: "downtown", name: "🪦 Graveyard St Token", pos: [20, 1.5, 40] },
 
       // 1. Downtown
-      { id: "downtown_vault", district: "downtown", name: "🗝️ 34th St Rooftop Vault Key", pos: [-70, 18.0, 20] },
-      { id: "downtown_bull", district: "downtown", name: "🐂 Golden Bull of Wall Street", pos: [-85, 1.6, 5] },
+      { id: "downtown_vault", district: "downtown", name: "🗝️ Mint Ave Vault Key", pos: [48, 1.5, 14] },
+      { id: "downtown_bull", district: "downtown", name: "🐂 Bronze Bull of Build Ave", pos: [-46, 1.6, -14] },
       // 2. Entertainment
       { id: "ent_pass", district: "entertainment", name: "🎟️ Golden VIP Backstage Pass", pos: [34, 1.5, 44] },
       { id: "ent_arcade", district: "entertainment", name: "🕹️ Pixel Palace High-Score Cartridge", pos: [106, 1.5, 44] },

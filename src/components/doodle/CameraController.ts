@@ -9,15 +9,15 @@ export class CameraController {
   public autoRotate: boolean = true;
   public getColliders?: () => THREE.Box3[];
 
-  // Orbit controls state
-  private target = new THREE.Vector3(0, 6, 0);
-  private spherical = new THREE.Spherical(95, Math.PI / 3.2, Math.PI / 4);
+  // Orbit controls state — framed for Vertex City (~800m x 550m)
+  private target = new THREE.Vector3(0, 8, 0);
+  private spherical = new THREE.Spherical(280, Math.PI / 3.4, Math.PI / 4);
   private isOrbitDragging = false;
   private isPanning = false;
   private previousMouse = { x: 0, y: 0 };
 
   // Walk controls state
-  private walkPos = new THREE.Vector3(0, 2.0, 35);
+  private walkPos = new THREE.Vector3(0, 2.0, 48);
   private walkYaw = Math.PI;
   private walkPitch = 0;
   private walkStepTimer = 0;
@@ -33,12 +33,12 @@ export class CameraController {
   private jumpsRemaining = 2;
   private groundHeight = 2.0;
 
-  // Walk bounds for comfortable megacity exploration
-  private readonly walkClamp = new THREE.Vector3(600, 0, 600);
+  // Vertex City playable bounds
+  private readonly walkClamp = new THREE.Vector3(390, 0, 310);
 
-  // Zoom limits for orbit mode (distance from target)
+  // Zoom limits for orbit mode (distance from target) — tuned for Vertex City
   private readonly minOrbitRadius = 15;
-  private readonly maxOrbitRadius = 900;
+  private readonly maxOrbitRadius = 650;
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
     this.domElement = domElement;
@@ -51,7 +51,7 @@ export class CameraController {
     this.mode = mode;
     if (mode === "walk") {
       this.autoRotate = false;
-      this.walkPos.set(0, 2.0, 35);
+      this.walkPos.set(0, 2.0, 48);
       this.walkYaw = Math.PI;
       this.walkPitch = 0;
       this.resolvePenetration();
@@ -204,6 +204,10 @@ export class CameraController {
   };
 
   private updateOrbitCamera() {
+    // Keep pan target pinned inside the single small city so users can't lose the map
+    this.target.x = Math.max(-70, Math.min(70, this.target.x));
+    this.target.y = Math.max(0, Math.min(45, this.target.y));
+    this.target.z = Math.max(-70, Math.min(70, this.target.z));
     this.camera.position.setFromSpherical(this.spherical).add(this.target);
     this.camera.lookAt(this.target);
   }
@@ -327,18 +331,8 @@ export class CameraController {
   }
 
   private getSurfaceHeightUnder(pos: THREE.Vector3): number {
+    // Single small city sits on flat paper at y=0; platforms/stairs come from colliders.
     let surfaceY = 0;
-    // Base district heights for compatibility
-    if (pos.z >= -280 && pos.z <= -180 && Math.abs(pos.x) <= 90) {
-      const t = Math.max(0, Math.min(1, ((-pos.z) - 180) / 100));
-      surfaceY = t * 25;
-    } else if (pos.z <= -280 && Math.abs(pos.x) <= 100 && pos.y >= 50) {
-      surfaceY = 80;
-    } else if (pos.z >= 30 && pos.z <= 160 && Math.abs(pos.x) <= 80 && pos.y < -5) {
-      surfaceY = -16;
-    } else if (pos.z <= -280 && Math.abs(pos.x) <= 80 && pos.y < -10) {
-      surfaceY = -25;
-    }
 
     if (!this.getColliders) return surfaceY;
     const colliders = this.getColliders();
