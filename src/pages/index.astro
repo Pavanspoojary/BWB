@@ -1,9 +1,548 @@
 ---
-import DoodleLayout from '../layouts/DoodleLayout.astro';
-import DoodleDistrictView from '../components/doodle/DoodleDistrictView.astro';
+import '@astrojs/tailwind/base.css';
+
+const title = "builtwhilebroke.tech // Sticky Note Board";
+const description = "Pin your product to the wall. $2 per sticky note. Drag it anywhere.";
 ---
 
-<DoodleLayout title="DOODLE DISTRICT · The Scribbled City Builder & Ad Marketplace">
-  <DoodleDistrictView />
-</DoodleLayout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23faf7ee' stroke='%231a30c0' stroke-width='2'/><path d='M6 8h20M6 14h20M6 20h20M6 26h20' stroke='%231a30c0' stroke-opacity='0.25' stroke-width='1.5'/><circle cx='10' cy='6' r='2' fill='%23d02030'/></svg>" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#faf7ee" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Caveat:wght@600;700&family=Kalam:wght@700&family=Patrick+Hand&family=Plus+Jakarta+Sans:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <style is:global>
+      :root {
+        --paper-bg: #faf7ee;
+        --ink-blue: #1a30c0;
+        --ink-red: #d02030;
+      }
 
+      body {
+        font-family: 'Patrick Hand', cursive, sans-serif;
+        background-color: #faf7ee;
+        background-image:
+          linear-gradient(90deg, transparent 79px, rgba(208,32,48,.55) 79px, rgba(208,32,48,.55) 81px, transparent 81px),
+          linear-gradient(rgba(26,48,192,.10) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 28px;
+        background-attachment: local;
+        color: #1a30c0;
+        min-height: 100vh;
+        margin: 0;
+        overflow: auto;
+        position: relative;
+      }
+
+      /* Sticky note styles */
+      .sticky-note {
+        position: absolute;
+        width: 220px;
+        min-height: 180px;
+        padding: 16px 14px 14px;
+        border-radius: 2px;
+        box-shadow: 3px 3px 10px rgba(0,0,0,.18), 0 0 1px rgba(0,0,0,.1);
+        cursor: grab;
+        z-index: 50;
+        transition: box-shadow 0.15s;
+        user-select: none;
+        transform: rotate(var(--tilt, -2deg));
+      }
+      .sticky-note:active { cursor: grabbing; box-shadow: 6px 6px 18px rgba(0,0,0,.25); z-index: 99; }
+      .sticky-note .sticky-title {
+        font-family: 'Caveat', cursive;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 6px;
+        color: #1a30c0;
+        word-break: break-word;
+      }
+      .sticky-note .sticky-tagline {
+        font-size: 13px;
+        color: #1a30c0cc;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        word-break: break-word;
+      }
+      .sticky-note .sticky-maker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: #1a30c088;
+      }
+      .sticky-note .sticky-url {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: #059669;
+        text-decoration: underline;
+        word-break: break-all;
+      }
+      .sticky-note .sticky-vote {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid #1a30c0;
+        background: rgba(255,255,255,.7);
+        color: #1a30c0;
+        font-size: 12px;
+        font-weight: 900;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.1s;
+      }
+      .sticky-note .sticky-vote:hover { background: #d02030; color: #fff; border-color: #d02030; }
+      .sticky-note .sticky-vote.voted { background: #d02030; color: #fff; border-color: #d02030; }
+      .sticky-note .sticky-close {
+        position: absolute;
+        bottom: 6px;
+        right: 8px;
+        font-size: 14px;
+        color: #1a30c066;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 2px;
+      }
+      .sticky-note .sticky-close:hover { color: #d02030; }
+
+      .sticky-yellow { background: #fef3c7; border: 1.5px solid #d97706; }
+      .sticky-pink { background: #fce7f3; border: 1.5px solid #db2777; }
+      .sticky-blue { background: #dbeafe; border: 1.5px solid #2563eb; }
+      .sticky-green { background: #d1fae5; border: 1.5px solid #059669; }
+      .sticky-purple { background: #ede9fe; border: 1.5px solid #7c3aed; }
+      .sticky-orange { background: #ffedd5; border: 1.5px solid #ea580c; }
+
+      /* Buy button */
+      .buy-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 60;
+        padding: 14px 24px;
+        border-radius: 16px;
+        background: #fef3c7;
+        border: 3px solid #d97706;
+        color: #92400e;
+        font-family: 'Patrick Hand', cursive, sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 4px 4px 0 0 #92400e;
+        transition: all 0.15s;
+      }
+      .buy-btn:hover {
+        background: #fde68a;
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 0 #92400e;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- Top Floating Toolbar -->
+    <header class="fixed top-3 left-4 right-4 z-50 pointer-events-none flex items-center justify-between gap-3">
+      <div class="pointer-events-auto flex items-center gap-2 bg-[#faf7ee]/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border-2 border-[#1a30c0] shadow-[3px_3px_0_0_#1a30c0]">
+        <span class="text-xl">📌</span>
+        <span class="font-black text-sm tracking-wide">STICKY WALL</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-[#1a30c0] text-[#faf7ee] font-mono2 font-bold" id="note-count-badge">50 notes</span>
+        <span class="text-xs text-[#059669] font-bold font-mono2 hidden sm:inline">$100 wall value</span>
+        <button id="btn-reset-seeds" type="button" class="text-xs ml-1 px-2.5 py-1 rounded-xl border-2 border-[#1a30c0] bg-white hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all cursor-pointer font-bold shadow-[1px_1px_0_0_#1a30c0]" title="Reset all 50 seed notes">
+          🎲 Re-scatter 50
+        </button>
+      </div>
+
+      <div class="pointer-events-auto flex items-center gap-2 bg-[#faf7ee]/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border-2 border-[#1a30c0] shadow-[3px_3px_0_0_#1a30c0] text-xs font-bold">
+        <a href="/city" class="px-2.5 py-1 rounded-xl bg-[#1a30c0] text-[#faf7ee] hover:bg-[#d02030] transition-colors flex items-center gap-1">
+          <span>🏙️</span>
+          <span>3D City</span>
+          <span class="text-[10px] opacity-75 font-mono2">[C]</span>
+        </a>
+        <a href="/product" class="px-2.5 py-1 rounded-xl hover:bg-[#1a30c0]/10 text-[#1a30c0] transition-colors flex items-center gap-1">
+          <span>🚀</span>
+          <span>Hunt Board</span>
+          <span class="text-[10px] opacity-60 font-mono2">[L]</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Bottom Left Pan / Interaction Tip -->
+    <div class="fixed bottom-4 left-4 z-40 pointer-events-none bg-[#faf7ee]/95 backdrop-blur px-3 py-1.5 rounded-xl border border-[#1a30c0]/30 text-xs text-[#1a30c0]/75 font-mono2 shadow-sm hidden sm:block">
+      💡 Drag notes to move · Drag empty paper or scroll to pan · Click note to bring to top
+    </div>
+
+    <!-- Canvas Wrapper with Large Board Area -->
+    <div id="board-canvas" class="relative min-w-[2600px] min-h-[1750px] overflow-visible">
+      <!-- Sticky notes layer -->
+      <div id="sticky-layer" class="absolute inset-0"></div>
+    </div>
+
+    <!-- Buy sticky note button -->
+    <button id="btn-buy-sticky" class="buy-btn" type="button">📌 Get a Sticky Note — $2</button>
+
+    <!-- Sticky Note Purchase Modal -->
+    <div id="sticky-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="w-full max-w-md bg-[#fef3c7] border-2 border-[#d97706] rounded-[20px] p-6 shadow-2xl relative font-[Patrick_Hand,cursive] rotate-1">
+        <button id="btn-close-sticky" type="button" class="absolute top-3 right-3 text-xl font-bold text-[#92400e] hover:text-[#d02030] cursor-pointer">✕</button>
+        <div class="text-center mb-4">
+          <div class="text-4xl mb-1">📌</div>
+          <h3 class="text-2xl font-black text-[#92400e]">Get a Sticky Note</h3>
+          <p class="text-sm text-[#92400e]/70">$2 one-time · place it anywhere on the board</p>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-bold mb-1 text-[#92400e]" for="sticky-name">Product name *</label>
+            <input id="sticky-name" required maxlength="40" placeholder="e.g. ShipLog" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#d97706] text-[#92400e] placeholder-[#92400e]/40 text-base font-bold focus:outline-none focus:border-[#d02030]" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold mb-1 text-[#92400e]" for="sticky-tagline">One-line pitch *</label>
+            <input id="sticky-tagline" required maxlength="80" placeholder="e.g. Changelog-as-a-service" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#d97706] text-[#92400e] placeholder-[#92400e]/40 text-base focus:outline-none focus:border-[#d02030]" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold mb-1 text-[#92400e]" for="sticky-url">Website (optional)</label>
+            <input id="sticky-url" type="url" maxlength="120" placeholder="https://yourproduct.com" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#d97706] text-[#92400e] placeholder-[#92400e]/40 text-base focus:outline-none focus:border-[#d02030]" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold mb-1 text-[#92400e]" for="sticky-maker">Maker handle</label>
+            <input id="sticky-maker" maxlength="30" placeholder="@you" class="w-full px-3 py-2 rounded-xl bg-white border-2 border-[#d97706] text-[#92400e] placeholder-[#92400e]/40 text-base focus:outline-none focus:border-[#d02030]" />
+          </div>
+          <button id="btn-confirm-sticky" class="w-full mt-2 py-3 rounded-2xl bg-[#d97706] hover:bg-[#b45309] text-white font-black text-lg transition-all shadow-[0_4px_0_0_#92400e] hover:shadow-[0_2px_0_0_#92400e] hover:translate-y-[2px] cursor-pointer -rotate-1">
+            📌 PAY $2 &amp; STICK IT
+          </button>
+        </div>
+        <p class="text-[11px] text-[#92400e]/50 mt-2 text-center font-mono2">Stripe checkout · secure payment</p>
+      </div>
+    </div>
+
+  <script>
+    const STICKY_NOTES_KEY = "bwb_sticky_notes";
+    const STICKY_COLORS = ["sticky-yellow", "sticky-pink", "sticky-blue", "sticky-green", "sticky-purple", "sticky-orange"];
+
+    interface StickyNote {
+      id: string;
+      name: string;
+      tagline: string;
+      url: string;
+      maker: string;
+      color: string;
+      x: number;
+      y: number;
+      tilt: number;
+      votes: number;
+    }
+
+    const SEED_50_NOTES: StickyNote[] = [
+      { id: "seed-neotic", name: "Neotic", tagline: "In app product changelog", url: "https://www.neotic.app/", maker: "@zzz", color: "sticky-yellow", x: 560, y: 190, tilt: -2, votes: 42 },
+      { id: "seed-zzzz", name: "zzzz", tagline: "zzz", url: "", maker: "@anon", color: "sticky-pink", x: 1080, y: 290, tilt: 1.5, votes: 18 },
+      { id: "seed-doodleboard", name: "DoodleBoard", tagline: "Trello for people who think in sketches", url: "https://builtwhilebroke.tech", maker: "@builtwhilebroke", color: "sticky-yellow", x: 290, y: 120, tilt: -3, votes: 2314 },
+      { id: "seed-shiplog", name: "ShipLog", tagline: "Changelog-as-a-service for indie hackers", url: "https://shiplog.dev", maker: "@pavan", color: "sticky-blue", x: 820, y: 100, tilt: 2, votes: 1892 },
+      { id: "seed-brokeauth", name: "BrokeAuth", tagline: "Auth via Telegram DMs. Do not ask how.", url: "", maker: "@anon", color: "sticky-orange", x: 1330, y: 150, tilt: -1.5, votes: 1204 },
+      { id: "seed-cachemoney", name: "CacheMoney", tagline: "Redis on a Raspberry Pi under someone's desk", url: "", maker: "@homelab", color: "sticky-green", x: 340, y: 350, tilt: 3, votes: 866 },
+      { id: "seed-midnightdb", name: "MidnightDB", tagline: "SQLite with delusions of grandeur", url: "", maker: "@sqlitefan", color: "sticky-purple", x: 810, y: 330, tilt: -2.5, votes: 542 },
+      { id: "seed-coolify", name: "Coolify", tagline: "Self-hostable Heroku & Vercel alternative", url: "https://coolify.io", maker: "@andrasbacsai", color: "sticky-yellow", x: 1320, y: 380, tilt: 1, votes: 1420 },
+      { id: "seed-dub", name: "Dub.co", tagline: "Open-source link management infrastructure", url: "https://dub.co", maker: "@steventey", color: "sticky-blue", x: 105, y: 130, tilt: -1, votes: 1650 },
+      { id: "seed-typebot", name: "Typebot", tagline: "Conversational apps & forms builder", url: "https://typebot.io", maker: "@baptiste", color: "sticky-pink", x: 110, y: 360, tilt: 2.5, votes: 780 },
+      { id: "seed-postiz", name: "Postiz", tagline: "Open-source social media scheduling", url: "https://postiz.com", maker: "@nevflynn", color: "sticky-green", x: 570, y: 430, tilt: -3, votes: 990 },
+      { id: "seed-formbricks", name: "Formbricks", tagline: "Open-source Experience Management", url: "https://formbricks.com", maker: "@johannes", color: "sticky-orange", x: 1060, y: 510, tilt: 2, votes: 610 },
+      { id: "seed-umami", name: "Umami", tagline: "Simple, privacy-friendly Google Analytics", url: "https://umami.is", maker: "@mikecao", color: "sticky-blue", x: 820, y: 550, tilt: -1.8, votes: 1130 },
+      { id: "seed-pocketbase", name: "PocketBase", tagline: "Open Source backend in 1 single file", url: "https://pocketbase.io", maker: "@ganigeorgiev", color: "sticky-yellow", x: 330, y: 570, tilt: 1.2, votes: 1740 },
+      { id: "seed-cal", name: "Cal.com", tagline: "Open scheduling infrastructure for everyone", url: "https://cal.com", maker: "@peer_rich", color: "sticky-purple", x: 100, y: 580, tilt: -2.2, votes: 2100 },
+      { id: "seed-raycast", name: "Raycast", tagline: "Supercharged launcher for macOS", url: "https://raycast.com", maker: "@thomaspaulmann", color: "sticky-pink", x: 1310, y: 600, tilt: 3.1, votes: 1980 },
+      { id: "seed-supabase", name: "Supabase", tagline: "The open source Firebase alternative", url: "https://supabase.com", maker: "@kiwicopple", color: "sticky-green", x: 560, y: 670, tilt: -1.5, votes: 2450 },
+      { id: "seed-resend", name: "Resend", tagline: "Email API for modern developers", url: "https://resend.com", maker: "@zenorocha", color: "sticky-orange", x: 1070, y: 730, tilt: -2.8, votes: 1820 },
+      { id: "seed-excalidraw", name: "Excalidraw", tagline: "Virtual whiteboard for sketching diagrams", url: "https://excalidraw.com", maker: "@vjeux", color: "sticky-yellow", x: 810, y: 770, tilt: 2.4, votes: 2290 },
+      { id: "seed-novu", name: "Novu", tagline: "Open-source notification infrastructure", url: "https://novu.co", maker: "@tomer_barnea", color: "sticky-blue", x: 320, y: 790, tilt: -3.2, votes: 890 },
+      { id: "seed-tinybase", name: "TinyBase", tagline: "Reactive data store for local-first apps", url: "https://tinybase.org", maker: "@jamesgpearce", color: "sticky-purple", x: 95, y: 800, tilt: 1.7, votes: 430 },
+      { id: "seed-documenso", name: "Documenso", tagline: "The open-source DocuSign alternative", url: "https://documenso.com", maker: "@timoconrady", color: "sticky-pink", x: 1320, y: 810, tilt: -1.2, votes: 520 },
+      { id: "seed-plausible", name: "Plausible", tagline: "Lightweight & privacy-friendly analytics", url: "https://plausible.io", maker: "@markosaric", color: "sticky-green", x: 570, y: 900, tilt: 2.1, votes: 1340 },
+      { id: "seed-papermark", name: "Papermark", tagline: "Open-source DocSend alternative with domains", url: "https://papermark.io", maker: "@mfts", color: "sticky-yellow", x: 1060, y: 950, tilt: -2, votes: 410 },
+      { id: "seed-twenty", name: "Twenty", tagline: "Modern open-source CRM alternative", url: "https://twenty.com", maker: "@felixm", color: "sticky-orange", x: 810, y: 990, tilt: 1.4, votes: 770 },
+      { id: "seed-infisical", name: "Infisical", tagline: "Secret management platform for teams", url: "https://infisical.com", maker: "@dangov", color: "sticky-blue", x: 330, y: 1010, tilt: -2.7, votes: 950 },
+      { id: "seed-appwrite", name: "Appwrite", tagline: "End-to-end backend platform for devs", url: "https://appwrite.io", maker: "@eldadfux", color: "sticky-purple", x: 95, y: 1030, tilt: 3, votes: 1610 },
+      { id: "seed-hoppscotch", name: "Hoppscotch", tagline: "Open source API development ecosystem", url: "https://hoppscotch.io", maker: "@liyasthomas", color: "sticky-green", x: 1310, y: 1040, tilt: -1.9, votes: 1870 },
+      { id: "seed-logto", name: "Logto", tagline: "Identity & access management infrastructure", url: "https://logto.io", maker: "@silverhand", color: "sticky-pink", x: 580, y: 1130, tilt: 1.6, votes: 640 },
+      { id: "seed-betterauth", name: "Better Auth", tagline: "Modern auth framework for TypeScript", url: "https://better-auth.com", maker: "@farnabaz", color: "sticky-yellow", x: 1050, y: 1170, tilt: -3.1, votes: 1530 },
+      { id: "seed-turso", name: "Turso", tagline: "SQLite for the edge with libSQL", url: "https://turso.tech", maker: "@glauber", color: "sticky-orange", x: 810, y: 1210, tilt: 2.2, votes: 1210 },
+      { id: "seed-cursor", name: "Cursor", tagline: "The AI code editor that pairs with you", url: "https://cursor.com", maker: "@cursor", color: "sticky-blue", x: 320, y: 1230, tilt: -1.4, votes: 2680 },
+      { id: "seed-v0", name: "v0.dev", tagline: "Generative UI system by Vercel", url: "https://v0.dev", maker: "@rauchg", color: "sticky-purple", x: 95, y: 1250, tilt: 2.8, votes: 2190 },
+      { id: "seed-tldraw", name: "Tldraw", tagline: "Tiny canvas library for infinite drawing", url: "https://tldraw.com", maker: "@steveruizok", color: "sticky-pink", x: 1320, y: 1260, tilt: -2.4, votes: 1470 },
+      { id: "seed-shadcn", name: "Shadcn UI", tagline: "Accessible component system for React", url: "https://ui.shadcn.com", maker: "@shadcn", color: "sticky-green", x: 570, y: 1350, tilt: 1.1, votes: 2840 },
+      { id: "seed-bun", name: "Bun", tagline: "Incredibly fast JS runtime & package manager", url: "https://bun.sh", maker: "@jarredsumner", color: "sticky-yellow", x: 1060, y: 1390, tilt: -1.7, votes: 2510 },
+      { id: "seed-biome", name: "Biome", tagline: "Fast formatter & linter for JavaScript", url: "https://biomejs.dev", maker: "@ematipico", color: "sticky-orange", x: 820, y: 1430, tilt: 3.2, votes: 830 },
+      { id: "seed-unkey", name: "Unkey", tagline: "API key management with sub-ms edge limits", url: "https://unkey.com", maker: "@jamesrperkins", color: "sticky-blue", x: 330, y: 1450, tilt: -2.5, votes: 690 },
+      { id: "seed-triggerdev", name: "Trigger.dev", tagline: "Background jobs without serverless timeouts", url: "https://trigger.dev", maker: "@matt_aitken", color: "sticky-purple", x: 95, y: 1470, tilt: 1.9, votes: 720 },
+      { id: "seed-instatus", name: "Instatus", tagline: "Quick & gorgeous status page builder", url: "https://instatus.com", maker: "@alishafiee", color: "sticky-pink", x: 1310, y: 1480, tilt: -1.3, votes: 580 },
+      { id: "seed-mintlify", name: "Mintlify", tagline: "Modern documentation platform developers love", url: "https://mintlify.com", maker: "@hanwang", color: "sticky-green", x: 1570, y: 120, tilt: 2.3, votes: 1320 },
+      { id: "seed-openstatus", name: "OpenStatus", tagline: "Synthetic API monitoring & status pages", url: "https://openstatus.dev", maker: "@thibault", color: "sticky-yellow", x: 1830, y: 130, tilt: -2.1, votes: 460 },
+      { id: "seed-dublink", name: "DubLink", tagline: "Free shortlinks on Cloudflare Workers", url: "", maker: "@zerodollar", color: "sticky-orange", x: 2090, y: 160, tilt: 1.5, votes: 310 },
+      { id: "seed-saasinabox", name: "SaaS-In-A-Box", tagline: "Indie boilerplate with Stripe & Supabase", url: "", maker: "@indiebuilder", color: "sticky-blue", x: 2350, y: 180, tilt: -3, votes: 490 },
+      { id: "seed-telegrams3", name: "Telegram S3", tagline: "Infinite unmetered storage via bot API", url: "", maker: "@sacrilege", color: "sticky-purple", x: 1590, y: 350, tilt: 1.8, votes: 1750 },
+      { id: "seed-brokeseo", name: "BrokeSEO", tagline: "Programmatic SEO from free open datasets", url: "", maker: "@growthhacker", color: "sticky-pink", x: 1850, y: 360, tilt: -2.6, votes: 380 },
+      { id: "seed-pingpulse", name: "PingPulse", tagline: "Ping your free VPS so it never idles", url: "", maker: "@homelabber", color: "sticky-green", x: 2110, y: 390, tilt: 2.7, votes: 620 },
+      { id: "seed-gitpouch", name: "GitPouch", tagline: "Turn any public GitHub repo into a static CMS", url: "", maker: "@markdownfan", color: "sticky-yellow", x: 2360, y: 420, tilt: -1.6, votes: 290 },
+      { id: "seed-mockflow", name: "MockFlow", tagline: "Instant mock APIs from json schemas", url: "", maker: "@api_fan", color: "sticky-orange", x: 1580, y: 580, tilt: -2.3, votes: 340 },
+      { id: "seed-zeromail", name: "ZeroMail", tagline: "Forward unlimited custom domain emails free", url: "", maker: "@cloudflare_wiz", color: "sticky-blue", x: 1840, y: 600, tilt: 1.4, votes: 880 },
+    ];
+
+    let highestZ = 100;
+
+    function loadJSON(key: string, fallback: any): any {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+    function saveJSON(key: string, val: any): void {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* private mode */ }
+    }
+    function esc(s: string | number | undefined): string {
+      return String(s ?? "").replace(/[&<>"']/g, (c: string) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+    }
+
+    function loadStickyNotes(): StickyNote[] {
+      const stored = loadJSON(STICKY_NOTES_KEY, null) as StickyNote[] | null;
+      if (!stored || stored.length < 50) {
+        const existing = stored || [];
+        const existingNames = new Set(existing.map((n) => n.name.trim().toLowerCase()));
+        const merged = [...existing];
+        for (const seed of SEED_50_NOTES) {
+          if (!existingNames.has(seed.name.trim().toLowerCase()) && merged.length < 50) {
+            merged.push({ ...seed });
+          }
+        }
+        for (const seed of SEED_50_NOTES) {
+          if (merged.length >= 50) break;
+          if (!merged.some((m) => m.id === seed.id)) {
+            merged.push({ ...seed, id: seed.id + "_" + merged.length });
+          }
+        }
+        saveStickyNotes(merged);
+        return merged;
+      }
+      return stored;
+    }
+
+    function saveStickyNotes(notes: StickyNote[]): void {
+      saveJSON(STICKY_NOTES_KEY, notes);
+    }
+
+    function renderStickyNotes() {
+      const layer = document.getElementById("sticky-layer");
+      if (!layer) return;
+      layer.innerHTML = "";
+      const notes = loadStickyNotes();
+
+      const badge = document.getElementById("note-count-badge");
+      if (badge) badge.textContent = `${notes.length} notes`;
+
+      notes.forEach((note) => {
+        const el = document.createElement("div");
+        el.className = `sticky-note ${note.color}`;
+        el.style.left = `${note.x}px`;
+        el.style.top = `${note.y}px`;
+        el.style.setProperty("--tilt", `${note.tilt}deg`);
+        el.dataset.id = note.id;
+
+        const votedKey = "bwb_sticky_votes_" + note.id;
+        const hasVoted = loadJSON(votedKey, false) as boolean;
+
+        const rawUrl = note.url?.trim() ?? "";
+        const href = rawUrl ? (/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`) : "";
+
+        el.innerHTML =
+          `<button class="sticky-vote ${hasVoted ? "voted" : ""}" data-sticky-vote="${note.id}" title="${hasVoted ? "Remove upvote" : "Upvote"}">▲</button>` +
+          `<div class="sticky-title">${esc(note.name)}</div>` +
+          `<div class="sticky-tagline">${esc(note.tagline)}</div>` +
+          (href ? `<a class="sticky-url" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(rawUrl.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : "") +
+          `<div class="sticky-maker">${esc(note.maker || "@anon")}</div>` +
+          `<button class="sticky-close" data-sticky-close="${note.id}" title="Remove note">✕</button>`;
+
+        layer.appendChild(el);
+        makeDraggable(el, note);
+      });
+
+      layer.querySelectorAll("[data-sticky-vote]").forEach((btn) => {
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const id = btn.getAttribute("data-sticky-vote")!;
+          const votedKey = "bwb_sticky_votes_" + id;
+          const hasVoted = loadJSON(votedKey, false) as boolean;
+          saveJSON(votedKey, !hasVoted);
+          const notes = loadStickyNotes();
+          const n = notes.find((x) => x.id === id);
+          if (n) {
+            n.votes = Math.max(0, (n.votes || 0) + (hasVoted ? -1 : 1));
+            saveStickyNotes(notes);
+          }
+          renderStickyNotes();
+        });
+      });
+
+      layer.querySelectorAll("[data-sticky-close]").forEach((btn) => {
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const id = btn.getAttribute("data-sticky-close")!;
+          const notes = loadStickyNotes().filter((x) => x.id !== id);
+          saveStickyNotes(notes);
+          renderStickyNotes();
+        });
+      });
+    }
+
+    function makeDraggable(el: HTMLElement, note: StickyNote) {
+      let startX = 0, startY = 0, origX = 0, origY = 0;
+
+      const onMove = (ev: MouseEvent | TouchEvent) => {
+        const clientX = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
+        const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+        el.style.left = `${origX + (clientX - startX)}px`;
+        el.style.top = `${origY + (clientY - startY)}px`;
+      };
+
+      const onUp = (ev: MouseEvent | TouchEvent) => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.removeEventListener("touchmove", onMove);
+        document.removeEventListener("touchend", onUp);
+        const clientX = "changedTouches" in ev ? ev.changedTouches[0].clientX : (ev as MouseEvent).clientX;
+        const clientY = "changedTouches" in ev ? ev.changedTouches[0].clientY : (ev as MouseEvent).clientY;
+        note.x = Math.max(0, origX + (clientX - startX));
+        note.y = Math.max(0, origY + (clientY - startY));
+        const notes = loadStickyNotes();
+        const n = notes.find((x) => x.id === note.id);
+        if (n) { n.x = note.x; n.y = note.y; saveStickyNotes(notes); }
+      };
+
+      const onDown = (ev: MouseEvent | TouchEvent) => {
+        ev.stopPropagation();
+        highestZ++;
+        el.style.zIndex = String(highestZ);
+
+        const clientX = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
+        const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+        startX = clientX;
+        startY = clientY;
+        origX = parseInt(el.style.left) || 0;
+        origY = parseInt(el.style.top) || 0;
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("mouseup", onUp);
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener("touchend", onUp);
+      };
+
+      el.addEventListener("mousedown", onDown);
+      el.addEventListener("touchstart", onDown, { passive: false });
+    }
+
+    function setupBackgroundPan() {
+      let isPanning = false;
+      let panStartX = 0, panStartY = 0;
+      let scrollStartX = 0, scrollStartY = 0;
+
+      window.addEventListener("mousedown", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest(".sticky-note") || target.closest("button") || target.closest("input") || target.closest("a") || target.closest("#sticky-modal")) return;
+        isPanning = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        scrollStartX = window.scrollX;
+        scrollStartY = window.scrollY;
+        document.body.style.cursor = "grabbing";
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isPanning) return;
+        window.scrollTo(scrollStartX - (e.clientX - panStartX), scrollStartY - (e.clientY - panStartY));
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (isPanning) {
+          isPanning = false;
+          document.body.style.cursor = "default";
+        }
+      });
+    }
+
+    function bootStickyModal() {
+      const modal = document.getElementById("sticky-modal");
+      const btnOpen = document.getElementById("btn-buy-sticky");
+      const btnClose = document.getElementById("btn-close-sticky");
+      const btnConfirm = document.getElementById("btn-confirm-sticky");
+      const btnResetSeeds = document.getElementById("btn-reset-seeds");
+
+      btnOpen?.addEventListener("click", () => modal?.classList.remove("hidden"));
+      btnClose?.addEventListener("click", () => modal?.classList.add("hidden"));
+      modal?.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
+
+      btnResetSeeds?.addEventListener("click", () => {
+        saveStickyNotes([...SEED_50_NOTES]);
+        renderStickyNotes();
+      });
+
+      btnConfirm?.addEventListener("click", () => {
+        const name = (document.getElementById("sticky-name") as HTMLInputElement)?.value.trim();
+        const tagline = (document.getElementById("sticky-tagline") as HTMLInputElement)?.value.trim();
+        const url = (document.getElementById("sticky-url") as HTMLInputElement)?.value.trim();
+        const maker = (document.getElementById("sticky-maker") as HTMLInputElement)?.value.trim() || "@anon";
+        if (!name || !tagline) return;
+
+        const notes = loadStickyNotes();
+        const color = STICKY_COLORS[notes.length % STICKY_COLORS.length];
+        const tilt = -4 + Math.random() * 8;
+        const x = window.scrollX + 120 + Math.random() * 300;
+        const y = window.scrollY + 120 + Math.random() * 200;
+
+        notes.unshift({
+          id: "sticky-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          name,
+          tagline,
+          url: url ? (/^https?:\/\//i.test(url) ? url : `https://${url}`) : "",
+          maker,
+          color,
+          x,
+          y,
+          tilt,
+          votes: 0,
+        });
+        saveStickyNotes(notes);
+        renderStickyNotes();
+        modal?.classList.add("hidden");
+        (document.getElementById("sticky-name") as HTMLInputElement).value = "";
+        (document.getElementById("sticky-tagline") as HTMLInputElement).value = "";
+        (document.getElementById("sticky-url") as HTMLInputElement).value = "";
+        (document.getElementById("sticky-maker") as HTMLInputElement).value = "";
+      });
+
+      window.addEventListener("keydown", (e) => {
+        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+        if (tag === "input" || tag === "textarea") return;
+        if (e.key === "c" || e.key === "C") {
+          window.location.href = "/city";
+        } else if (e.key === "l" || e.key === "L") {
+          window.location.href = "/product";
+        } else if (e.key === "n" || e.key === "N") {
+          modal?.classList.remove("hidden");
+        } else if (e.key === "Escape") {
+          modal?.classList.add("hidden");
+        }
+      });
+    }
+
+    setupBackgroundPan();
+    bootStickyModal();
+    renderStickyNotes();
+  </script>
+  </body>
+</html>
