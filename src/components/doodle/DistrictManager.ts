@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { latLonToMeters } from "../../utils/geo.ts";
-import { VertexCityBuilder } from "./VertexCityBuilder.ts";
 
 export interface DistrictInfo {
   id: string;
@@ -15,11 +14,11 @@ export interface DistrictInfo {
 export const DISTRICT_REGISTRY: DistrictInfo[] = [
   {
     id: "downtown",
-    name: "COURTYARD ARENA",
-    subtitle: "Multi-Level Construction Frame, Crane & Skybridge",
-    spawnPoint: new THREE.Vector3(0, 0, 24),
-    lookAt: new THREE.Vector3(0, 8, -6),
-    bounds: { minX: -60, maxX: 60, minZ: -50, maxZ: 50 },
+    name: "GRAND HALL",
+    subtitle: "First floor — locked inside",
+    spawnPoint: new THREE.Vector3(0, 1.5, 20),
+    lookAt: new THREE.Vector3(0, 10, 0),
+    bounds: { minX: -50, maxX: 50, minZ: -50, maxZ: 50 },
     elevation: 0,
   },
   {
@@ -257,8 +256,8 @@ export class DistrictManager {
     const metropolisGroup = new THREE.Group();
     metropolisGroup.name = "DoodleMetropolis_Root";
 
-    // Build Vertex City according to the 52-section top-down map specification
-    metropolisGroup.add(VertexCityBuilder.buildVertexCity(city));
+    // Piece by piece: Vertex City disconnected, back to the small blank board.
+    // (VertexCityBuilder.ts stays parked for the rebuild.)
 
     // Attach master group to scene
     if (city.engine && city.engine.scene) {
@@ -301,16 +300,29 @@ export class DistrictManager {
 
   // --- SUB-BUILDER MODULES ---
 
-  /** Ground Paper — clean blank sheet (lines come later, piece by piece) */
+  /** Island board — paper island rising from doodle water (r=58) */
   private static buildPaperGround(mats: any): THREE.Group {
     const group = new THREE.Group();
-    group.name = "PaperGround";
+    group.name = "IslandBoard";
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), mats.black);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0.02;
-    floor.userData.noCollision = true;
-    group.add(floor);
+    // Island platform: flat top, sheer ink sides
+    const island = new THREE.Mesh(new THREE.CylinderGeometry(58, 62, 5, 36), mats.black);
+    island.position.y = -2.5;
+    group.add(island);
+
+    // surrounding water
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), mats.cyan);
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = -2.6;
+    water.userData.noCollision = true;
+    group.add(water);
+
+    // Foam ring lapping the shoreline
+    const foam = new THREE.Mesh(new THREE.RingGeometry(58.5, 62.5, 48), mats.cyan);
+    foam.rotation.x = -Math.PI / 2;
+    foam.position.y = -2.45;
+    foam.userData.noCollision = true;
+    group.add(foam);
 
     return group;
   }

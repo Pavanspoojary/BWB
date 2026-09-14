@@ -234,37 +234,27 @@ describe('Tier 1: TrustMRR Clone - Static Distribution & Routes Integrity', () =
     expect(existsSync(join(dist, 'goal', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'boost', 'index.html'))).toBe(true);
     expect(existsSync(join(dist, 'stats', 'index.html'))).toBe(true);
-    expect(existsSync(join(dist, 'city', 'index.html'))).toBe(true);
   });
 
-  it('verifies /city page contains 3D doodle canvas and interactive tycoon HUD with NYC and Monaco maps', () => {
-    const cityPath = join(process.cwd(), 'dist', 'city', 'index.html');
-    const html = readFileSync(cityPath, 'utf-8');
-    expect(html).toContain('DOODLE CITY');
-    expect(html).toContain('doodle-canvas');
-    expect(html).toContain('btn-mode-orbit');
-    expect(html).toContain('btn-mode-walk');
-    expect(html).toContain('ad-sponsor-form');
-    expect(html).toContain('NEW YORK CITY');
-    expect(html).toContain('F1 TRACK MONACO');
-    expect(html).toContain('tab-district-nyc');
-    expect(html).toContain('tab-district-monaco');
-    expect(html).toContain('hud-map-nyc');
-    expect(html).toContain('hud-map-monaco');
+  it('verifies /product page hosts the elevator cab with floor panel and screen', () => {
+    const productPath = join(process.cwd(), 'dist', 'product', 'index.html');
+    const html = readFileSync(productPath, 'utf-8');
+    expect(html).toContain('elevator-canvas');
+    expect(html).toContain('floor-btn');
+    expect(html).toContain('screen-panel');
+    expect(html).toContain('list-form');
+    expect(html).toContain('btn-mute');
   });
 
-  it('verifies index.html contains Doodle District brand, 3D canvas and NYC & Monaco map selection', () => {
+  it('verifies index.html is the sticky note board with user ownership dragging restrictions', () => {
     const indexPath = join(process.cwd(), 'dist', 'index.html');
     const html = readFileSync(indexPath, 'utf-8');
-    expect(html).toContain('DOODLE DISTRICT');
-    expect(html).toContain('doodle-canvas');
+    expect(html).toContain('sticky-layer');
+    expect(html).toContain('btn-buy-sticky');
+    expect(html).toContain('sticky-modal');
     expect(html).toContain('builtwhilebroke');
-    expect(html).toContain('NEW YORK CITY');
-    expect(html).toContain('F1 TRACK MONACO');
-    expect(html).toContain('tab-district-nyc');
-    expect(html).toContain('tab-district-monaco');
-    expect(html).toContain('hud-map-nyc');
-    expect(html).toContain('hud-map-monaco');
+    expect(html).toContain('sticky-owner-badge');
+    expect(html).toContain('is-owned');
   });
 
   it('verifies /goal page contains milestone inputs and calculator elements', () => {

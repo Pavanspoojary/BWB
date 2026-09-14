@@ -40,6 +40,15 @@
       >
         🔊 Pen SFX: ON
       </button>
+
+      <button
+        id="btn-elevator-jazz"
+        type="button"
+        class="px-2.5 py-1.5 text-xs font-bold rounded-xl border-2 border-[#1a30c0] bg-[#faf7ee]/95 hover:bg-[#1a30c0] hover:text-[#faf7ee] transition-all shadow-sm cursor-pointer"
+        title="Toggle elevator jazz"
+      >
+        🎷 Jazz: ON
+      </button>
     </div>
 
     <!-- Top Center: View Mode Switcher & Map Switcher -->
@@ -516,9 +525,8 @@
   import { CameraController } from "./CameraController";
   import { doodleAudio } from "./DoodleAudio";
   import { DISTRICT_REGISTRY } from "./DistrictManager";
-  import { FirstFloor } from "./FirstFloor";
-  import { SecondFloor } from "./SecondFloor";
-  import { UpperFloors, FLOOR_BASES, FLOOR_NAMES } from "./UpperFloors";
+  import { ElevatorCab } from "./ElevatorCab";
+  import { ElevatorAudioDrone } from "./ElevatorAudio";
 
   function initDoodleDistrict() {
     const canvas = document.getElementById("doodle-canvas") as HTMLCanvasElement;
@@ -526,17 +534,17 @@
 
     const engine = new DoodleEngine({ canvas });
     const city = new CityBuilder(engine);
-    // Piece 03+04+05: lobby, discussion floor and tower offices (with lift).
-    new FirstFloor(engine, city);
-    new SecondFloor(engine, city);
-    new UpperFloors(engine, city);
+    const elevatorCab = new ElevatorCab(engine, city);
+    void elevatorCab;
+    const elevatorAudio = new ElevatorAudioDrone();
     const cameraCtrl = new CameraController(engine.camera, canvas);
     cameraCtrl.getColliders = () => city.getColliders();
     city.cameraController = cameraCtrl;
 
-    // Walk-only: god view removed, boots on the ground from the first frame
+    // Walk-only: face the closed elevator doors
     cameraCtrl.setMode("walk");
     cameraCtrl.autoRotate = false;
+    cameraCtrl.teleportTo(0, 1.7, 5, new THREE.Vector3(0, 6, -3));
 
     // DOM Elements
     const landingOverlay = document.getElementById("landing-overlay");
@@ -713,6 +721,7 @@
     function enterCity() {
       try {
         doodleAudio.penClick();
+        elevatorAudio.start();
       } catch (e) {
         console.warn("Audio error:", e);
       }
@@ -942,6 +951,13 @@
       if (enabled) doodleAudio.penClick();
     });
 
+    // Elevator jazz toggle
+    const btnElevatorSound = document.getElementById("btn-elevator-jazz");
+    btnElevatorSound?.addEventListener("click", () => {
+      const muted = elevatorAudio.toggle();
+      btnElevatorSound.textContent = muted ? "🔇 Jazz: OFF" : "🎷 Jazz: ON";
+    });
+
     // Movement settings: sliders -> camera, persisted to localStorage
     const MOVE_DEFAULTS = { walk: 20, sprint: 36, look: 3.5, jump: 12 };
     const setWalk = document.getElementById("set-walk") as HTMLInputElement | null;
@@ -1148,109 +1164,6 @@
 
     // Animation Loop
     let lastTime = performance.now();
-    const liftChip = document.getElementById("lift-chip");
-    const liftFloorLabel = document.getElementById("lift-floor-label");
-    let liftChipText = "";
-
-    function inLiftCab(p: any): boolean {
-      return Math.abs(p.x - 36.5) < 2 && Math.abs(p.z) < 1.2;
-    }
-    function floorAtFeet(feetY: number): number {
-      let best = -1;
-      let bestD = 2.5;
-      for (let f = 0; f < FLOOR_BASES.length; f++) {
-        const d = Math.abs(feetY - FLOOR_BASES[f]);
-        if (d < bestD) {
-          bestD = d;
-          best = f;
-        }
-      }
-      return best;
-    }
-    function rideLiftTo(floor: number) {
-      if (floor < 0 || floor > 9) return;
-      doodleAudio.discoveryChime();
-      const base = FLOOR_BASES[floor];
-      // Face west on arrival so holding W strolls out of the doorway
-      cameraCtrl.teleportTo(36.5, base, 0, new THREE.Vector3(28, base + 2, 0));
-      // Freeze held keys briefly so the ride keypress never walks you out
-      cameraCtrl.clearMoveFlags();
-      cameraCtrl.suppressMoveUntil = performance.now() + 450;
-      showNote("🛗", `LEVEL ${floor}`, `${FLOOR_NAMES[floor]} floor`);
-    }
-    function updateLiftChip(p: any) {
-      if (!liftChip || !liftFloorLabel) return;
-      if (!inLiftCab(p)) {
-        if (liftChipText !== "") {
-          liftChipText = "";
-          liftChip.classList.add("hidden");
-        }
-        return;
-      }
-      const f = floorAtFeet(p.y - 1.85);
-      const label = f >= 0 ? `L${f} · ${FLOOR_NAMES[f]}` : "···";
-      if (label !== liftChipText) {
-        liftChipText = label;
-        liftFloorLabel.textContent = label;
-        liftChip.classList.remove("hidden");
-      }
-    }
-
-    // W/S drives the lift while standing in the cab (fresh presses only).
-    // Face the east panel to ride; face the west doors to walk out instead.
-    // Number keys dial a floor directly from anywhere (1-9, 0 = 10).
-    const digitMap: Record<string, number> = {
-      Digit0: 0, Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4,
-      Digit5: 5, Digit6: 6, Digit7: 7, Digit8: 8, Digit9: 9,
-      Numpad0: 0, Numpad1: 1, Numpad2: 2, Numpad3: 3, Numpad4: 4,
-      Numpad5: 5, Numpad6: 6, Numpad7: 7, Numpad8: 8, Numpad9: 9,
-    };
-    // Two-digit dial buffer: "1" pauses for a possible "0" (= top floor L9)
-    let dialPending: string | null = null;
-    let dialTimer: number | null = null;
-    window.addEventListener("keydown", (e) => {
-      if (e.repeat || cameraCtrl.mode !== "walk") return;
-      if (e.code in digitMap) {
-        const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-        if (tag === "input" || tag === "textarea" || tag === "select") return;
-        const p = cameraCtrl.getPosition();
-        const f = floorAtFeet(p.y - 1.85);
-        if (f < 0) return;
-        const d = digitMap[e.code];
-        if (dialTimer !== null) {
-          window.clearTimeout(dialTimer);
-          dialTimer = null;
-        }
-        if (dialPending === "1") {
-          // Second digit: "10" means the top floor, anything else keeps floor 1
-          dialPending = null;
-          const target = d === 0 ? 9 : 1;
-          if (target !== f) rideLiftTo(target);
-          return;
-        }
-        if (d === 1) {
-          dialPending = "1";
-          showNote("🛗", "DIALING", "1… (press 0 for the top floor)");
-          dialTimer = window.setTimeout(() => {
-            dialTimer = null;
-            dialPending = null;
-            if (f !== 1) rideLiftTo(1);
-          }, 1500);
-          return;
-        }
-        dialPending = null;
-        if (d !== f) rideLiftTo(d);
-        return;
-      }
-      if (e.code !== "KeyW" && e.code !== "KeyS") return;
-      const p = cameraCtrl.getPosition();
-      if (!inLiftCab(p)) return;
-      if (cameraCtrl.doorFacing() >= 0.5) return; // facing the doors: walk, don't ride
-      const f = floorAtFeet(p.y - 1.85);
-      if (f < 0) return;
-      if (e.code === "KeyW" && f < 9) rideLiftTo(f + 1);
-      else if (e.code === "KeyS" && f > 0) rideLiftTo(f - 1);
-    });
 
     function animate(time: number) {
       requestAnimationFrame(animate);
@@ -1259,6 +1172,7 @@
 
       cameraCtrl.update(delta);
       city.update(delta);
+      elevatorAudio.tick();
 
       if (cameraCtrl.mode === "walk") {
         const p = cameraCtrl.getPosition();
@@ -1266,7 +1180,6 @@
           showDiscoveryToast(secret);
         });
         checkDistrictBoundary(p);
-        updateLiftChip(p);
       }
       engine.render(delta);
     }

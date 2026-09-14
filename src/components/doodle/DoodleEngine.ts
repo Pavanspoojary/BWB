@@ -235,6 +235,8 @@ void main() {
 export interface DoodleEngineOptions {
   canvas: HTMLCanvasElement;
   antialias?: boolean;
+  width?: number;
+  height?: number;
 }
 
 export class DoodleEngine {
@@ -253,8 +255,9 @@ export class DoodleEngine {
 
   constructor(options: DoodleEngineOptions) {
     const { canvas, antialias = true } = options;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = options.width ?? window.innerWidth;
+    const height = options.height ?? window.innerHeight;
+    const fixedSize = options.width !== undefined && options.height !== undefined;
 
     // Main 3D Scene - Expanded far plane for real-scale city & circuit maps
     this.scene = new THREE.Scene();
@@ -312,7 +315,9 @@ export class DoodleEngine {
     this.postScene.add(quad);
 
     this.setupSkyAndEnvironment();
-    window.addEventListener("resize", this.onResize);
+    if (!fixedSize) {
+      window.addEventListener("resize", this.onResize);
+    }
   }
 
   public createDoodleMaterial(options: {

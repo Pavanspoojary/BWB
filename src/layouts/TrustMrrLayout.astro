@@ -84,10 +84,10 @@ const {
                 <span class="text-[8px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">5x</span>
               </a>
               <a
-                href="/city"
-                class={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${activePath === '/city' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
+                href="/product"
+                class={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${activePath === '/product' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
               >
-                <span>3D Doodle City</span>
+                <span>3D Hunt</span>
                 <span class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold">3D GAME</span>
               </a>
               <a
@@ -113,7 +113,7 @@ const {
       )}
 
       <!-- Main Page Content -->
-      <main class={`w-full ${activePath === '/' ? 'max-w-4xl px-4 sm:px-6 py-6' : (activePath === '/city' ? 'max-w-7xl px-2 sm:px-4 py-4' : 'max-w-5xl px-4 sm:px-6 py-6 pb-20 md:pb-12')}`}>
+      <main class={`w-full ${activePath === '/' ? 'max-w-4xl px-4 sm:px-6 py-6' : 'max-w-5xl px-4 sm:px-6 py-6 pb-20 md:pb-12'}`}>
         <slot />
       </main>
 

@@ -9,16 +9,16 @@ export class CameraController {
   public autoRotate: boolean = true;
   public getColliders?: () => THREE.Box3[];
 
-  // Orbit controls state — framed for Vertex City (~800m x 550m)
+  // Orbit controls state — wide god view over the small blank board (120x120)
   private target = new THREE.Vector3(0, 8, 0);
-  private spherical = new THREE.Spherical(280, Math.PI / 3.4, Math.PI / 4);
+  private spherical = new THREE.Spherical(110, Math.PI / 3.6, Math.PI / 4);
   private isOrbitDragging = false;
   private isPanning = false;
   private previousMouse = { x: 0, y: 0 };
 
-  // Walk controls state
-  private walkPos = new THREE.Vector3(0, 2.0, 48);
-  private walkYaw = Math.PI;
+  // Walk controls state — spawn inside the grand hall on its floor (y=1.5)
+  private walkPos = new THREE.Vector3(0, 3.5, 20);
+  private walkYaw = 0;
   private walkPitch = 0;
   private walkStepTimer = 0;
   private moveForward = false;
@@ -33,12 +33,43 @@ export class CameraController {
   private jumpsRemaining = 2;
   private groundHeight = 2.0;
 
-  // Vertex City playable bounds
-  private readonly walkClamp = new THREE.Vector3(390, 0, 310);
+  // Player-tunable movement settings (wired to the menu sliders)
+  public walkSpeed = 20.0;
+  public sprintSpeed = 36.0;
+  public crouchSpeed = 8.0;
+  public lookSensitivity = 0.0035;
+  public jumpPower = 12.0;
+  // Timestamp until which walk movement is suppressed (lift rides)
+  public suppressMoveUntil = 0;
 
-  // Zoom limits for orbit mode (distance from target) — tuned for Vertex City
-  private readonly minOrbitRadius = 15;
-  private readonly maxOrbitRadius = 650;
+  /** Clear held movement keys (used when the lift takes over W/S). */
+  public clearMoveFlags() {
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+    this.isSprinting = false;
+    this.isCrouching = false;
+  }
+
+  /**
+   * How squarely the player faces the lift doors (west, -X).
+   * +1 = staring at the doors (walk out), -1 = facing the panel (ride).
+   */
+  public doorFacing(): number {
+    return Math.sin(this.walkYaw);
+  }
+
+  // Island shoreline leash (paper island r=58, keep feet dry at r=56)
+  private readonly walkClamp = new THREE.Vector3(60, 0, 60);
+  private readonly islandRadius = 56;
+  // Locked inside the grand hall: interior faces minus player radius
+  private readonly hallClampX = 43.5;
+  private readonly hallClampZ = 33.5;
+
+  // Zoom limits for orbit mode (distance from target) — wide god view
+  private readonly minOrbitRadius = 18;
+  private readonly maxOrbitRadius = 300;
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera;
     this.domElement = domElement;
@@ -51,8 +82,8 @@ export class CameraController {
     this.mode = mode;
     if (mode === "walk") {
       this.autoRotate = false;
-      this.walkPos.set(0, 2.0, 48);
-      this.walkYaw = Math.PI;
+      this.walkPos.set(0, 3.5, 20);
+      this.walkYaw = 0;
       this.walkPitch = 0;
       this.resolvePenetration();
       this.updateWalkCamera();
@@ -120,8 +151,8 @@ export class CameraController {
       }
     } else if (this.mode === "walk") {
       if (this.isOrbitDragging) {
-        this.walkYaw -= dx * 0.0035;
-        this.walkPitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, this.walkPitch - dy * 0.0035));
+        this.walkYaw -= dx * this.lookSensitivity;
+        this.walkPitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, this.walkPitch - dy * this.lookSensitivity));
         this.updateWalkCamera();
       }
     }
@@ -165,7 +196,7 @@ export class CameraController {
         break;
       case "Space":
         if (this.jumpsRemaining > 0) {
-          this.verticalVelocity = 12.0;
+          this.verticalVelocity = this.jumpPower;
           this.isGrounded = false;
           this.jumpsRemaining--;
         }
@@ -205,9 +236,10 @@ export class CameraController {
 
   private updateOrbitCamera() {
     // Keep pan target pinned inside the single small city so users can't lose the map
-    this.target.x = Math.max(-70, Math.min(70, this.target.x));
+    // Keep pan target pinned to the small board so users can't lose it
+    this.target.x = Math.max(-55, Math.min(55, this.target.x));
     this.target.y = Math.max(0, Math.min(45, this.target.y));
-    this.target.z = Math.max(-70, Math.min(70, this.target.z));
+    this.target.z = Math.max(-55, Math.min(55, this.target.z));
     this.camera.position.setFromSpherical(this.spherical).add(this.target);
     this.camera.lookAt(this.target);
   }
@@ -374,9 +406,10 @@ export class CameraController {
       this.groundHeight = surfaceY + 2.0;
 
       const isMoving = this.moveForward || this.moveBackward || this.moveLeft || this.moveRight;
-      const speed = this.isSprinting ? 36.0 : (this.isCrouching ? 8.0 : 20.0);
+      const speed = this.isSprinting ? this.sprintSpeed : (this.isCrouching ? this.crouchSpeed : this.walkSpeed);
+      const moveSuppressed = performance.now() < this.suppressMoveUntil;
 
-      if (isMoving) {
+      if (isMoving && !moveSuppressed) {
         this.walkStepTimer += delta;
 
         const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.walkYaw);
@@ -428,9 +461,17 @@ export class CameraController {
 
           this.resolvePenetration();
 
-          // Clamp inside arena boundary
+          // Clamp inside arena boundary, then pull back to the island disc
           this.walkPos.x = Math.max(-this.walkClamp.x, Math.min(this.walkClamp.x, this.walkPos.x));
           this.walkPos.z = Math.max(-this.walkClamp.z, Math.min(this.walkClamp.z, this.walkPos.z));
+          const shoreDist = Math.hypot(this.walkPos.x, this.walkPos.z);
+          if (shoreDist > this.islandRadius) {
+            this.walkPos.x *= this.islandRadius / shoreDist;
+            this.walkPos.z *= this.islandRadius / shoreDist;
+          }
+          // Locked inside the hall — doorways included, no way out
+          this.walkPos.x = Math.max(-this.hallClampX, Math.min(this.hallClampX, this.walkPos.x));
+          this.walkPos.z = Math.max(-this.hallClampZ, Math.min(this.hallClampZ, this.walkPos.z));
         }
       }
 
