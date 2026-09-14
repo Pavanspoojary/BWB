@@ -170,13 +170,7 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         </button>
       </div>
 
-      <div class="pointer-events-auto flex items-center gap-2 bg-[#faf7ee]/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border-2 border-[#1a30c0] shadow-[3px_3px_0_0_#1a30c0] text-xs font-bold">
-        <a href="/city" class="px-2.5 py-1 rounded-xl bg-[#1a30c0] text-[#faf7ee] hover:bg-[#d02030] transition-colors flex items-center gap-1">
-          <span>🏙️</span>
-          <span>3D City</span>
-          <span class="text-[10px] opacity-75 font-mono2">[C]</span>
-        </a>
-      </div>
+      <!-- Top Right Actions Removed -->
     </header>
 
     <!-- Bottom Left Interaction Tip -->
@@ -544,9 +538,7 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       window.addEventListener("keydown", (e) => {
         const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
         if (tag === "input" || tag === "textarea") return;
-        if (e.key === "c" || e.key === "C") {
-          window.location.href = "/city";
-        } else if (e.key === "n" || e.key === "N") {
+        if (e.key === "n" || e.key === "N") {
           modal?.classList.remove("hidden");
         } else if (e.key === "Escape") {
           modal?.classList.add("hidden");
