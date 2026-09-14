@@ -196,6 +196,16 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
           <h3 class="text-2xl font-black text-[#92400e]">Get a Sticky Note</h3>
           <p class="text-sm text-[#92400e]/70">$2 one-time · place it anywhere on the board</p>
         </div>
+
+        <!-- Rule Engine Moderation Error Box -->
+        <div id="sticky-error-box" class="hidden mb-3 p-3 rounded-xl bg-[#fee2e2] border-2 border-[#ef4444] text-[#b91c1c] text-xs font-bold font-mono2 space-y-1">
+          <div class="flex items-center gap-1.5 text-sm font-black text-[#991b1b]">
+            <span>⚠️</span>
+            <span>Submission Not Allowed</span>
+          </div>
+          <ul id="sticky-error-list" class="list-disc list-inside space-y-0.5 text-[11px] leading-relaxed"></ul>
+        </div>
+
         <div class="space-y-3">
           <div>
             <label class="block text-sm font-bold mb-1 text-[#92400e]" for="sticky-name">Product name *</label>
@@ -222,6 +232,8 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
     </div>
 
   <script>
+    import { moderateStickyNote } from "../lib/moderationEngine";
+
     const STICKY_NOTES_KEY = "bwb_sticky_notes";
     const STICKY_COLORS = ["sticky-yellow", "sticky-pink", "sticky-blue", "sticky-green", "sticky-purple", "sticky-orange"];
 
@@ -489,10 +501,73 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       const btnClose = document.getElementById("btn-close-sticky");
       const btnConfirm = document.getElementById("btn-confirm-sticky");
       const btnResetSeeds = document.getElementById("btn-reset-seeds");
+      const errBox = document.getElementById("sticky-error-box");
+      const errList = document.getElementById("sticky-error-list");
 
-      btnOpen?.addEventListener("click", () => modal?.classList.remove("hidden"));
-      btnClose?.addEventListener("click", () => modal?.classList.add("hidden"));
-      modal?.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
+      const nameInput = document.getElementById("sticky-name") as HTMLInputElement;
+      const taglineInput = document.getElementById("sticky-tagline") as HTMLInputElement;
+      const urlInput = document.getElementById("sticky-url") as HTMLInputElement;
+      const makerInput = document.getElementById("sticky-maker") as HTMLInputElement;
+
+      function clearErrors() {
+        if (errBox) errBox.classList.add("hidden");
+        if (errList) errList.innerHTML = "";
+        [nameInput, taglineInput, urlInput, makerInput].forEach((input) => {
+          if (input) {
+            input.classList.remove("border-[#ef4444]", "bg-red-50/70");
+            input.classList.add("border-[#d97706]", "bg-white");
+          }
+        });
+      }
+
+      function showErrors(violations: { field: string; message: string }[]) {
+        if (!errBox || !errList) return;
+        errList.innerHTML = violations.map((v) => `<li>${esc(v.message)}</li>`).join("");
+        errBox.classList.remove("hidden");
+
+        const fieldMap: Record<string, HTMLInputElement | null> = {
+          name: nameInput,
+          tagline: taglineInput,
+          url: urlInput,
+          maker: makerInput,
+        };
+
+        violations.forEach((v) => {
+          const input = fieldMap[v.field];
+          if (input) {
+            input.classList.remove("border-[#d97706]", "bg-white");
+            input.classList.add("border-[#ef4444]", "bg-red-50/70");
+          }
+        });
+      }
+
+      [nameInput, taglineInput, urlInput, makerInput].forEach((input) => {
+        input?.addEventListener("input", () => {
+          input.classList.remove("border-[#ef4444]", "bg-red-50/70");
+          input.classList.add("border-[#d97706]", "bg-white");
+          if (errBox && !errBox.classList.contains("hidden")) {
+            const allClean = [nameInput, taglineInput, urlInput, makerInput].every(
+              (el) => !el?.classList.contains("border-[#ef4444]")
+            );
+            if (allClean) errBox.classList.add("hidden");
+          }
+        });
+      });
+
+      btnOpen?.addEventListener("click", () => {
+        clearErrors();
+        modal?.classList.remove("hidden");
+      });
+      btnClose?.addEventListener("click", () => {
+        clearErrors();
+        modal?.classList.add("hidden");
+      });
+      modal?.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          clearErrors();
+          modal.classList.add("hidden");
+        }
+      });
 
       btnResetSeeds?.addEventListener("click", () => {
         saveStickyNotes([...SEED_50_NOTES]);
@@ -500,11 +575,18 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       });
 
       btnConfirm?.addEventListener("click", () => {
-        const name = (document.getElementById("sticky-name") as HTMLInputElement)?.value.trim();
-        const tagline = (document.getElementById("sticky-tagline") as HTMLInputElement)?.value.trim();
-        const url = (document.getElementById("sticky-url") as HTMLInputElement)?.value.trim();
-        const maker = (document.getElementById("sticky-maker") as HTMLInputElement)?.value.trim() || "@anon";
-        if (!name || !tagline) return;
+        clearErrors();
+        const name = nameInput?.value.trim() || "";
+        const tagline = taglineInput?.value.trim() || "";
+        const url = urlInput?.value.trim() || "";
+        const maker = makerInput?.value.trim() || "";
+
+        // Run Rule-Based Moderation Engine
+        const mod = moderateStickyNote({ name, tagline, url, maker });
+        if (!mod.valid) {
+          showErrors(mod.violations);
+          return;
+        }
 
         const notes = loadStickyNotes();
         const color = STICKY_COLORS[notes.length % STICKY_COLORS.length];
@@ -514,12 +596,15 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         const x = Math.round(90 + Math.random() * (maxX - 90));
         const y = Math.round(70 + Math.random() * (maxY - 70));
 
+        const finalUrl = url ? (/^https?:\/\//i.test(url) ? url : `https://${url}`) : "";
+        const finalMaker = maker ? (maker.startsWith("@") ? maker : `@${maker}`) : "@anon";
+
         notes.unshift({
           id: "sticky-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
           name,
           tagline,
-          url: url ? (/^https?:\/\//i.test(url) ? url : `https://${url}`) : "",
-          maker,
+          url: finalUrl,
+          maker: finalMaker,
           color,
           x,
           y,
@@ -529,18 +614,21 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         saveStickyNotes(notes);
         renderStickyNotes();
         modal?.classList.add("hidden");
-        (document.getElementById("sticky-name") as HTMLInputElement).value = "";
-        (document.getElementById("sticky-tagline") as HTMLInputElement).value = "";
-        (document.getElementById("sticky-url") as HTMLInputElement).value = "";
-        (document.getElementById("sticky-maker") as HTMLInputElement).value = "";
+        clearErrors();
+        if (nameInput) nameInput.value = "";
+        if (taglineInput) taglineInput.value = "";
+        if (urlInput) urlInput.value = "";
+        if (makerInput) makerInput.value = "";
       });
 
       window.addEventListener("keydown", (e) => {
         const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
         if (tag === "input" || tag === "textarea") return;
         if (e.key === "n" || e.key === "N") {
+          clearErrors();
           modal?.classList.remove("hidden");
         } else if (e.key === "Escape") {
+          clearErrors();
           modal?.classList.add("hidden");
         }
       });
