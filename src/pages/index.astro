@@ -25,6 +25,18 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         --ink-red: #d02030;
       }
 
+      html, body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        position: fixed;
+        inset: 0;
+        overscroll-behavior: none;
+        touch-action: none;
+      }
+
       body {
         font-family: 'Patrick Hand', cursive, sans-serif;
         background-color: #faf7ee;
@@ -32,12 +44,8 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
           linear-gradient(90deg, transparent 79px, rgba(208,32,48,.55) 79px, rgba(208,32,48,.55) 81px, transparent 81px),
           linear-gradient(rgba(26,48,192,.10) 1px, transparent 1px);
         background-size: 100% 100%, 100% 28px;
-        background-attachment: local;
+        background-attachment: fixed;
         color: #1a30c0;
-        min-height: 100vh;
-        margin: 0;
-        overflow: auto;
-        position: relative;
       }
 
       /* Sticky note styles */
@@ -168,23 +176,18 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
           <span>3D City</span>
           <span class="text-[10px] opacity-75 font-mono2">[C]</span>
         </a>
-        <a href="/product" class="px-2.5 py-1 rounded-xl hover:bg-[#1a30c0]/10 text-[#1a30c0] transition-colors flex items-center gap-1">
-          <span>🚀</span>
-          <span>Hunt Board</span>
-          <span class="text-[10px] opacity-60 font-mono2">[L]</span>
-        </a>
       </div>
     </header>
 
-    <!-- Bottom Left Pan / Interaction Tip -->
+    <!-- Bottom Left Interaction Tip -->
     <div class="fixed bottom-4 left-4 z-40 pointer-events-none bg-[#faf7ee]/95 backdrop-blur px-3 py-1.5 rounded-xl border border-[#1a30c0]/30 text-xs text-[#1a30c0]/75 font-mono2 shadow-sm hidden sm:block">
-      💡 Drag notes to move · Drag empty paper or scroll to pan · Click note to bring to top
+      💡 Drag notes anywhere on the board · Click note to bring to top
     </div>
 
-    <!-- Canvas Wrapper with Large Board Area -->
-    <div id="board-canvas" class="relative min-w-[2600px] min-h-[1750px] overflow-visible">
+    <!-- Canvas Wrapper - Fixed Full Screen -->
+    <div id="board-canvas" class="fixed inset-0 w-full h-full overflow-hidden">
       <!-- Sticky notes layer -->
-      <div id="sticky-layer" class="absolute inset-0"></div>
+      <div id="sticky-layer" class="absolute inset-0 w-full h-full overflow-hidden"></div>
     </div>
 
     <!-- Buy sticky note button -->
@@ -242,56 +245,56 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
     }
 
     const SEED_50_NOTES: StickyNote[] = [
-      { id: "seed-neotic", name: "Neotic", tagline: "In app product changelog", url: "https://www.neotic.app/", maker: "@zzz", color: "sticky-yellow", x: 560, y: 190, tilt: -2, votes: 42 },
-      { id: "seed-zzzz", name: "zzzz", tagline: "zzz", url: "", maker: "@anon", color: "sticky-pink", x: 1080, y: 290, tilt: 1.5, votes: 18 },
-      { id: "seed-doodleboard", name: "DoodleBoard", tagline: "Trello for people who think in sketches", url: "https://builtwhilebroke.tech", maker: "@builtwhilebroke", color: "sticky-yellow", x: 290, y: 120, tilt: -3, votes: 2314 },
-      { id: "seed-shiplog", name: "ShipLog", tagline: "Changelog-as-a-service for indie hackers", url: "https://shiplog.dev", maker: "@pavan", color: "sticky-blue", x: 820, y: 100, tilt: 2, votes: 1892 },
-      { id: "seed-brokeauth", name: "BrokeAuth", tagline: "Auth via Telegram DMs. Do not ask how.", url: "", maker: "@anon", color: "sticky-orange", x: 1330, y: 150, tilt: -1.5, votes: 1204 },
-      { id: "seed-cachemoney", name: "CacheMoney", tagline: "Redis on a Raspberry Pi under someone's desk", url: "", maker: "@homelab", color: "sticky-green", x: 340, y: 350, tilt: 3, votes: 866 },
-      { id: "seed-midnightdb", name: "MidnightDB", tagline: "SQLite with delusions of grandeur", url: "", maker: "@sqlitefan", color: "sticky-purple", x: 810, y: 330, tilt: -2.5, votes: 542 },
-      { id: "seed-coolify", name: "Coolify", tagline: "Self-hostable Heroku & Vercel alternative", url: "https://coolify.io", maker: "@andrasbacsai", color: "sticky-yellow", x: 1320, y: 380, tilt: 1, votes: 1420 },
-      { id: "seed-dub", name: "Dub.co", tagline: "Open-source link management infrastructure", url: "https://dub.co", maker: "@steventey", color: "sticky-blue", x: 105, y: 130, tilt: -1, votes: 1650 },
-      { id: "seed-typebot", name: "Typebot", tagline: "Conversational apps & forms builder", url: "https://typebot.io", maker: "@baptiste", color: "sticky-pink", x: 110, y: 360, tilt: 2.5, votes: 780 },
-      { id: "seed-postiz", name: "Postiz", tagline: "Open-source social media scheduling", url: "https://postiz.com", maker: "@nevflynn", color: "sticky-green", x: 570, y: 430, tilt: -3, votes: 990 },
-      { id: "seed-formbricks", name: "Formbricks", tagline: "Open-source Experience Management", url: "https://formbricks.com", maker: "@johannes", color: "sticky-orange", x: 1060, y: 510, tilt: 2, votes: 610 },
-      { id: "seed-umami", name: "Umami", tagline: "Simple, privacy-friendly Google Analytics", url: "https://umami.is", maker: "@mikecao", color: "sticky-blue", x: 820, y: 550, tilt: -1.8, votes: 1130 },
-      { id: "seed-pocketbase", name: "PocketBase", tagline: "Open Source backend in 1 single file", url: "https://pocketbase.io", maker: "@ganigeorgiev", color: "sticky-yellow", x: 330, y: 570, tilt: 1.2, votes: 1740 },
-      { id: "seed-cal", name: "Cal.com", tagline: "Open scheduling infrastructure for everyone", url: "https://cal.com", maker: "@peer_rich", color: "sticky-purple", x: 100, y: 580, tilt: -2.2, votes: 2100 },
-      { id: "seed-raycast", name: "Raycast", tagline: "Supercharged launcher for macOS", url: "https://raycast.com", maker: "@thomaspaulmann", color: "sticky-pink", x: 1310, y: 600, tilt: 3.1, votes: 1980 },
-      { id: "seed-supabase", name: "Supabase", tagline: "The open source Firebase alternative", url: "https://supabase.com", maker: "@kiwicopple", color: "sticky-green", x: 560, y: 670, tilt: -1.5, votes: 2450 },
-      { id: "seed-resend", name: "Resend", tagline: "Email API for modern developers", url: "https://resend.com", maker: "@zenorocha", color: "sticky-orange", x: 1070, y: 730, tilt: -2.8, votes: 1820 },
-      { id: "seed-excalidraw", name: "Excalidraw", tagline: "Virtual whiteboard for sketching diagrams", url: "https://excalidraw.com", maker: "@vjeux", color: "sticky-yellow", x: 810, y: 770, tilt: 2.4, votes: 2290 },
-      { id: "seed-novu", name: "Novu", tagline: "Open-source notification infrastructure", url: "https://novu.co", maker: "@tomer_barnea", color: "sticky-blue", x: 320, y: 790, tilt: -3.2, votes: 890 },
-      { id: "seed-tinybase", name: "TinyBase", tagline: "Reactive data store for local-first apps", url: "https://tinybase.org", maker: "@jamesgpearce", color: "sticky-purple", x: 95, y: 800, tilt: 1.7, votes: 430 },
-      { id: "seed-documenso", name: "Documenso", tagline: "The open-source DocuSign alternative", url: "https://documenso.com", maker: "@timoconrady", color: "sticky-pink", x: 1320, y: 810, tilt: -1.2, votes: 520 },
-      { id: "seed-plausible", name: "Plausible", tagline: "Lightweight & privacy-friendly analytics", url: "https://plausible.io", maker: "@markosaric", color: "sticky-green", x: 570, y: 900, tilt: 2.1, votes: 1340 },
-      { id: "seed-papermark", name: "Papermark", tagline: "Open-source DocSend alternative with domains", url: "https://papermark.io", maker: "@mfts", color: "sticky-yellow", x: 1060, y: 950, tilt: -2, votes: 410 },
-      { id: "seed-twenty", name: "Twenty", tagline: "Modern open-source CRM alternative", url: "https://twenty.com", maker: "@felixm", color: "sticky-orange", x: 810, y: 990, tilt: 1.4, votes: 770 },
-      { id: "seed-infisical", name: "Infisical", tagline: "Secret management platform for teams", url: "https://infisical.com", maker: "@dangov", color: "sticky-blue", x: 330, y: 1010, tilt: -2.7, votes: 950 },
-      { id: "seed-appwrite", name: "Appwrite", tagline: "End-to-end backend platform for devs", url: "https://appwrite.io", maker: "@eldadfux", color: "sticky-purple", x: 95, y: 1030, tilt: 3, votes: 1610 },
-      { id: "seed-hoppscotch", name: "Hoppscotch", tagline: "Open source API development ecosystem", url: "https://hoppscotch.io", maker: "@liyasthomas", color: "sticky-green", x: 1310, y: 1040, tilt: -1.9, votes: 1870 },
-      { id: "seed-logto", name: "Logto", tagline: "Identity & access management infrastructure", url: "https://logto.io", maker: "@silverhand", color: "sticky-pink", x: 580, y: 1130, tilt: 1.6, votes: 640 },
-      { id: "seed-betterauth", name: "Better Auth", tagline: "Modern auth framework for TypeScript", url: "https://better-auth.com", maker: "@farnabaz", color: "sticky-yellow", x: 1050, y: 1170, tilt: -3.1, votes: 1530 },
-      { id: "seed-turso", name: "Turso", tagline: "SQLite for the edge with libSQL", url: "https://turso.tech", maker: "@glauber", color: "sticky-orange", x: 810, y: 1210, tilt: 2.2, votes: 1210 },
-      { id: "seed-cursor", name: "Cursor", tagline: "The AI code editor that pairs with you", url: "https://cursor.com", maker: "@cursor", color: "sticky-blue", x: 320, y: 1230, tilt: -1.4, votes: 2680 },
-      { id: "seed-v0", name: "v0.dev", tagline: "Generative UI system by Vercel", url: "https://v0.dev", maker: "@rauchg", color: "sticky-purple", x: 95, y: 1250, tilt: 2.8, votes: 2190 },
-      { id: "seed-tldraw", name: "Tldraw", tagline: "Tiny canvas library for infinite drawing", url: "https://tldraw.com", maker: "@steveruizok", color: "sticky-pink", x: 1320, y: 1260, tilt: -2.4, votes: 1470 },
-      { id: "seed-shadcn", name: "Shadcn UI", tagline: "Accessible component system for React", url: "https://ui.shadcn.com", maker: "@shadcn", color: "sticky-green", x: 570, y: 1350, tilt: 1.1, votes: 2840 },
-      { id: "seed-bun", name: "Bun", tagline: "Incredibly fast JS runtime & package manager", url: "https://bun.sh", maker: "@jarredsumner", color: "sticky-yellow", x: 1060, y: 1390, tilt: -1.7, votes: 2510 },
-      { id: "seed-biome", name: "Biome", tagline: "Fast formatter & linter for JavaScript", url: "https://biomejs.dev", maker: "@ematipico", color: "sticky-orange", x: 820, y: 1430, tilt: 3.2, votes: 830 },
-      { id: "seed-unkey", name: "Unkey", tagline: "API key management with sub-ms edge limits", url: "https://unkey.com", maker: "@jamesrperkins", color: "sticky-blue", x: 330, y: 1450, tilt: -2.5, votes: 690 },
-      { id: "seed-triggerdev", name: "Trigger.dev", tagline: "Background jobs without serverless timeouts", url: "https://trigger.dev", maker: "@matt_aitken", color: "sticky-purple", x: 95, y: 1470, tilt: 1.9, votes: 720 },
-      { id: "seed-instatus", name: "Instatus", tagline: "Quick & gorgeous status page builder", url: "https://instatus.com", maker: "@alishafiee", color: "sticky-pink", x: 1310, y: 1480, tilt: -1.3, votes: 580 },
-      { id: "seed-mintlify", name: "Mintlify", tagline: "Modern documentation platform developers love", url: "https://mintlify.com", maker: "@hanwang", color: "sticky-green", x: 1570, y: 120, tilt: 2.3, votes: 1320 },
-      { id: "seed-openstatus", name: "OpenStatus", tagline: "Synthetic API monitoring & status pages", url: "https://openstatus.dev", maker: "@thibault", color: "sticky-yellow", x: 1830, y: 130, tilt: -2.1, votes: 460 },
-      { id: "seed-dublink", name: "DubLink", tagline: "Free shortlinks on Cloudflare Workers", url: "", maker: "@zerodollar", color: "sticky-orange", x: 2090, y: 160, tilt: 1.5, votes: 310 },
-      { id: "seed-saasinabox", name: "SaaS-In-A-Box", tagline: "Indie boilerplate with Stripe & Supabase", url: "", maker: "@indiebuilder", color: "sticky-blue", x: 2350, y: 180, tilt: -3, votes: 490 },
-      { id: "seed-telegrams3", name: "Telegram S3", tagline: "Infinite unmetered storage via bot API", url: "", maker: "@sacrilege", color: "sticky-purple", x: 1590, y: 350, tilt: 1.8, votes: 1750 },
-      { id: "seed-brokeseo", name: "BrokeSEO", tagline: "Programmatic SEO from free open datasets", url: "", maker: "@growthhacker", color: "sticky-pink", x: 1850, y: 360, tilt: -2.6, votes: 380 },
-      { id: "seed-pingpulse", name: "PingPulse", tagline: "Ping your free VPS so it never idles", url: "", maker: "@homelabber", color: "sticky-green", x: 2110, y: 390, tilt: 2.7, votes: 620 },
-      { id: "seed-gitpouch", name: "GitPouch", tagline: "Turn any public GitHub repo into a static CMS", url: "", maker: "@markdownfan", color: "sticky-yellow", x: 2360, y: 420, tilt: -1.6, votes: 290 },
-      { id: "seed-mockflow", name: "MockFlow", tagline: "Instant mock APIs from json schemas", url: "", maker: "@api_fan", color: "sticky-orange", x: 1580, y: 580, tilt: -2.3, votes: 340 },
-      { id: "seed-zeromail", name: "ZeroMail", tagline: "Forward unlimited custom domain emails free", url: "", maker: "@cloudflare_wiz", color: "sticky-blue", x: 1840, y: 600, tilt: 1.4, votes: 880 },
+      { id: "seed-neotic", name: "Neotic", tagline: "In app product changelog", url: "https://www.neotic.app/", maker: "@zzz", color: "sticky-yellow", x: 520, y: 140, tilt: -2, votes: 42 },
+      { id: "seed-zzzz", name: "zzzz", tagline: "zzz", url: "", maker: "@anon", color: "sticky-pink", x: 920, y: 220, tilt: 1.5, votes: 18 },
+      { id: "seed-doodleboard", name: "DoodleBoard", tagline: "Trello for people who think in sketches", url: "https://builtwhilebroke.tech", maker: "@builtwhilebroke", color: "sticky-yellow", x: 270, y: 65, tilt: -3, votes: 2314 },
+      { id: "seed-shiplog", name: "ShipLog", tagline: "Changelog-as-a-service for indie hackers", url: "https://shiplog.dev", maker: "@pavan", color: "sticky-blue", x: 670, y: 65, tilt: 2, votes: 1892 },
+      { id: "seed-brokeauth", name: "BrokeAuth", tagline: "Auth via Telegram DMs. Do not ask how.", url: "", maker: "@anon", color: "sticky-orange", x: 1070, y: 65, tilt: -1.5, votes: 1204 },
+      { id: "seed-cachemoney", name: "CacheMoney", tagline: "Redis on a Raspberry Pi under someone's desk", url: "", maker: "@homelab", color: "sticky-green", x: 90, y: 65, tilt: 3, votes: 866 },
+      { id: "seed-midnightdb", name: "MidnightDB", tagline: "SQLite with delusions of grandeur", url: "", maker: "@sqlitefan", color: "sticky-purple", x: 470, y: 65, tilt: -2.5, votes: 542 },
+      { id: "seed-coolify", name: "Coolify", tagline: "Self-hostable Heroku & Vercel alternative", url: "https://coolify.io", maker: "@andrasbacsai", color: "sticky-yellow", x: 870, y: 65, tilt: 1, votes: 1420 },
+      { id: "seed-dub", name: "Dub.co", tagline: "Open-source link management infrastructure", url: "https://dub.co", maker: "@steventey", color: "sticky-blue", x: 90, y: 140, tilt: -1, votes: 1650 },
+      { id: "seed-typebot", name: "Typebot", tagline: "Conversational apps & forms builder", url: "https://typebot.io", maker: "@baptiste", color: "sticky-pink", x: 270, y: 140, tilt: 2.5, votes: 780 },
+      { id: "seed-postiz", name: "Postiz", tagline: "Open-source social media scheduling", url: "https://postiz.com", maker: "@nevflynn", color: "sticky-green", x: 670, y: 140, tilt: -3, votes: 990 },
+      { id: "seed-formbricks", name: "Formbricks", tagline: "Open-source Experience Management", url: "https://formbricks.com", maker: "@johannes", color: "sticky-orange", x: 870, y: 140, tilt: 2, votes: 610 },
+      { id: "seed-umami", name: "Umami", tagline: "Simple, privacy-friendly Google Analytics", url: "https://umami.is", maker: "@mikecao", color: "sticky-blue", x: 1070, y: 140, tilt: -1.8, votes: 1130 },
+      { id: "seed-pocketbase", name: "PocketBase", tagline: "Open Source backend in 1 single file", url: "https://pocketbase.io", maker: "@ganigeorgiev", color: "sticky-yellow", x: 90, y: 215, tilt: 1.2, votes: 1740 },
+      { id: "seed-cal", name: "Cal.com", tagline: "Open scheduling infrastructure for everyone", url: "https://cal.com", maker: "@peer_rich", color: "sticky-purple", x: 270, y: 215, tilt: -2.2, votes: 2100 },
+      { id: "seed-raycast", name: "Raycast", tagline: "Supercharged launcher for macOS", url: "https://raycast.com", maker: "@thomaspaulmann", color: "sticky-pink", x: 470, y: 215, tilt: 3.1, votes: 1980 },
+      { id: "seed-supabase", name: "Supabase", tagline: "The open source Firebase alternative", url: "https://supabase.com", maker: "@kiwicopple", color: "sticky-green", x: 670, y: 215, tilt: -1.5, votes: 2450 },
+      { id: "seed-resend", name: "Resend", tagline: "Email API for modern developers", url: "https://resend.com", maker: "@zenorocha", color: "sticky-orange", x: 1070, y: 215, tilt: -2.8, votes: 1820 },
+      { id: "seed-excalidraw", name: "Excalidraw", tagline: "Virtual whiteboard for sketching diagrams", url: "https://excalidraw.com", maker: "@vjeux", color: "sticky-yellow", x: 90, y: 290, tilt: 2.4, votes: 2290 },
+      { id: "seed-novu", name: "Novu", tagline: "Open-source notification infrastructure", url: "https://novu.co", maker: "@tomer_barnea", color: "sticky-blue", x: 270, y: 290, tilt: -3.2, votes: 890 },
+      { id: "seed-tinybase", name: "TinyBase", tagline: "Reactive data store for local-first apps", url: "https://tinybase.org", maker: "@jamesgpearce", color: "sticky-purple", x: 470, y: 290, tilt: 1.7, votes: 430 },
+      { id: "seed-documenso", name: "Documenso", tagline: "The open-source DocuSign alternative", url: "https://documenso.com", maker: "@timoconrady", color: "sticky-pink", x: 670, y: 290, tilt: -1.2, votes: 520 },
+      { id: "seed-plausible", name: "Plausible", tagline: "Lightweight & privacy-friendly analytics", url: "https://plausible.io", maker: "@markosaric", color: "sticky-green", x: 870, y: 290, tilt: 2.1, votes: 1340 },
+      { id: "seed-papermark", name: "Papermark", tagline: "Open-source DocSend alternative with domains", url: "https://papermark.io", maker: "@mfts", color: "sticky-yellow", x: 1070, y: 290, tilt: -2, votes: 410 },
+      { id: "seed-twenty", name: "Twenty", tagline: "Modern open-source CRM alternative", url: "https://twenty.com", maker: "@felixm", color: "sticky-orange", x: 90, y: 365, tilt: 1.4, votes: 770 },
+      { id: "seed-infisical", name: "Infisical", tagline: "Secret management platform for teams", url: "https://infisical.com", maker: "@dangov", color: "sticky-blue", x: 270, y: 365, tilt: -2.7, votes: 950 },
+      { id: "seed-appwrite", name: "Appwrite", tagline: "End-to-end backend platform for devs", url: "https://appwrite.io", maker: "@eldadfux", color: "sticky-purple", x: 470, y: 365, tilt: 3, votes: 1610 },
+      { id: "seed-hoppscotch", name: "Hoppscotch", tagline: "Open source API development ecosystem", url: "https://hoppscotch.io", maker: "@liyasthomas", color: "sticky-green", x: 670, y: 365, tilt: -1.9, votes: 1870 },
+      { id: "seed-logto", name: "Logto", tagline: "Identity & access management infrastructure", url: "https://logto.io", maker: "@silverhand", color: "sticky-pink", x: 870, y: 365, tilt: 1.6, votes: 640 },
+      { id: "seed-betterauth", name: "Better Auth", tagline: "Modern auth framework for TypeScript", url: "https://better-auth.com", maker: "@farnabaz", color: "sticky-yellow", x: 1070, y: 365, tilt: -3.1, votes: 1530 },
+      { id: "seed-turso", name: "Turso", tagline: "SQLite for the edge with libSQL", url: "https://turso.tech", maker: "@glauber", color: "sticky-orange", x: 90, y: 440, tilt: 2.2, votes: 1210 },
+      { id: "seed-cursor", name: "Cursor", tagline: "The AI code editor that pairs with you", url: "https://cursor.com", maker: "@cursor", color: "sticky-blue", x: 270, y: 440, tilt: -1.4, votes: 2680 },
+      { id: "seed-v0", name: "v0.dev", tagline: "Generative UI system by Vercel", url: "https://v0.dev", maker: "@rauchg", color: "sticky-purple", x: 470, y: 440, tilt: 2.8, votes: 2190 },
+      { id: "seed-tldraw", name: "Tldraw", tagline: "Tiny canvas library for infinite drawing", url: "https://tldraw.com", maker: "@steveruizok", color: "sticky-pink", x: 670, y: 440, tilt: -2.4, votes: 1470 },
+      { id: "seed-shadcn", name: "Shadcn UI", tagline: "Accessible component system for React", url: "https://ui.shadcn.com", maker: "@shadcn", color: "sticky-green", x: 870, y: 440, tilt: 1.1, votes: 2840 },
+      { id: "seed-bun", name: "Bun", tagline: "Incredibly fast JS runtime & package manager", url: "https://bun.sh", maker: "@jarredsumner", color: "sticky-yellow", x: 1070, y: 440, tilt: -1.7, votes: 2510 },
+      { id: "seed-biome", name: "Biome", tagline: "Fast formatter & linter for JavaScript", url: "https://biomejs.dev", maker: "@ematipico", color: "sticky-orange", x: 90, y: 515, tilt: 3.2, votes: 830 },
+      { id: "seed-unkey", name: "Unkey", tagline: "API key management with sub-ms edge limits", url: "https://unkey.com", maker: "@jamesrperkins", color: "sticky-blue", x: 270, y: 515, tilt: -2.5, votes: 690 },
+      { id: "seed-triggerdev", name: "Trigger.dev", tagline: "Background jobs without serverless timeouts", url: "https://trigger.dev", maker: "@matt_aitken", color: "sticky-purple", x: 470, y: 515, tilt: 1.9, votes: 720 },
+      { id: "seed-instatus", name: "Instatus", tagline: "Quick & gorgeous status page builder", url: "https://instatus.com", maker: "@alishafiee", color: "sticky-pink", x: 670, y: 515, tilt: -1.3, votes: 580 },
+      { id: "seed-mintlify", name: "Mintlify", tagline: "Modern documentation platform developers love", url: "https://mintlify.com", maker: "@hanwang", color: "sticky-green", x: 870, y: 515, tilt: 2.3, votes: 1320 },
+      { id: "seed-openstatus", name: "OpenStatus", tagline: "Synthetic API monitoring & status pages", url: "https://openstatus.dev", maker: "@thibault", color: "sticky-yellow", x: 1070, y: 515, tilt: -2.1, votes: 460 },
+      { id: "seed-dublink", name: "DubLink", tagline: "Free shortlinks on Cloudflare Workers", url: "", maker: "@zerodollar", color: "sticky-orange", x: 140, y: 585, tilt: 1.5, votes: 310 },
+      { id: "seed-saasinabox", name: "SaaS-In-A-Box", tagline: "Indie boilerplate with Stripe & Supabase", url: "", maker: "@indiebuilder", color: "sticky-blue", x: 340, y: 585, tilt: -3, votes: 490 },
+      { id: "seed-telegrams3", name: "Telegram S3", tagline: "Infinite unmetered storage via bot API", url: "", maker: "@sacrilege", color: "sticky-purple", x: 540, y: 585, tilt: 1.8, votes: 1750 },
+      { id: "seed-brokeseo", name: "BrokeSEO", tagline: "Programmatic SEO from free open datasets", url: "", maker: "@growthhacker", color: "sticky-pink", x: 740, y: 585, tilt: -2.6, votes: 380 },
+      { id: "seed-pingpulse", name: "PingPulse", tagline: "Ping your free VPS so it never idles", url: "", maker: "@homelabber", color: "sticky-green", x: 940, y: 585, tilt: 2.7, votes: 620 },
+      { id: "seed-gitpouch", name: "GitPouch", tagline: "Turn any public GitHub repo into a static CMS", url: "", maker: "@markdownfan", color: "sticky-yellow", x: 180, y: 320, tilt: -1.6, votes: 290 },
+      { id: "seed-mockflow", name: "MockFlow", tagline: "Instant mock APIs from json schemas", url: "", maker: "@api_fan", color: "sticky-orange", x: 580, y: 320, tilt: -2.3, votes: 340 },
+      { id: "seed-zeromail", name: "ZeroMail", tagline: "Forward unlimited custom domain emails free", url: "", maker: "@cloudflare_wiz", color: "sticky-blue", x: 980, y: 320, tilt: 1.4, votes: 880 },
     ];
 
     let highestZ = 100;
@@ -313,6 +316,7 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
 
     function loadStickyNotes(): StickyNote[] {
       const stored = loadJSON(STICKY_NOTES_KEY, null) as StickyNote[] | null;
+      let notes: StickyNote[];
       if (!stored || stored.length < 50) {
         const existing = stored || [];
         const existingNames = new Set(existing.map((n) => n.name.trim().toLowerCase()));
@@ -328,10 +332,32 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
             merged.push({ ...seed, id: seed.id + "_" + merged.length });
           }
         }
-        saveStickyNotes(merged);
-        return merged;
+        notes = merged;
+      } else {
+        notes = stored;
       }
-      return stored;
+
+      // If any notes are offscreen from a previous large canvas, fold them into the visible screen
+      const maxX = Math.max(100, window.innerWidth - 240);
+      const maxY = Math.max(80, window.innerHeight - 200);
+      let adjusted = false;
+      for (const n of notes) {
+        if (n.x > maxX + 50 || n.y > maxY + 50) {
+          const match = SEED_50_NOTES.find((s) => s.id === n.id);
+          if (match) {
+            n.x = Math.min(match.x, maxX);
+            n.y = Math.min(match.y, maxY);
+          } else {
+            n.x = Math.round(90 + Math.random() * (maxX - 90));
+            n.y = Math.round(70 + Math.random() * (maxY - 70));
+          }
+          adjusted = true;
+        }
+      }
+      if (adjusted || !stored || stored.length < 50) {
+        saveStickyNotes(notes);
+      }
+      return notes;
     }
 
     function saveStickyNotes(notes: StickyNote[]): void {
@@ -407,8 +433,12 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       const onMove = (ev: MouseEvent | TouchEvent) => {
         const clientX = "touches" in ev ? ev.touches[0].clientX : ev.clientX;
         const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-        el.style.left = `${origX + (clientX - startX)}px`;
-        el.style.top = `${origY + (clientY - startY)}px`;
+        const maxX = Math.max(10, window.innerWidth - 230);
+        const maxY = Math.max(50, window.innerHeight - 190);
+        const newX = Math.max(10, Math.min(maxX, origX + (clientX - startX)));
+        const newY = Math.max(50, Math.min(maxY, origY + (clientY - startY)));
+        el.style.left = `${newX}px`;
+        el.style.top = `${newY}px`;
       };
 
       const onUp = (ev: MouseEvent | TouchEvent) => {
@@ -418,8 +448,10 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         document.removeEventListener("touchend", onUp);
         const clientX = "changedTouches" in ev ? ev.changedTouches[0].clientX : (ev as MouseEvent).clientX;
         const clientY = "changedTouches" in ev ? ev.changedTouches[0].clientY : (ev as MouseEvent).clientY;
-        note.x = Math.max(0, origX + (clientX - startX));
-        note.y = Math.max(0, origY + (clientY - startY));
+        const maxX = Math.max(10, window.innerWidth - 230);
+        const maxY = Math.max(50, window.innerHeight - 190);
+        note.x = Math.max(10, Math.min(maxX, origX + (clientX - startX)));
+        note.y = Math.max(50, Math.min(maxY, origY + (clientY - startY)));
         const notes = loadStickyNotes();
         const n = notes.find((x) => x.id === note.id);
         if (n) { n.x = note.x; n.y = note.y; saveStickyNotes(notes); }
@@ -446,34 +478,16 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       el.addEventListener("touchstart", onDown, { passive: false });
     }
 
-    function setupBackgroundPan() {
-      let isPanning = false;
-      let panStartX = 0, panStartY = 0;
-      let scrollStartX = 0, scrollStartY = 0;
+    // Prevent moving or scrolling the background page in any direction
+    window.addEventListener("wheel", (e) => {
+      if ((e.target as HTMLElement)?.closest("#sticky-modal")) return;
+      e.preventDefault();
+    }, { passive: false });
 
-      window.addEventListener("mousedown", (e) => {
-        const target = e.target as HTMLElement;
-        if (target.closest(".sticky-note") || target.closest("button") || target.closest("input") || target.closest("a") || target.closest("#sticky-modal")) return;
-        isPanning = true;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-        scrollStartX = window.scrollX;
-        scrollStartY = window.scrollY;
-        document.body.style.cursor = "grabbing";
-      });
-
-      window.addEventListener("mousemove", (e) => {
-        if (!isPanning) return;
-        window.scrollTo(scrollStartX - (e.clientX - panStartX), scrollStartY - (e.clientY - panStartY));
-      });
-
-      window.addEventListener("mouseup", () => {
-        if (isPanning) {
-          isPanning = false;
-          document.body.style.cursor = "default";
-        }
-      });
-    }
+    window.addEventListener("touchmove", (e) => {
+      if ((e.target as HTMLElement)?.closest("#sticky-modal")) return;
+      e.preventDefault();
+    }, { passive: false });
 
     function bootStickyModal() {
       const modal = document.getElementById("sticky-modal");
@@ -501,8 +515,10 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         const notes = loadStickyNotes();
         const color = STICKY_COLORS[notes.length % STICKY_COLORS.length];
         const tilt = -4 + Math.random() * 8;
-        const x = window.scrollX + 120 + Math.random() * 300;
-        const y = window.scrollY + 120 + Math.random() * 200;
+        const maxX = Math.max(100, window.innerWidth - 240);
+        const maxY = Math.max(80, window.innerHeight - 200);
+        const x = Math.round(90 + Math.random() * (maxX - 90));
+        const y = Math.round(70 + Math.random() * (maxY - 70));
 
         notes.unshift({
           id: "sticky-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -530,8 +546,6 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
         if (tag === "input" || tag === "textarea") return;
         if (e.key === "c" || e.key === "C") {
           window.location.href = "/city";
-        } else if (e.key === "l" || e.key === "L") {
-          window.location.href = "/product";
         } else if (e.key === "n" || e.key === "N") {
           modal?.classList.remove("hidden");
         } else if (e.key === "Escape") {
@@ -540,7 +554,6 @@ const description = "Pin your product to the wall. $2 per sticky note. Drag it a
       });
     }
 
-    setupBackgroundPan();
     bootStickyModal();
     renderStickyNotes();
   </script>
