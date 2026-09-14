@@ -6,8 +6,8 @@ interface Props {
 }
 
 const {
-  title = "Doodle District · Dev Spaces & 3D Ad Tycoon",
-  description = "Browse and sponsor verified developer ad spaces inside tools, docs, and 3D Doodle City.",
+  title = "Built While Broke · Sticky Wall & Indie Directory",
+  description = "A wall of startup sticky notes built while broke.",
   activePath = "/",
 } = Astro.props;
 ---
@@ -22,8 +22,8 @@ const {
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="application-name" content="Doodle District" />
-    <meta name="keywords" content="doodle city, 3d city builder, developer ad spaces, micro-sponsorships, documentation ads, verified startup revenue, verified MRR, builtwhilebroke" />
+    <meta name="application-name" content="Built While Broke" />
+    <meta name="keywords" content="sticky wall, startup directory, micro-sponsorships, verified startup revenue, verified MRR, builtwhilebroke" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
@@ -117,17 +117,17 @@ const {
         <slot />
       </main>
 
-      <!-- Clean Minimal Doodle District Footer -->
+      <!-- Clean Minimal Footer -->
       <footer class="w-full border-t border-[#181a20] bg-[#090a0d] py-8 text-xs text-zinc-500 mt-auto">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-2">
-            <span class="text-base">🏙️</span>
-            <span class="text-zinc-300 font-bold font-mono">DOODLE DISTRICT</span>
-            <span>&copy; {new Date().getFullYear()} · The 3D Scribbled City Builder &amp; Ad Marketplace</span>
+            <span class="text-base">📌</span>
+            <span class="text-zinc-300 font-bold font-mono">BUILT WHILE BROKE</span>
+            <span>&copy; {new Date().getFullYear()} · The Sticky Wall &amp; Resource Hub</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-3 text-zinc-500">
-            <a href="/" class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">3D Doodle City</a>
+            <a href="/" class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors">Sticky Wall</a>
             <span>·</span>
             <a href="/browser" class="hover:text-zinc-300 transition-colors">Marketplace</a>
             <span>·</span>

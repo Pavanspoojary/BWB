@@ -321,13 +321,8 @@ const description = "Step into the elevator. Each floor is a ranked product. The
         <p class="text-[11px] text-[#1a30c0]/50 mt-2 text-center font-mono2">Stripe checkout · secure payment</p>
       </div>
     </div>
-
   <script>
-    import * as THREE from 'three';
-    import { DoodleEngine } from '../components/doodle/DoodleEngine';
-    import { CityBuilder } from '../components/doodle/CityBuilder';
-    import { ElevatorCab } from '../components/doodle/ElevatorCab';
-    import { ElevatorAudioDrone } from '../components/doodle/ElevatorAudio';
+    import { ElevatorAudioDrone } from '../lib/elevatorAudio';
     import { supabase } from '../lib/supabase';
 
     interface HuntProduct {
@@ -592,31 +587,76 @@ const description = "Step into the elevator. Each floor is a ranked product. The
     }
 
     const GRAFFITI_TAGS = [
-      "doodle.city/launch", "wrap.dev/start", "rail.st/ship", "pod.dev/open",
+      "builtwhilebroke.tech/wall", "wrap.dev/start", "rail.st/ship", "pod.dev/open",
       "hack.am/go", "split.run/now", "seed.spot/build", "sharpie.dev/tag",
       "maker.fun/online", "craft.sh/go", "builtwhilebroke.tech", "ship.now/live",
       "stab.you/early", "drawn.io/start", "auth.via/tg", "canyon.dev/scene",
       "hackbroke.dev", "shipit.glitch", "nomoney.dev", "founder.exe",
     ];
 
-    // ---- 3D elevator cab bootstrap ----
+    // ---- 2D doodle elevator cab bootstrap ----
+    let globalAudio: ElevatorAudioDrone | null = null;
+
     function bootCab() {
       const canvas = document.getElementById("elevator-canvas") as HTMLCanvasElement;
       if (!canvas) return;
-      const engine = new DoodleEngine({ canvas });
-      const city = new CityBuilder(engine);
-      new ElevatorCab(engine, city);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-      // Position camera facing the closed doors from inside the cab
-      engine.camera.position.set(0, 5.5, 4);
-      engine.camera.lookAt(new THREE.Vector3(0, 5.5, -3));
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        render();
+      }
 
-      let lastTime = performance.now();
-      function animate(time: number) {
+      function render() {
+        if (!ctx) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.fillStyle = "#1a1a2e";
+        ctx.fillRect(0, 0, w, h);
+
+        const cx = w / 2;
+        const frameW = Math.min(680, w * 0.85);
+        const frameH = h - 60;
+        const frameX = cx - frameW / 2;
+        const frameY = 30;
+
+        // Outer elevator frame
+        ctx.strokeStyle = "#d97706";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(frameX, frameY, frameW, frameH);
+
+        // Center seam between doors
+        ctx.strokeStyle = "#1a30c0";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx, frameY);
+        ctx.lineTo(cx, frameY + frameH);
+        ctx.stroke();
+
+        // Door panels bevel lines
+        ctx.strokeStyle = "rgba(26, 48, 192, 0.35)";
+        ctx.lineWidth = 2;
+        const doorW = frameW / 2;
+        ctx.strokeRect(frameX + 16, frameY + 24, doorW - 32, frameH - 48);
+        ctx.strokeRect(cx + 16, frameY + 24, doorW - 32, frameH - 48);
+
+        // Header floor display box
+        ctx.fillStyle = "#0f172a";
+        ctx.strokeStyle = "#d97706";
+        ctx.lineWidth = 2;
+        const indW = 120, indH = 34;
+        ctx.fillRect(cx - indW / 2, frameY - 17, indW, indH);
+        ctx.strokeRect(cx - indW / 2, frameY - 17, indW, indH);
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+
+      function animate() {
         requestAnimationFrame(animate);
-        const delta = Math.min((time - lastTime) / 1000, 0.1);
-        lastTime = time;
-        engine.render(delta);
+        if (globalAudio) globalAudio.tick();
       }
       requestAnimationFrame(animate);
     }
@@ -624,6 +664,7 @@ const description = "Step into the elevator. Each floor is a ranked product. The
     // ---- Floor panel interaction ----
     function bootFloorPanel() {
       const elevatorAudio = new ElevatorAudioDrone();
+      globalAudio = elevatorAudio;
       let audioStarted = false;
 
       document.querySelectorAll(".floor-btn").forEach((btn) => {
